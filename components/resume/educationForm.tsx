@@ -1,17 +1,17 @@
 import { UseFormRegister } from "react-hook-form";
 
-interface EmploymentType {
+interface EducationType {
   register: UseFormRegister<any>,
-  title: string,
-  company: string,
+  institution: string,
+  subject: string,
   startDate: string,
   endDate: string,
   location: string,
-  summary: string,
+  score: string,
   index: number,
 }
 
-export default function EmploymentForm(prop: EmploymentType) {
+export default function EducationForm(prop: EducationType) {
   return (
     <div key={prop.index} className="flex">
 
@@ -19,16 +19,16 @@ export default function EmploymentForm(prop: EmploymentType) {
         <div className="flex gap-12">
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Job Title</span>
+              <span className="label-text">School</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Job Title" defaultValue={prop.title} {...prop.register("title", { required: true })} />
+            <input type="text" className="input input-bordered" placeholder="School" defaultValue={prop.institution} {...prop.register("institution", { required: true })} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Company</span>
+              <span className="label-text">Degree</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Company" defaultValue={prop.company} {...prop.register("company", { required: true })} />
+            <input type="text" className="input input-bordered" placeholder="Subject / Degree" defaultValue={prop.subject} {...prop.register("subject", { required: true })} />
           </div>
         </div>
 
@@ -37,7 +37,7 @@ export default function EmploymentForm(prop: EmploymentType) {
             <label className="label">
               <span className="label-text">Start Date</span>
             </label>
-            <input type="month" formTarget="MM/yyyy" className="input input-bordered" defaultValue="Start Date" {...prop.register("startDate", { required: true })} />
+            <input type="month" className="input input-bordered" placeholder="Start Date" defaultValue={prop.startDate} {...prop.register("startDate", { required: true })} />
           </div>
 
           <div className="flex-1 form-control">
@@ -53,26 +53,24 @@ export default function EmploymentForm(prop: EmploymentType) {
             </label>
             <input type="text" className="input input-bordered" placeholder="Location" defaultValue={prop.location} {...prop.register("location", {})} />
           </div>
-        </div>
 
-        <div className="flex">
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Summary</span>
+              <span className="label-text">Score</span>
             </label>
-            <textarea className="textarea h-24 textarea-bordered" defaultValue={prop.summary} {...prop.register("summary", { required: true, maxLength: 4000, minLength: 50 })} />
+            <input type="text" className="input input-bordered" placeholder="Score % or GCPA" defaultValue={prop.score} {...prop.register("score", {})} />
           </div>
+
         </div>
       </div>
 
       <div className="flex-shrink-0 ml-5 my-5">
-        <button className="btn btn-outline btn-square tooltip" data-tip="Delete the Employment">
+        <button className="btn btn-outline btn-square tooltip" data-tip="Delete the Education">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-6 h-6 stroke-current">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
       </div>
-
     </div>
   );
 }

@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import EmploymentForm from "./EmploymentForm";
+import CourseForm from "./courseForm";
+import EducationForm from "./educationForm";
+import EmploymentForm from "./employmentForm";
+import LanguageForm from "./languageForm";
+import LinkForm from "./linkForm";
+import ReferenceForm from "./referenceForm";
+import SkillForm from "./skillForm";
 
 // type Inputs = {
 //   example: string,
@@ -13,13 +19,21 @@ export default function ResumeForm() {
   console.log(errors);
   console.log(watch()); // watch input value by passing the name of it
 
-  const [ employmentEle, updateEmployment ] = useState([{index: Math.floor(Math.random() * 1000), title: '', company: '', startDate: '', endDate: '', location: '', summary: ''}]);
-  const [ educationEle, updateEducation ] = useState([{index: Math.floor(Math.random() * 1000), institution: '', subject: '', startDate: '', endDate: '', location: '', score: ''}]);
-  const [ linkEle, updateLink ] = useState([{index: Math.floor(Math.random() * 1000), link: '', url: ''}]);
-  const [ skillEle, updateSkill ] = useState([{index: Math.floor(Math.random() * 1000), skill: '', level: ''}]);
-  const [ languageEle, updateLanguage ] = useState([{index: Math.floor(Math.random() * 1000), language: '', level: ''}]);
-  const [ courseEle, updateCourse ] = useState([{index: Math.floor(Math.random() * 1000), course: '', institution: '', startDate: '', endDate: ''}]);
-  const [ referenceEle, updateReference ] = useState([{index: Math.floor(Math.random() * 1000), name: '', company: '', phone: '', email: ''}]);
+  const employmentInit = { index: Math.floor(Math.random() * 1000), title: '', company: '', startDate: '', endDate: '', location: '', summary: '' };
+  const educationInit = { index: Math.floor(Math.random() * 1000), institution: '', subject: '', startDate: '', endDate: '', location: '', score: '' };
+  const linkInit = { index: Math.floor(Math.random() * 1000), name: '', url: '' };
+  const skillInit = { index: Math.floor(Math.random() * 1000), name: '', level: '' };
+  const langInit = { index: Math.floor(Math.random() * 1000), name: '', level: '' };
+  const courseInit = { index: Math.floor(Math.random() * 1000), name: '', institution: '', startDate: '', endDate: '' };
+  const referenceInit = { index: Math.floor(Math.random() * 1000), name: '', company: '', phone: '', email: '' };
+
+  const [employmentEle, updateEmployment] = useState([employmentInit]);
+  const [educationEle, updateEducation] = useState([educationInit]);
+  const [linkEle, updateLink] = useState([linkInit]);
+  const [skillEle, updateSkill] = useState([skillInit]);
+  const [languageEle, updateLanguage] = useState([langInit]);
+  const [courseEle, updateCourse] = useState([courseInit]);
+  const [referenceEle, updateReference] = useState([referenceInit]);
 
   useEffect(() => {
 
@@ -93,12 +107,12 @@ export default function ResumeForm() {
       <h2 className="py-5">Employment History</h2>
 
       <div className="bg-white p-6 rounded">
-      
-      {
-        employmentEle.map((e) => {
-          return EmploymentForm({...e, register});
-        })
-      }
+
+        {
+          employmentEle.map((e) => {
+            return EmploymentForm({ ...e, register });
+          })
+        }
 
         <div className="pt-5">
           <button className="btn btn-outline">
@@ -113,44 +127,12 @@ export default function ResumeForm() {
       <h2 className="py-5">Education</h2>
 
       <div className="bg-white p-6 rounded">
-        <div className="flex gap-12">
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">School</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="School" {...register("education.school", { required: true })} />
-          </div>
 
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Degree</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Degree" {...register("education.degree", { required: true })} />
-          </div>
-        </div>
-
-        <div className="flex gap-12">
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Start Date</span>
-            </label>
-            <input type="month" className="input input-bordered" placeholder="Start Date" {...register("education.startDate", { required: true })} />
-          </div>
-
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">End Date</span>
-            </label>
-            <input type="month" className="input input-bordered" placeholder="End Date" {...register("education.endDate", {})} />
-          </div>
-
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Location</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Location" {...register("education.location", {})} />
-          </div>
-        </div>
+        {
+          educationEle.map((e) => {
+            return EducationForm({ ...e, register });
+          })
+        }
 
         <div className="pt-5">
           <button className="btn btn-outline">
@@ -165,21 +147,12 @@ export default function ResumeForm() {
       <h2 className="py-5">Websites / Social Links</h2>
 
       <div className="bg-white p-6 rounded">
-        <div className="flex gap-12">
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Label</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Label" {...register("link.label", {})} />
-          </div>
 
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Link</span>
-            </label>
-            <input type="url" className="input input-bordered" placeholder="Link" {...register("link.link", {})} />
-          </div>
-        </div>
+        {
+          linkEle.map((e) => {
+            return LinkForm({ ...e, register });
+          })
+        }
 
         <div className="pt-5">
           <button className="btn btn-outline">
@@ -194,28 +167,12 @@ export default function ResumeForm() {
       <h2 className="py-5">Skills</h2>
 
       <div className="bg-white p-6 rounded">
-        <div className="flex gap-12">
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Label</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Label" {...register("skill.label", { required: true })} />
-          </div>
 
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Level</span>
-            </label>
-            <select className="select select-bordered select-primary" placeholder="Level" {...register("skill.Level", { required: true })}>
-              <option value="0" label="Novice"></option>
-              <option value="1" label="Beginner"></option>
-              <option value="2" label="Skillful"></option>
-              <option value="3" label="Experienced"></option>
-              <option value="4" label="Expert"></option>
-            </select>
-
-          </div>
-        </div>
+        {
+          skillEle.map((e) => {
+            return SkillForm({ ...e, register });
+          })
+        }
 
         <div className="pt-5">
           <button className="btn btn-outline">
@@ -230,27 +187,12 @@ export default function ResumeForm() {
       <h2 className="py-5">Language</h2>
 
       <div className="bg-white p-6 rounded">
-        <div className="flex gap-12">
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Skill</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Language Name" {...register("language.name", { required: true })} />
-          </div>
 
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Level</span>
-            </label>
-            <select className="select select-bordered select-primary" placeholder="Language Level" {...register("language.Level", { required: true })}>
-              <option value="0" label="Novice"></option>
-              <option value="1" label="Beginner"></option>
-              <option value="2" label="Skillful"></option>
-              <option value="3" label="Experienced"></option>
-              <option value="4" label="Expert"></option>
-            </select>
-          </div>
-        </div>
+        {
+          languageEle.map((e) => {
+            return LanguageForm({ ...e, register });
+          })
+        }
 
         <div className="pt-5">
           <button className="btn btn-outline">
@@ -265,39 +207,12 @@ export default function ResumeForm() {
       <h2 className="py-5">Courses</h2>
 
       <div className="bg-white p-6 rounded">
-        <div className="flex gap-12">
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Course</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Course" {...register("course.name", { required: true })} />
-          </div>
 
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Institution</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Institution" {...register("course.institution", { required: true })} />
-          </div>
-        </div>
-
-        <div className="flex gap-12">
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Start Date</span>
-            </label>
-            <input type="month" className="input input-bordered" placeholder="Start Date" {...register("course.startDate", { required: true })} />
-          </div>
-
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">End Date</span>
-            </label>
-            <input type="month" className="input input-bordered" placeholder="End Date" {...register("course.endDate", {})} />
-          </div>
-
-        </div>
-
+        {
+          courseEle.map((e) => {
+            return CourseForm({ ...e, register });
+          })
+        }
         <div className="pt-5">
           <button className="btn btn-outline">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -311,37 +226,12 @@ export default function ResumeForm() {
       <h2 className="py-5">References</h2>
 
       <div className="bg-white p-6 rounded">
-        <div className="flex gap-12">
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Full Name</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Full Name" {...register("reference.name", { required: true, maxLength: 100 })} />
-          </div>
 
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Company Name</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Company Name" {...register("reference.company", { required: true, maxLength: 100 })} />
-          </div>
-        </div>
-
-        <div className="flex gap-12">
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Email</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Email" {...register("reference.email", { required: true, pattern: /^\S+@\S+$/i })} />
-          </div>
-
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Phone</span>
-            </label>
-            <input type="tel" className="input input-bordered" placeholder="Phone" {...register("reference.phone", { required: true, maxLength: 12 })} />
-          </div>
-        </div>
+        {
+          referenceEle.map((e) => {
+            return ReferenceForm({ ...e, register });
+          })
+        }
 
         <div className="pt-5">
           <button className="btn btn-outline">
