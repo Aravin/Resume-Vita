@@ -1,19 +1,31 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import EmploymentForm from "./EmploymentForm";
 
 // type Inputs = {
 //   example: string,
 //   exampleRequired: string,
 // };
 
-export default function InvoiceForm() {
+export default function ResumeForm() {
   const { register, handleSubmit, watch, formState: { errors } } = useForm<any>();
   const onSubmit: SubmitHandler<any> = data => console.log(JSON.stringify(data));
   console.log(errors);
-  console.log(watch()) // watch input value by passing the name of it
+  console.log(watch()); // watch input value by passing the name of it
+
+  const [ employmentEle, updateEmployment ] = useState([{index: Math.floor(Math.random() * 1000), title: '', company: '', startDate: '', endDate: '', location: '', summary: ''}]);
+  const [ educationEle, updateEducation ] = useState([{index: Math.floor(Math.random() * 1000), institution: '', subject: '', startDate: '', endDate: '', location: '', score: ''}]);
+  const [ linkEle, updateLink ] = useState([{index: Math.floor(Math.random() * 1000), link: '', url: ''}]);
+  const [ skillEle, updateSkill ] = useState([{index: Math.floor(Math.random() * 1000), skill: '', level: ''}]);
+  const [ languageEle, updateLanguage ] = useState([{index: Math.floor(Math.random() * 1000), language: '', level: ''}]);
+  const [ courseEle, updateCourse ] = useState([{index: Math.floor(Math.random() * 1000), course: '', institution: '', startDate: '', endDate: ''}]);
+  const [ referenceEle, updateReference ] = useState([{index: Math.floor(Math.random() * 1000), name: '', company: '', phone: '', email: ''}]);
+
+  useEffect(() => {
+
+  }, []);
 
   return (
-    /* "handleSubmit" will validate your inputs before invoking "onSubmit" */
     <form onSubmit={handleSubmit(onSubmit)}>
 
       <h2 className="py-5">Personal Details</h2>
@@ -81,44 +93,12 @@ export default function InvoiceForm() {
       <h2 className="py-5">Employment History</h2>
 
       <div className="bg-white p-6 rounded">
-        <div className="flex gap-12">
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Job Title</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Job Title" {...register("employment.title", { required: true })} />
-          </div>
-
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Company</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Company" {...register("employment.company", { required: true })} />
-          </div>
-        </div>
-
-        <div className="flex gap-12">
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Start Date</span>
-            </label>
-            <input type="month" formTarget="MM/yyyy" className="input input-bordered" placeholder="Start Date" {...register("employment.startDate", { required: true })} />
-          </div>
-
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">End Date</span>
-            </label>
-            <input type="month" className="input input-bordered" placeholder="End Date" {...register("employment.endDate", {})} />
-          </div>
-
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Location</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Location" {...register("employment.location", {})} />
-          </div>
-        </div>
+      
+      {
+        employmentEle.map((e) => {
+          return EmploymentForm({...e, register});
+        })
+      }
 
         <div className="pt-5">
           <button className="btn btn-outline">
