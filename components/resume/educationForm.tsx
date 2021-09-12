@@ -14,7 +14,7 @@ interface EducationType {
 
 export default function EducationForm(prop: EducationType) {
   return (
-    <div key={prop.index} className="flex">
+    <div key={prop.index} className="flex justify-between mb-5">
 
       <div className="flex-1">
         <div className="flex gap-12">
@@ -66,7 +66,7 @@ export default function EducationForm(prop: EducationType) {
       </div>
 
       <div className="flex-shrink-0 ml-5 my-5">
-        <button className="btn btn-outline btn-square tooltip" data-tip="Delete the Education" onClick={() => prop.delete(prop.index)}>
+        <button className="btn btn-outline btn-square tooltip" data-tip="Delete" onClick={() => prop.delete(prop.index)}>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-6 h-6 stroke-current">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
