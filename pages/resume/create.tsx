@@ -1,17 +1,19 @@
 import type { NextPage } from 'next'
 import React from 'react';
-import ResumeForm from '../../components/resume/Form';
+import ResumeForm from '../../components/resume/form';
 
 const Home: NextPage = () => {
     return (
-        <div className="flex">
+        <div className="grid grid-cols-2">
 
-            <div className="flex-1">
+            <div className="">
                 <h1>Create Invoice</h1>
                 <ResumeForm></ResumeForm>
             </div>
 
-            <div className="flex-1">
+            <div className="">
+                <h2>Preview</h2>
+                <p>Your resume</p>
             </div>
         </div>
     )

@@ -11,7 +11,7 @@ interface SkillType {
 export default function SkillForm(prop: SkillType) {
 
   return (
-    <div key={prop.index} className="flex justify-between   mb-5">
+    <div key={prop.index} className="flex justify-between mb-5">
 
       <div className="flex-1">
         <div className="flex gap-12">
@@ -26,7 +26,7 @@ export default function SkillForm(prop: SkillType) {
             <label className="label">
               <span className="label-text">Level</span>
             </label>
-            <select className="select select-bordered select-primary" placeholder="Level" defaultValue={prop.level} {...prop.register(`skill.${prop.index}.level`, { required: true })}>
+            <select className="select select-bordered" placeholder="Level" defaultValue={prop.level} {...prop.register(`skill.${prop.index}.level`, { required: true })}>
               <option value="0" label="Novice"></option>
               <option value="1" label="Beginner"></option>
               <option value="2" label="Skillful"></option>

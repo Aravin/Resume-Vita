@@ -17,15 +17,15 @@ export default function EducationForm(prop: EducationType) {
     <div key={prop.index} className="flex justify-between mb-5">
 
       <div className="flex-1">
-        <div className="flex gap-12">
-          <div className="flex-1 form-control">
+        <div className="grid grid-cols-2 gap-12">
+          <div className="form-control">
             <label className="label">
               <span className="label-text">School</span>
             </label>
             <input type="text" className="input input-bordered" placeholder="School" defaultValue={prop.institution} {...prop.register(`education.${prop.index}.institution`, { required: true })} />
           </div>
 
-          <div className="flex-1 form-control">
+          <div className="form-control">
             <label className="label">
               <span className="label-text">Degree</span>
             </label>
@@ -33,29 +33,29 @@ export default function EducationForm(prop: EducationType) {
           </div>
         </div>
 
-        <div className="flex gap-12">
-          <div className="flex-1 form-control">
+        <div className="grid grid-cols-3 gap-12">
+          <div className="form-control">
             <label className="label">
               <span className="label-text">Start Date</span>
             </label>
             <input type="month" className="input input-bordered" placeholder="Start Date" defaultValue={prop.startDate} {...prop.register(`education.${prop.index}.startDate`, { required: true })} />
           </div>
 
-          <div className="flex-1 form-control">
+          <div className="form-control">
             <label className="label">
               <span className="label-text">End Date</span>
             </label>
             <input type="month" className="input input-bordered" placeholder="End Date" defaultValue={prop.endDate} {...prop.register(`education.${prop.index}.endDate`, {})} />
           </div>
 
-          <div className="flex-1 form-control">
+          {/* <div className="form-control">
             <label className="label">
               <span className="label-text">Location</span>
             </label>
             <input type="text" className="input input-bordered" placeholder="Location" defaultValue={prop.location} {...prop.register(`education.${prop.index}.location`, {})} />
-          </div>
+          </div> */}
 
-          <div className="flex-1 form-control">
+          <div className="form-control">
             <label className="label">
               <span className="label-text">Score</span>
             </label>
