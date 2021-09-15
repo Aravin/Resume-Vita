@@ -135,15 +135,15 @@ export default function ResumeForm() {
     // onSubmit={handleSubmit(onSubmit)}
     <form onSubmit={handleSubmit(onSubmit)}>
 
-      <h2 className="py-5">Personal Details</h2>
+      <h3>Personal Details</h3>
 
-      <div className="bg-white p-6 rounded">
+      <div className="bg-white p-6 rounded shadow">
         <div className="flex gap-12">
-          <div className="flex-1 form-control w-1/2">
+          <div className="flex-1 form-control max-w-sm">
             <label className="label">
               <span className="label-text">Work Title</span>
             </label>
-            <input type="text" className="input input-bordered solid" placeholder="Work Title" {...register("personal.title", { required: true })} />
+            <input type="text" className="input input-bordered" placeholder="Work Title" {...register("personal.title", { required: true })} />
           </div>
           <div className="flex-1 form-control grid grid-cols-2 ">
             <div className="">
@@ -152,11 +152,11 @@ export default function ResumeForm() {
               </label>
               <input type="file" accept="image/*" className="input" placeholder="Photo" {...register("Photo", { required: false })} />
             </div>
-            <div className="avatar">
+            {/* <div className="avatar">
               <div className="mb-8 rounded-btn w-18 h-18">
                 <img src={watch("photo")} />
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -193,9 +193,9 @@ export default function ResumeForm() {
         </div>
       </div>
 
-      <h2 className="py-5">Professional Summary</h2>
+      <h3>Professional Summary</h3>
 
-      <div className="flex bg-white p-6 rounded">
+      <div className="flex bg-white p-6 rounded shadow">
         <div className="flex-1 form-control">
           <label className="label">
             <span className="label-text">Summary</span>
@@ -204,9 +204,9 @@ export default function ResumeForm() {
         </div>
       </div>
 
-      <h2 className="py-5">Employment History</h2>
+      <h3>Employment History</h3>
 
-      <div className="bg-white p-6 rounded">
+      <div className="bg-white p-6 rounded shadow">
 
         {
           employmentEle.map((e, i) => {
@@ -225,9 +225,9 @@ export default function ResumeForm() {
         </div>
       </div>
 
-      <h2 className="py-5">Education</h2>
+      <h3>Education</h3>
 
-      <div className="bg-white p-6 rounded">
+      <div className="bg-white p-6 rounded shadow">
 
         {
           educationEle.map((e, i) => {
@@ -246,9 +246,9 @@ export default function ResumeForm() {
         </div>
       </div>
 
-      <h2 className="py-5">Skills</h2>
+      <h3>Skills</h3>
 
-      <div className="bg-white p-6 rounded">
+      <div className="bg-white p-6 rounded shadow">
 
         {
           skillEle.map((e, i) => {
@@ -267,9 +267,9 @@ export default function ResumeForm() {
         </div>
       </div>
 
-      <h2 className="py-5">Language</h2>
+      <h3>Language</h3>
 
-      <div className="bg-white p-6 rounded">
+      <div className="bg-white p-6 rounded shadow">
 
         {
           languageEle.map((e, i) => {
@@ -288,9 +288,9 @@ export default function ResumeForm() {
         </div>
       </div>
 
-      <h2 className="py-5">Websites / Social Links</h2>
+      <h3>Websites / Social Links</h3>
 
-      <div className="bg-white p-6 rounded">
+      <div className="bg-white p-6 rounded shadow">
 
         {
           linkEle.map((e, i) => {
@@ -309,9 +309,9 @@ export default function ResumeForm() {
         </div>
       </div>
 
-      <h2 className="py-5">Courses</h2>
+      <h3>Courses</h3>
 
-      <div className="bg-white p-6 rounded">
+      <div className="bg-white p-6 rounded shadow">
 
         {
           courseEle.map((e, i) => {
@@ -329,9 +329,9 @@ export default function ResumeForm() {
         </div>
       </div>
 
-      <h2 className="py-5">References</h2>
+      <h3>References</h3>
 
-      <div className="bg-white p-6 rounded">
+      <div className="bg-white p-6 rounded shadow">
 
         {
           referenceEle.map((e, i) => {
