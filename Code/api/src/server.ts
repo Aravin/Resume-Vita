@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import { appConfig } from './config';
 import { router } from './router';
+import { db } from './helpers/db';
 
 // initialize the express app
 const app = express();
@@ -10,6 +11,11 @@ const app = express();
 // add middleware
 app
     .use(cors())
+    .use((req, res, next) => {
+        // initialize the db
+        res.locals.db = db;
+        next()
+      })
     .use(bodyParser.json())
     .use('/v1', router);
 
