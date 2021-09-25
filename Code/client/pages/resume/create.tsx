@@ -1,8 +1,15 @@
 import type { NextPage } from 'next'
 import React from 'react';
 import ResumeForm from '../../components/resume/form';
+import pdf from 'html-pdf';
 
 const Home: NextPage = () => {
+
+  pdf.create('<h1>Aravind</h1').toFile("one.pdf", function(err, res){
+    console.log(res.filename);
+  });
+
+
   return (
     <div className="grid grid-cols-2 gap-6">
 
