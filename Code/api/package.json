@@ -15,6 +15,7 @@
     "express": "^4.17.1",
     "helmet": "^4.6.0",
     "html-pdf": "^3.0.1",
+    "mongodb": "^4.1.2",
     "mongoose": "^6.0.7"
   },
   "devDependencies": {
