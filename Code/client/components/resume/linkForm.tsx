@@ -6,6 +6,7 @@ interface LinkType {
   url: string,
   index: number,
   delete: Function,
+  errors: any,
 }
 
 export default function LinkForm(prop: LinkType) {

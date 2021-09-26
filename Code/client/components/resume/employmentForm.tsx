@@ -10,6 +10,7 @@ interface EmploymentType {
   summary: string,
   index: number,
   delete: Function,
+  errors: any,
 }
 
 export default function EmploymentForm(prop: EmploymentType) {

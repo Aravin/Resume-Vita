@@ -8,6 +8,7 @@ interface ReferenceType {
   phone: string,
   index: number,
   delete: Function,
+  errors: any,
 }
 
 export default function ReferenceForm(prop: ReferenceType) {

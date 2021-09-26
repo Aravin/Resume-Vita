@@ -8,6 +8,7 @@ interface CourseType {
   endDate: string,
   index: number,
   delete: Function,
+  errors: any,
 }
 
 export default function CourseForm(prop: CourseType) {

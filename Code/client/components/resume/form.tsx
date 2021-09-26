@@ -42,8 +42,9 @@ const schema = yup.object({
   personal: yup.object({
     firstName: yup.string().required(),
     lastName: yup.string().required(),
-    email: yup.string().email(),
-    phone: yup.string(),
+    email: yup.string().email().required(),
+    phone: yup.string().required(),
+    summary: yup.string().required(),
   }),
   education: yup.array().of(yup.object({
     institution: yup.string().required(),
@@ -56,7 +57,7 @@ const schema = yup.object({
     name: yup.string().required(),
     level: yup.number().positive().required(),
   })),
-  languageEle: yup.array().of(yup.object({
+  language: yup.array().of(yup.object({
     name: yup.string().required(),
     level: yup.number().positive().required(),
   })),
@@ -67,7 +68,7 @@ export default function ResumeForm() {
     resolver: yupResolver(schema)
   });
   const onSubmit: SubmitHandler<any> = data => console.log(JSON.stringify(data));
-  console.log(errors);
+  console.log({ errors: errors });
   console.log(watch()); // watch input value by passing the name of it
 
   const employmentInit = { index: 0, title: '', company: '', startDate: '', endDate: '', location: '', summary: '' };
@@ -194,13 +195,25 @@ export default function ResumeForm() {
               <label className="label">
                 <span className="label-text">First Name*</span>
               </label>
-              <input type="text" className="input input-bordered" {...register("personal.firstName")} />
+              <input type="text" className={`input input-bordered ${errors.personal?.firstName ? 'input-error' : ''}`} {...register("personal.firstName")} />
+              {
+                errors?.personal?.firstName &&
+                <label className="label">
+                  <span className="label-text-alt text-red-500">Please enter First Name</span>
+                </label>
+              }
             </div>
             <div className="form-control max-w-sm">
               <label className="label">
                 <span className="label-text">Last Name*</span>
               </label>
-              <input type="text" className="input input-bordered" {...register("personal.lastName")} />
+              <input type="text" className={`input input-bordered ${errors.personal?.lastName ? 'input-error' : ''}`} {...register("personal.lastName")} />
+              {
+                errors?.personal?.lastName &&
+                <label className="label">
+                  <span className="label-text-alt text-red-500">Please enter Last Name</span>
+                </label>
+              }
             </div>
           </div>
 
@@ -211,12 +224,13 @@ export default function ResumeForm() {
               maxFileSize={'1MB'}
               imagePreviewHeight={128}
               allowMultiple={false}
-              name="files"
+              // name="files"
               labelIdle='Add Photo (Optional) <span class="filepond--label-action">Browse</span>'
               // oninit={() => this.handleInit()}
               onupdatefiles={fileItems => {
 
               }}
+              {...register("personal.photo")}
             />
           </div>
         </div>
@@ -226,14 +240,26 @@ export default function ResumeForm() {
             <label className="label">
               <span className="label-text">Email*</span>
             </label>
-            <input type="text" className="input input-bordered" {...register("personal.email")} />
+            <input type="text" className={`input input-bordered ${errors.personal?.email ? 'input-error' : ''}`} {...register("personal.email")} />
+            {
+              errors?.personal?.email &&
+              <label className="label">
+                <span className="label-text-alt text-red-500">Please enter Email Address</span>
+              </label>
+            }
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
               <span className="label-text">Phone*</span>
             </label>
-            <input type="tel" className="input input-bordered" {...register("personal.phone")} />
+            <input type="tel" className={`input input-bordered ${errors.personal?.phone ? 'input-error' : ''}`} {...register("personal.phone")} />
+            {
+              errors?.personal?.phone &&
+              <label className="label">
+                <span className="label-text-alt text-red-500">Please enter Phone Number</span>
+              </label>
+            }
           </div>
         </div>
       </div>
@@ -245,7 +271,7 @@ export default function ResumeForm() {
           <label className="label">
             <span className="label-text">Summary*</span>
           </label>
-          <textarea className="textarea h-24 textarea-bordered"  {...register("personal.summary")} />
+          <textarea className={`textarea h-24 textarea-bordered ${errors.personal?.summary ? 'input-error' : ''}`}  {...register("personal.summary")} />
         </div>
       </div>
 
@@ -256,7 +282,7 @@ export default function ResumeForm() {
         {
           educationEle.map((e, i) => {
             e.index = i;
-            return EducationForm({ ...e, register, delete: handleEducationDelete });
+            return EducationForm({ ...e, register, delete: handleEducationDelete, errors: errors.education });
           })
         }
 
@@ -277,7 +303,7 @@ export default function ResumeForm() {
         {
           employmentEle.map((e, i) => {
             e.index = i;
-            return EmploymentForm({ ...e, register, delete: handleEmployeeDelete });
+            return EmploymentForm({ ...e, register, delete: handleEmployeeDelete, errors: errors.employee });
           })
         }
 
@@ -298,7 +324,7 @@ export default function ResumeForm() {
         {
           skillEle.map((e, i) => {
             e.index = i;
-            return SkillForm({ ...e, register, delete: handleSkillDelete });
+            return SkillForm({ ...e, register, delete: handleSkillDelete, errors: errors.skill });
           })
         }
 
@@ -319,7 +345,7 @@ export default function ResumeForm() {
         {
           languageEle.map((e, i) => {
             e.index = i;
-            return LanguageForm({ ...e, register, delete: handleLangDelete });
+            return LanguageForm({ ...e, register, delete: handleLangDelete, errors: errors.language });
           })
         }
 
@@ -340,7 +366,7 @@ export default function ResumeForm() {
         {
           linkEle.map((e, i) => {
             e.index = i;
-            return LinkForm({ ...e, register, delete: handleLinkDelete });
+            return LinkForm({ ...e, register, delete: handleLinkDelete, errors: errors.link });
           })
         }
 
@@ -361,7 +387,7 @@ export default function ResumeForm() {
         {
           courseEle.map((e, i) => {
             e.index = i;
-            return CourseForm({ ...e, register, delete: handleCourseDelete });
+            return CourseForm({ ...e, register, delete: handleCourseDelete, errors: errors.course });
           })
         }
         <div className="pt-5">
@@ -381,7 +407,7 @@ export default function ResumeForm() {
         {
           referenceEle.map((e, i) => {
             e.index = i;
-            return ReferenceForm({ ...e, register, delete: handleReferenceDelete });
+            return ReferenceForm({ ...e, register, delete: handleReferenceDelete, errors: errors.reference });
           })
         }
 
