@@ -13,19 +13,19 @@ export default function LinkForm(prop: LinkType) {
     <div key={prop.index} className="flex justify-between mb-5">
 
       <div className="flex-1">
-        <div className="flex gap-12">
+        <div className="flex gap-6">
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Label</span>
+              <span className="label-text">Website Name</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Label" defaultValue={prop.name} {...prop.register(`link.${prop.index}.label`, {})} />
+            <input type="text" className="input input-bordered" placeholder="My personal site" defaultValue={prop.name} {...prop.register(`link.${prop.index}.label`, {})} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Link</span>
+              <span className="label-text">Link/URL</span>
             </label>
-            <input type="url" className="input input-bordered" placeholder="Link" defaultValue={prop.url} {...prop.register(`link.${prop.index}.link`, {})} />
+            <input type="url" className="input input-bordered" placeholder="e.g yourname.com" defaultValue={prop.url} {...prop.register(`link.${prop.index}.link`, {})} />
           </div>
         </div>
       </div>

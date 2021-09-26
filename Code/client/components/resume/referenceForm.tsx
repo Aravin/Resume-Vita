@@ -15,7 +15,7 @@ export default function ReferenceForm(prop: ReferenceType) {
     <div key={prop.index} className="flex justify-between mb-5">
 
       <div className="flex-1">
-        <div className="flex gap-12">
+        <div className="flex gap-6">
           <div className="flex-1 form-control">
             <label className="label">
               <span className="label-text">Full Name</span>
@@ -31,7 +31,7 @@ export default function ReferenceForm(prop: ReferenceType) {
           </div>
         </div>
 
-        <div className="flex gap-12">
+        <div className="flex gap-6">
           <div className="flex-1 form-control">
             <label className="label">
               <span className="label-text">Email</span>

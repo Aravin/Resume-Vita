@@ -14,19 +14,19 @@ export default function LanguageForm(prop: LanguageType) {
     <div key={prop.index} className="flex justify-between mb-5">
 
       <div className="flex-1">
-        <div className="flex gap-12">
+        <div className="flex gap-6">
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Language</span>
+              <span className="label-text">Language Name*</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Language Name" {...prop.register(`language.${prop.index}.name`, )} />
+            <input type="text" className="input input-bordered" placeholder="e.g English" {...prop.register(`language.${prop.index}.name`, )} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Level</span>
+              <span className="label-text">Level*</span>
             </label>
-            <select className="select select-bordered" placeholder="Language Level" {...prop.register(`language.${prop.index}.level`, )}>
+            <select className="select select-bordered" {...prop.register(`language.${prop.index}.level`, )}>
               <option value="0" label="Novice"></option>
               <option value="1" label="Beginner"></option>
               <option value="2" label="Skillful"></option>

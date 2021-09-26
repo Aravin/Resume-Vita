@@ -15,23 +15,23 @@ export default function CourseForm(prop: CourseType) {
     <div key={prop.index} className="flex justify-between mb-5">
 
       <div className="flex-1">
-        <div className="flex gap-12">
+        <div className="flex gap-6">
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Course</span>
+              <span className="label-text">Course Name</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Course" defaultValue={prop.name} {...prop.register(`course.${prop.index}.name`)} />
+            <input type="text" className="input input-bordered" placeholder="e.g. Node.js Foundation" defaultValue={prop.name} {...prop.register(`course.${prop.index}.name`)} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Institution</span>
+              <span className="label-text">Institution Name</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Institution" defaultValue={prop.institution} {...prop.register(`course.${prop.index}.institution`)} />
+            <input type="text" className="input input-bordered" placeholder="e.g. Udemy" defaultValue={prop.institution} {...prop.register(`course.${prop.index}.institution`)} />
           </div>
         </div>
 
-        <div className="flex gap-12">
+        <div className="flex gap-6">
           <div className="flex-1 form-control">
             <label className="label">
               <span className="label-text">Start Date</span>

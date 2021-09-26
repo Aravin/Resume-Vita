@@ -40,7 +40,6 @@ registerPlugin(
 
 const schema = yup.object({
   personal: yup.object({
-    title: yup.string().required(),
     firstName: yup.string().required(),
     lastName: yup.string().required(),
     email: yup.string().email(),
@@ -189,83 +188,85 @@ export default function ResumeForm() {
       <h3>Personal Details</h3>
 
       <div className="bg-white p-6 rounded shadow">
-        <div className="flex gap-12">
-          <div className="flex-1 form-control max-w-sm">
-            <label className="label">
-              <span className="label-text">Work Title</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Work Title" {...register("personal.title")} />
-          </div>
-
-          <div className="flex-1 form-control grid grid-cols-2 ">
-            <div>
-              <FilePond
-                files={[]}
-                acceptedFileTypes={['image/*']}
-                maxFileSize={'1MB'}
-                imagePreviewHeight={128}
-                allowMultiple={false}
-                name="files"
-                labelIdle='Add Photo (Optional) <span class="filepond--label-action">Browse</span>'
-                // oninit={() => this.handleInit()}
-                onupdatefiles={fileItems => {
-
-                }}
-              />
-              {/* <label className="label">
-                <span className="label-text">Photo</span>
+        <div className="flex gap-6">
+          <div className="flex-1">
+            <div className="form-control max-w-sm">
+              <label className="label">
+                <span className="label-text">First Name*</span>
               </label>
-              <input type="file" accept="image/*" className="input" placeholder="Photo" {...register("Photo", { required: false })} /> */}
+              <input type="text" className="input input-bordered" {...register("personal.firstName")} />
             </div>
-            {/* <div className="avatar">
-              <div className="mb-8 rounded-btn w-18 h-18">
-                <img src={watch("photo")} />
-              </div>
-            </div> */}
+            <div className="form-control max-w-sm">
+              <label className="label">
+                <span className="label-text">Last Name*</span>
+              </label>
+              <input type="text" className="input input-bordered" {...register("personal.lastName")} />
+            </div>
+          </div>
+
+          <div className="flex-1 h-full items-center self-center">
+            <FilePond
+              files={[]}
+              acceptedFileTypes={['image/*']}
+              maxFileSize={'1MB'}
+              imagePreviewHeight={128}
+              allowMultiple={false}
+              name="files"
+              labelIdle='Add Photo (Optional) <span class="filepond--label-action">Browse</span>'
+              // oninit={() => this.handleInit()}
+              onupdatefiles={fileItems => {
+
+              }}
+            />
           </div>
         </div>
 
-        <div className="flex gap-12">
+        <div className="flex gap-6">
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">First Name</span>
+              <span className="label-text">Email*</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="First Name" {...register("personal.firstName")} />
+            <input type="text" className="input input-bordered" {...register("personal.email")} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Last Name</span>
+              <span className="label-text">Phone*</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Last Name" {...register("personal.lastName")} />
-          </div>
-        </div>
-
-        <div className="flex gap-12">
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Email</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Email" {...register("personal.email")} />
-          </div>
-
-          <div className="flex-1 form-control">
-            <label className="label">
-              <span className="label-text">Phone</span>
-            </label>
-            <input type="tel" className="input input-bordered" placeholder="Phone" {...register("personal.phone")} />
+            <input type="tel" className="input input-bordered" {...register("personal.phone")} />
           </div>
         </div>
       </div>
 
-      <h3>Professional Summary</h3>
+      <h3>Profile Summary</h3>
 
       <div className="flex bg-white p-6 rounded shadow">
         <div className="flex-1 form-control">
           <label className="label">
-            <span className="label-text">Summary</span>
+            <span className="label-text">Summary*</span>
           </label>
           <textarea className="textarea h-24 textarea-bordered"  {...register("personal.summary")} />
+        </div>
+      </div>
+
+      <h3>Education*</h3>
+
+      <div className="bg-white p-6 rounded shadow">
+
+        {
+          educationEle.map((e, i) => {
+            e.index = i;
+            return EducationForm({ ...e, register, delete: handleEducationDelete });
+          })
+        }
+
+        <div className="pt-5">
+          <button className="btn btn-outline" onClick={handleEducationAdd}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+            Add Education
+          </button>
         </div>
       </div>
 
@@ -286,27 +287,6 @@ export default function ResumeForm() {
               <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
             </svg>
             Add Employment
-          </button>
-        </div>
-      </div>
-
-      <h3>Education</h3>
-
-      <div className="bg-white p-6 rounded shadow">
-
-        {
-          educationEle.map((e, i) => {
-            e.index = i;
-            return EducationForm({ ...e, register, delete: handleEducationDelete });
-          })
-        }
-
-        <div className="pt-5">
-          <button className="btn btn-outline" onClick={handleEducationAdd}>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-            </svg>
-            Add Education
           </button>
         </div>
       </div>
@@ -413,13 +393,9 @@ export default function ResumeForm() {
             Add Reference
           </button>
         </div>
-
       </div>
 
-      <input type="hidden" autoFocus={true} />
-
       <div className="flex pt-10">
-
         <input className="btn btn-primary btn-block" type="submit" value="Save and Preview" />
       </div>
 

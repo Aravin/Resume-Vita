@@ -20,48 +20,49 @@ export default function EducationForm(prop: EducationType) {
         <div className="grid grid-cols-2 gap-12">
           <div className="form-control">
             <label className="label">
-              <span className="label-text">School</span>
+              <span className="label-text">School/University*</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="School" defaultValue={prop.institution} {...prop.register(`education.${prop.index}.institution`, )} />
+            <input type="text" className="input input-bordered" defaultValue={prop.institution} {...prop.register(`education.${prop.index}.institution`,)} />
           </div>
 
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Degree</span>
+              <span className="label-text">Subject/Degree*</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Subject / Degree" defaultValue={prop.subject} {...prop.register(`education.${prop.index}.subject`, )} />
+            <input type="text" className="input input-bordered" defaultValue={prop.subject} {...prop.register(`education.${prop.index}.subject`,)} />
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-12">
+        <div className="grid grid-cols-2 gap-12">
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Start Date</span>
+              <span className="label-text">Start Date*</span>
             </label>
-            <input type="month" className="input input-bordered" placeholder="Start Date" defaultValue={prop.startDate} {...prop.register(`education.${prop.index}.startDate`, )} />
+            <input type="month" className="input input-bordered" defaultValue={prop.startDate} {...prop.register(`education.${prop.index}.startDate`,)} />
           </div>
 
           <div className="form-control">
             <label className="label">
-              <span className="label-text">End Date</span>
+              <span className="label-text">End Date*</span>
             </label>
-            <input type="month" className="input input-bordered" placeholder="End Date" defaultValue={prop.endDate} {...prop.register(`education.${prop.index}.endDate`, {})} />
+            <input type="month" className="input input-bordered" defaultValue={prop.endDate} {...prop.register(`education.${prop.index}.endDate`, {})} />
           </div>
 
-          {/* <div className="form-control">
+        </div>
+
+        <div className="grid grid-cols-2 gap-12">
+        <div className="form-control">
+            <label className="label">
+              <span className="label-text">Score*</span>
+            </label>
+            <input type="text" className="input input-bordered" placeholder="Score % or GPA or CGPA" defaultValue={prop.score} {...prop.register(`education.${prop.index}.score`, {})} />
+          </div>
+          <div className="form-control">
             <label className="label">
               <span className="label-text">Location</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Location" defaultValue={prop.location} {...prop.register(`education.${prop.index}.location`, {})} />
-          </div> */}
-
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Score</span>
-            </label>
-            <input type="text" className="input input-bordered" placeholder="Score % or GCPA" defaultValue={prop.score} {...prop.register(`education.${prop.index}.score`, {})} />
+            <input type="text" className="input input-bordered" placeholder="eg. Chennai" defaultValue={prop.location} {...prop.register(`education.${prop.index}.location`, {})} />
           </div>
-
         </div>
       </div>
 
