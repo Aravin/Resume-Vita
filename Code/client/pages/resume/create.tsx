@@ -2,6 +2,7 @@ import type { NextPage } from 'next'
 import React from 'react';
 import Preview from '../../components/preview/preview';
 import ResumeForm from '../../components/resume/form';
+import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 
 const Home: NextPage = () => {
 
@@ -18,3 +19,5 @@ const Home: NextPage = () => {
 }
 
 export default Home
+
+export const getServerSideProps = withPageAuthRequired();

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useUser } from '@auth0/nextjs-auth0';
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
@@ -10,6 +11,8 @@ import LanguageForm from "./languageForm";
 import LinkForm from "./linkForm";
 import ReferenceForm from "./referenceForm";
 import SkillForm from "./skillForm";
+
+import axios from 'axios';
 
 // Import React FilePond
 import { FilePond, registerPlugin } from "react-filepond";
@@ -24,6 +27,7 @@ import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 // Register the plugins
 registerPlugin(
@@ -64,10 +68,33 @@ const schema = yup.object({
 }).required();
 
 export default function ResumeForm() {
+  const { user, error, isLoading } = useUser();
+
+  console.log(user);
   const { register, handleSubmit, watch, formState: { errors } } = useForm<any>({
     resolver: yupResolver(schema)
   });
-  const onSubmit: SubmitHandler<any> = data => console.log(JSON.stringify(data));
+  const [storedResume, storeResume] = useLocalStorage('resumeData', {});
+  const onSubmit: SubmitHandler<any> = data => {
+
+    console.log('on submit called.')
+    
+    // create object
+    const resumeData = {
+      user: user?.sub?.replace('|', '-'),
+      resume: data,
+    }
+
+    console.log({resumeData: resumeData});
+    storeResume(resumeData);
+    axios.post(process.env.NEXT_PUBLIC_API, resumeData)
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+  }
   console.log({ errors: errors });
   console.log(watch()); // watch input value by passing the name of it
 
