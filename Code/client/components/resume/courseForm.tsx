@@ -20,14 +20,14 @@ export default function CourseForm(prop: CourseType) {
             <label className="label">
               <span className="label-text">Course</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Course" defaultValue={prop.name} {...prop.register(`course.${prop.index}.name`, { required: true })} />
+            <input type="text" className="input input-bordered" placeholder="Course" defaultValue={prop.name} {...prop.register(`course.${prop.index}.name`)} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
               <span className="label-text">Institution</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Institution" defaultValue={prop.institution} {...prop.register(`course.${prop.index}.institution`, { required: true })} />
+            <input type="text" className="input input-bordered" placeholder="Institution" defaultValue={prop.institution} {...prop.register(`course.${prop.index}.institution`)} />
           </div>
         </div>
 
@@ -36,7 +36,7 @@ export default function CourseForm(prop: CourseType) {
             <label className="label">
               <span className="label-text">Start Date</span>
             </label>
-            <input type="month" className="input input-bordered" placeholder="Start Date" defaultValue={prop.startDate} {...prop.register(`course.${prop.index}.startDate`, { required: true })} />
+            <input type="month" className="input input-bordered" placeholder="Start Date" defaultValue={prop.startDate} {...prop.register(`course.${prop.index}.startDate`, )} />
           </div>
 
           <div className="flex-1 form-control">

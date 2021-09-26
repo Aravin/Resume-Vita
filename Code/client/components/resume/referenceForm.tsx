@@ -20,14 +20,14 @@ export default function ReferenceForm(prop: ReferenceType) {
             <label className="label">
               <span className="label-text">Full Name</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Full Name" defaultValue={prop.name} {...prop.register(`course.${prop.index}.name`, { required: true, maxLength: 100 })} />
+            <input type="text" className="input input-bordered" placeholder="Full Name" defaultValue={prop.name} {...prop.register(`reference.${prop.index}.name`)} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
               <span className="label-text">Company Name</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Company Name" defaultValue={prop.company} {...prop.register(`course.${prop.index}.company`, { required: true, maxLength: 100 })} />
+            <input type="text" className="input input-bordered" placeholder="Company Name" defaultValue={prop.company} {...prop.register(`reference.${prop.index}.company`)} />
           </div>
         </div>
 
@@ -36,14 +36,14 @@ export default function ReferenceForm(prop: ReferenceType) {
             <label className="label">
               <span className="label-text">Email</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Email" defaultValue={prop.email} {...prop.register(`course.${prop.index}.email`, { required: true, pattern: /^\S+@\S+$/i })} />
+            <input type="text" className="input input-bordered" placeholder="Email" defaultValue={prop.email} {...prop.register(`course.${prop.index}.email`)} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
               <span className="label-text">Phone</span>
             </label>
-            <input type="tel" className="input input-bordered" placeholder="Phone" defaultValue={prop.email} {...prop.register(`course.${prop.index}.phone`, { required: true, maxLength: 12 })} />
+            <input type="tel" className="input input-bordered" placeholder="Phone" defaultValue={prop.email} {...prop.register(`course.${prop.index}.phone`)} />
           </div>
         </div>
       </div>

@@ -19,14 +19,14 @@ export default function LanguageForm(prop: LanguageType) {
             <label className="label">
               <span className="label-text">Language</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Language Name" {...prop.register(`course.${prop.index}.name`, { required: true })} />
+            <input type="text" className="input input-bordered" placeholder="Language Name" {...prop.register(`language.${prop.index}.name`, )} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
               <span className="label-text">Level</span>
             </label>
-            <select className="select select-bordered" placeholder="Language Level" {...prop.register(`course.${prop.index}.level`, { required: true })}>
+            <select className="select select-bordered" placeholder="Language Level" {...prop.register(`language.${prop.index}.level`, )}>
               <option value="0" label="Novice"></option>
               <option value="1" label="Beginner"></option>
               <option value="2" label="Skillful"></option>

@@ -19,14 +19,14 @@ export default function SkillForm(prop: SkillType) {
             <label className="label">
               <span className="label-text">Label</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Label" defaultValue={prop.name} {...prop.register(`skill.${prop.index}.name`, { required: true })} />
+            <input type="text" className="input input-bordered" placeholder="Label" defaultValue={prop.name} {...prop.register(`skill.${prop.index}.name`, )} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
               <span className="label-text">Level</span>
             </label>
-            <select className="select select-bordered" placeholder="Level" defaultValue={prop.level} {...prop.register(`skill.${prop.index}.level`, { required: true })}>
+            <select className="select select-bordered" placeholder="Level" defaultValue={prop.level} {...prop.register(`skill.${prop.index}.level`, )}>
               <option value="0" label="Novice"></option>
               <option value="1" label="Beginner"></option>
               <option value="2" label="Skillful"></option>

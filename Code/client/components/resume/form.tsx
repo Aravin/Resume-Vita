@@ -1,6 +1,8 @@
-import { list } from "postcss";
 import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
+
 import CourseForm from "./courseForm";
 import EducationForm from "./educationForm";
 import EmploymentForm from "./employmentForm";
@@ -9,13 +11,62 @@ import LinkForm from "./linkForm";
 import ReferenceForm from "./referenceForm";
 import SkillForm from "./skillForm";
 
+// Import React FilePond
+import { FilePond, registerPlugin } from "react-filepond";
+
+// Import FilePond styles
+import "filepond/dist/filepond.min.css";
+
+// Import the Image EXIF Orientation and Image Preview plugins
+// Note: These need to be installed separately
+import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
+import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
+import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+
+// Register the plugins
+registerPlugin(
+  FilePondPluginImageExifOrientation,
+  FilePondPluginImagePreview,
+  FilePondPluginFileValidateType,
+  FilePondPluginFileValidateSize,
+);
+
 // type Inputs = {
 //   example: string,
 //   exampleRequired: string,
 // };
 
+const schema = yup.object({
+  personal: yup.object({
+    title: yup.string().required(),
+    firstName: yup.string().required(),
+    lastName: yup.string().required(),
+    email: yup.string().email(),
+    phone: yup.string(),
+  }),
+  education: yup.array().of(yup.object({
+    institution: yup.string().required(),
+    subject: yup.string().required(),
+    startDate: yup.date().required(),
+    endDate: yup.date().required(),
+    score: yup.number().positive().required(),
+  })),
+  skill: yup.array().of(yup.object({
+    name: yup.string().required(),
+    level: yup.number().positive().required(),
+  })),
+  languageEle: yup.array().of(yup.object({
+    name: yup.string().required(),
+    level: yup.number().positive().required(),
+  })),
+}).required();
+
 export default function ResumeForm() {
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<any>();
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<any>({
+    resolver: yupResolver(schema)
+  });
   const onSubmit: SubmitHandler<any> = data => console.log(JSON.stringify(data));
   console.log(errors);
   console.log(watch()); // watch input value by passing the name of it
@@ -143,14 +194,28 @@ export default function ResumeForm() {
             <label className="label">
               <span className="label-text">Work Title</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Work Title" {...register("personal.title", { required: true })} />
+            <input type="text" className="input input-bordered" placeholder="Work Title" {...register("personal.title")} />
           </div>
+
           <div className="flex-1 form-control grid grid-cols-2 ">
-            <div className="">
-              <label className="label">
+            <div>
+              <FilePond
+                files={[]}
+                acceptedFileTypes={['image/*']}
+                maxFileSize={'1MB'}
+                imagePreviewHeight={128}
+                allowMultiple={false}
+                name="files"
+                labelIdle='Add Photo (Optional) <span class="filepond--label-action">Browse</span>'
+                // oninit={() => this.handleInit()}
+                onupdatefiles={fileItems => {
+
+                }}
+              />
+              {/* <label className="label">
                 <span className="label-text">Photo</span>
               </label>
-              <input type="file" accept="image/*" className="input" placeholder="Photo" {...register("Photo", { required: false })} />
+              <input type="file" accept="image/*" className="input" placeholder="Photo" {...register("Photo", { required: false })} /> */}
             </div>
             {/* <div className="avatar">
               <div className="mb-8 rounded-btn w-18 h-18">
@@ -165,14 +230,14 @@ export default function ResumeForm() {
             <label className="label">
               <span className="label-text">First Name</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="First Name" {...register("personal.firstName", { required: true, maxLength: 100 })} />
+            <input type="text" className="input input-bordered" placeholder="First Name" {...register("personal.firstName")} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
               <span className="label-text">Last Name</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Last Name" {...register("personal.lastName", { required: true, maxLength: 100 })} />
+            <input type="text" className="input input-bordered" placeholder="Last Name" {...register("personal.lastName")} />
           </div>
         </div>
 
@@ -181,14 +246,14 @@ export default function ResumeForm() {
             <label className="label">
               <span className="label-text">Email</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Email" {...register("personal.email", { required: true, pattern: /^\S+@\S+$/i })} />
+            <input type="text" className="input input-bordered" placeholder="Email" {...register("personal.email")} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
               <span className="label-text">Phone</span>
             </label>
-            <input type="tel" className="input input-bordered" placeholder="Phone" {...register("personal.phone", { required: true, maxLength: 12 })} />
+            <input type="tel" className="input input-bordered" placeholder="Phone" {...register("personal.phone")} />
           </div>
         </div>
       </div>
@@ -200,7 +265,7 @@ export default function ResumeForm() {
           <label className="label">
             <span className="label-text">Summary</span>
           </label>
-          <textarea className="textarea h-24 textarea-bordered"  {...register("personal.summary", { required: true, maxLength: 4000, minLength: 50 })} />
+          <textarea className="textarea h-24 textarea-bordered"  {...register("personal.summary")} />
         </div>
       </div>
 
@@ -354,9 +419,8 @@ export default function ResumeForm() {
       <input type="hidden" autoFocus={true} />
 
       <div className="flex pt-10">
-        {errors.exampleRequired && <span>This field is required</span>}
 
-        <input className="btn btn-primary" type="submit" />
+        <input className="btn btn-primary btn-block" type="submit" value="Save and Preview" />
       </div>
 
     </form>

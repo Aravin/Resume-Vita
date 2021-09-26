@@ -22,3 +22,15 @@ a {
 body {
   background-color: #F3F4F6;
 }
+
+.filepond--credits{
+  display: none;
+}
+
+.filepond--item {
+  width: calc(100% - 0.5em);
+}
+
+.filepond--root {
+  /* max-height: 10em; */
+}

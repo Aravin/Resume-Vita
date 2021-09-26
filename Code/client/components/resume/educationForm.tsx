@@ -22,14 +22,14 @@ export default function EducationForm(prop: EducationType) {
             <label className="label">
               <span className="label-text">School</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="School" defaultValue={prop.institution} {...prop.register(`education.${prop.index}.institution`, { required: true })} />
+            <input type="text" className="input input-bordered" placeholder="School" defaultValue={prop.institution} {...prop.register(`education.${prop.index}.institution`, )} />
           </div>
 
           <div className="form-control">
             <label className="label">
               <span className="label-text">Degree</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Subject / Degree" defaultValue={prop.subject} {...prop.register(`education.${prop.index}.subject`, { required: true })} />
+            <input type="text" className="input input-bordered" placeholder="Subject / Degree" defaultValue={prop.subject} {...prop.register(`education.${prop.index}.subject`, )} />
           </div>
         </div>
 
@@ -38,7 +38,7 @@ export default function EducationForm(prop: EducationType) {
             <label className="label">
               <span className="label-text">Start Date</span>
             </label>
-            <input type="month" className="input input-bordered" placeholder="Start Date" defaultValue={prop.startDate} {...prop.register(`education.${prop.index}.startDate`, { required: true })} />
+            <input type="month" className="input input-bordered" placeholder="Start Date" defaultValue={prop.startDate} {...prop.register(`education.${prop.index}.startDate`, )} />
           </div>
 
           <div className="form-control">

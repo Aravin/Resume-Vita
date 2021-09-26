@@ -22,14 +22,14 @@ export default function EmploymentForm(prop: EmploymentType) {
             <label className="label">
               <span className="label-text">Job Title</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Job Title" defaultValue={prop.title} {...prop.register(`employment.${prop.index}.title`, { required: true })} />
+            <input type="text" className="input input-bordered" placeholder="Job Title" defaultValue={prop.title} {...prop.register(`employment.${prop.index}.title`, )} />
           </div>
 
           <div className="form-control">
             <label className="label">
               <span className="label-text">Company</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="Company" defaultValue={prop.company} {...prop.register(`employment.${prop.index}.company`, { required: true })} />
+            <input type="text" className="input input-bordered" placeholder="Company" defaultValue={prop.company} {...prop.register(`employment.${prop.index}.company`, )} />
           </div>
         </div>
 
@@ -38,7 +38,7 @@ export default function EmploymentForm(prop: EmploymentType) {
             <label className="label">
               <span className="label-text">Start Date</span>
             </label>
-            <input type="month" formTarget="MM/yyyy" className="input input-bordered" defaultValue="Start Date" {...prop.register(`employment.${prop.index}.startDate`, { required: true })} />
+            <input type="month" formTarget="MM/yyyy" className="input input-bordered" defaultValue="Start Date" {...prop.register(`employment.${prop.index}.startDate`, )} />
           </div>
 
           <div className="form-control">
