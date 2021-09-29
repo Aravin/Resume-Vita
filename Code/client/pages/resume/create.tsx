@@ -12,7 +12,7 @@ const Home: NextPage = () => {
     <div className="flex justify-center">
       <div className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl">
 
-        <h2>Create Invoice</h2>
+        <h2>Edit Resume</h2>
         <ResumeForm></ResumeForm>
 
       </div>

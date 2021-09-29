@@ -68,35 +68,11 @@ const schema = yup.object({
 }).required();
 
 export default function ResumeForm() {
+
+  // auth hook
   const { user, error, isLoading } = useUser();
-
-  console.log(user);
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<any>({
-    resolver: yupResolver(schema)
-  });
-  const [storedResume, storeResume] = useLocalStorage('resumeData', {});
-  const onSubmit: SubmitHandler<any> = data => {
-
-    console.log('on submit called.')
-    
-    // create object
-    const resumeData = {
-      user: user?.sub?.replace('|', '-'),
-      resume: data,
-    }
-
-    console.log({resumeData: resumeData});
-    storeResume(resumeData);
-    axios.post(process.env.NEXT_PUBLIC_API, resumeData)
-      .then(function (response) {
-        console.log(response);
-      })
-      .catch(function (error) {
-        console.log(error);
-      })
-  }
-  console.log({ errors: errors });
-  console.log(watch()); // watch input value by passing the name of it
+  // local storage hook
+  const [storedResume, storeResume] = useLocalStorage('resumeData', {} as any);
 
   const employmentInit = { index: 0, title: '', company: '', startDate: '', endDate: '', location: '', summary: '' };
   const educationInit = { index: 0, institution: '', subject: '', startDate: '', endDate: '', location: '', score: '' };
@@ -106,13 +82,45 @@ export default function ResumeForm() {
   const courseInit = { index: 0, name: '', institution: '', startDate: '', endDate: '' };
   const referenceInit = { index: 0, name: '', company: '', phone: '', email: '' };
 
-  const [employmentEle, updateEmployment] = useState([employmentInit]);
-  const [educationEle, updateEducation] = useState([educationInit]);
-  const [skillEle, updateSkill] = useState([skillInit]);
-  const [languageEle, updateLanguage] = useState([langInit]);
-  const [linkEle, updateLink] = useState([linkInit]);
-  const [courseEle, updateCourse] = useState([courseInit]);
-  const [referenceEle, updateReference] = useState([referenceInit]);
+  const [employmentEle, updateEmployment] = useState(storedResume?.resume?.employment || [employmentInit]);
+  const [educationEle, updateEducation] = useState(storedResume?.resume?.education || [educationInit]);
+  const [skillEle, updateSkill] = useState(storedResume?.resume?.skill || [skillInit]);
+  const [languageEle, updateLanguage] = useState(storedResume?.resume?.language || [langInit]);
+  const [linkEle, updateLink] = useState(storedResume?.resume?.link || [linkInit]);
+  const [courseEle, updateCourse] = useState(storedResume?.resume?.course || [courseInit]);
+  const [referenceEle, updateReference] = useState(storedResume?.resume?.reference || [referenceInit]);
+
+
+  // form hook
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<any>({
+    resolver: yupResolver(schema),
+    defaultValues: storedResume?.resume || {},
+  });
+
+  // resume submit
+  const onSubmit: SubmitHandler<any> = data => {    
+
+    // create object
+    const resumeData = {
+      user: user?.sub?.replace('|', '-'),
+      resume: data,
+    }
+
+    // store to localStorage - temp
+    storeResume(resumeData);
+
+    // save to database - permanent
+    axios.post(process.env.NEXT_PUBLIC_API + '', resumeData)
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
+  }
+  console.log({ errors: errors });
+  console.log(watch()); // watch input value by passing the name of it
 
   // employee functions
   const handleEmployeeAdd = (e: any) => {
