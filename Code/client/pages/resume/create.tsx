@@ -1,10 +1,9 @@
 import type { NextPage } from 'next'
 import React from 'react';
-import Preview from '../../components/preview/preview';
 import ResumeForm from '../../components/resume/form';
 import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
 
-const Home: NextPage = () => {
+const CreateResume: NextPage = () => {
 
   const { user, error, isLoading } = useUser();
 
@@ -20,6 +19,6 @@ const Home: NextPage = () => {
   )
 }
 
-export default Home
+export default CreateResume
 
 export const getServerSideProps = withPageAuthRequired();

@@ -4,10 +4,10 @@ export default function Preview() {
   return (
     <div className="mt-5">
 
-      <div className="px-20 py-5 bg-base-100">
+      <div className="px-5 py-5 bg-base-100 rounded shadow">
         <header className="py-4">
-          <h1 className="text-5xl mb-5 uppercase">Aravind Appadurai</h1>
-          <span className="text-xl text-gray-500 mb-5">Senior Software Engineer II</span>
+          <h1 className="text-5xl uppercase">Aravind Appadurai</h1>
+          <span className="text-xl text-gray-500">Senior Software Engineer II</span>
         </header>
 
         <hr></hr>

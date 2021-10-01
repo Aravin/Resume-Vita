@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Router from 'next/router';
 import { useUser } from '@auth0/nextjs-auth0';
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -113,11 +114,12 @@ export default function ResumeForm() {
     axios.post(process.env.NEXT_PUBLIC_API + '', resumeData)
       .then(function (response) {
         console.log(response);
+
+        Router.push('/resume/preview');
       })
       .catch(function (error) {
         console.log(error);
-      });
-
+      });      
   }
   console.log({ errors: errors });
   console.log(watch()); // watch input value by passing the name of it
