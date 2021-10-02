@@ -1,5 +1,5 @@
 import Navbar from './navbar'
-// import Footer from './footer'
+import Footer from './footer'
 
 export default function Layout({ children }: any) {
   return (
@@ -7,7 +7,8 @@ export default function Layout({ children }: any) {
       <Navbar />
 
       <main className="p-4">{children}</main>
-      {/* <Footer /> */}
+      
+      <Footer />
     </>
   )
 }
