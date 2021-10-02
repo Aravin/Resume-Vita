@@ -1,4 +1,10 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
+import { useUser } from '@auth0/nextjs-auth0';
+
 export default function Navbar() {
+
+  const { user, error, isLoading } = useUser();
+  console.table(user);
 
   return (
     <>
@@ -10,16 +16,37 @@ export default function Navbar() {
         </div>
         <div className="flex-none hidden px-2 mx-2 lg:flex">
           <div className="flex items-stretch">
-            <a className="btn btn-ghost btn-sm rounded-btn">
-              🌟 Features
-            </a>
-            <a className="btn btn-ghost btn-sm rounded-btn">
-              📖 Open Source
-            </a>
-
-            <a className="btn btn-ghost btn-sm rounded-btn">
-              🔐 Login
-            </a>
+            {!user &&
+              <>
+                <a className="btn btn-ghost btn-sm rounded-btn">
+                  🌟 Features
+                </a>
+                <a className="btn btn-ghost btn-sm rounded-btn">
+                  📖 Open Source
+                </a>
+                <a className="btn btn-ghost btn-sm rounded-btn" href="/api/auth/login">
+                  🔐 Login
+                </a>
+              </>
+            } {
+              user &&
+              <>
+                <div className="flex-none">
+                  <div className="btn btn-ghost text-md font-bold capitalize">
+                    👋🏻 Welcome, {user.name || user.nickname}!
+                  </div>
+                </div>
+                <div className="flex-none">
+                  <button className="">
+                  <div className="avatar">
+                    <div className="rounded-full w-10 h-10 m-1 ring ring-primary ring-offset-base-100 ring-offset-2">
+                      <img src={user.picture} />
+                    </div>
+                  </div>
+                  </button>
+                </div>
+              </>
+            }
           </div>
         </div>
         <div className="flex-none flex lg:hidden">

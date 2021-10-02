@@ -9,15 +9,16 @@ function MyApp({ Component, pageProps }: AppProps) {
   const { user } = pageProps;
 
   return (
-    <>
+    <><UserProvider>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
       <Layout>
-        <UserProvider user={user}>
-          <Component {...pageProps} />
-        </UserProvider>
+
+        <Component {...pageProps} />
+
       </Layout>
+    </UserProvider>
     </>
   )
 }
