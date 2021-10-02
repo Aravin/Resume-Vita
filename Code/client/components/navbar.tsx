@@ -1,9 +1,12 @@
+/* eslint-disable @next/next/no-img-element */
 /* This example requires Tailwind CSS v2.0+ */
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
+import { MenuIcon, XIcon } from '@heroicons/react/outline'
 
 import { useUser } from '@auth0/nextjs-auth0';
+import Link from 'next/link';
+import Image from 'next/image';
 
 let navigation = [{ name: '🔐 Login', href: '/api/auth/login', current: true }];
 
@@ -17,7 +20,8 @@ export default function Navbar() {
   console.log(user);
 
   if (user) {
-    navigation = [{ name: '📃 Resume', href: '/resume/create', current: true }];
+    // navigation = [{ name: '📃 Edit Resume', href: '/resume/create', current: true }];
+    navigation = [];
   } else {
     [{ name: '🔐 Login', href: '/api/auth/login', current: true }]
   }
@@ -42,7 +46,7 @@ export default function Navbar() {
               <div className="flex-1 flex sm:items-stretch sm:justify-start md:items-center md:justify-between">
                 <div className="flex-shrink-0 flex items-center">
                   <span className="text-lg font-bold hidden sm:block h-8 w-auto">
-                    📃 ResumeTree
+                    <Link href="/" key="logo">📃 ResumeTree</Link>
                   </span>
                 </div>
                 <div className="hidden sm:block sm:ml-6">
@@ -77,7 +81,7 @@ export default function Navbar() {
                         <span className="sr-only">Open user menu</span>
                         <div className="avatar">
                           <div className="rounded-full w-12 h-12 m-1">
-                            <img src={user.picture} />
+                            <img src={user?.picture + ""} alt="ResumeTree Logged User Profile Picture" />
                           </div>
                         </div>
                       </Menu.Button>
@@ -94,32 +98,29 @@ export default function Navbar() {
                       <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <Menu.Item>
                           {({ active }) => (
-                            <a
-                              href="#"
+                            <span
                               className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                             >
-                              Your Profile
-                            </a>
+                              <Link href="/resume/create" key="resume">📄 Your Resume</Link>
+                            </span>
                           )}
                         </Menu.Item>
                         <Menu.Item>
                           {({ active }) => (
-                            <a
-                              href="#"
+                            <span
                               className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                             >
-                              Settings
-                            </a>
+                              <Link href="/account/index" key="account">⚙️ Account & Settings</Link>
+                            </span>
                           )}
                         </Menu.Item>
                         <Menu.Item>
                           {({ active }) => (
-                            <a
-                              href="/api/auth/logout"
+                            <span
                               className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                             >
-                              Sign out
-                            </a>
+                              <Link href="/api/auth/logout" key="logout">🔓 Sign out</Link>
+                            </span>
                           )}
                         </Menu.Item>
                       </Menu.Items>
