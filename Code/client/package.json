@@ -26,6 +26,7 @@
     "filepond-plugin-image-preview": "^4.6.10",
     "html-pdf": "^3.0.1",
     "next": "11.1.2",
+    "nprogress": "^0.2.0",
     "postcss": "^8.3.6",
     "react": "17.0.2",
     "react-dom": "17.0.2",
@@ -37,6 +38,7 @@
   },
   "devDependencies": {
     "@types/html-pdf": "^2.2.1",
+    "@types/nprogress": "^0.2.0",
     "@types/react": "17.0.19",
     "@types/react-dom": "^17.0.9",
     "eslint": "7.32.0",
