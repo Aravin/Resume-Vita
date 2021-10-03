@@ -54,9 +54,17 @@ const schema = yup.object({
   education: yup.array().of(yup.object({
     institution: yup.string().required(),
     subject: yup.string().required(),
-    startDate: yup.date().required(),
-    endDate: yup.date().required(),
+    startDate: yup.string().required(),
+    endDate: yup.string().required(),
     score: yup.number().positive().required(),
+  })),
+  employment: yup.array().of(yup.object({
+    title: yup.string(),
+    company: yup.string(),
+    startDate: yup.string(),
+    endDate: yup.string(),
+    location: yup.string(),
+    summary: yup.string(),
   })),
   skill: yup.array().of(yup.object({
     name: yup.string().required(),
@@ -75,7 +83,7 @@ export default function ResumeForm() {
   // local storage hook
   const [storedResume, storeResume] = useLocalStorage('resumeData', {} as any);
 
-  const employmentInit = { index: 0, title: '', company: '', startDate: '', endDate: '', location: '', summary: '' };
+  const employmentInit = { index: 0, title: '', company: '', startDate: '', endDate: '', isCurrent: false, location: '', summary: '' };
   const educationInit = { index: 0, institution: '', subject: '', startDate: '', endDate: '', location: '', score: '' };
   const skillInit = { index: 0, name: '', level: '' };
   const langInit = { index: 0, name: '', level: '' };
