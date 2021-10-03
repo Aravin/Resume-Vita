@@ -1,13 +1,59 @@
-import style from '../../styles/Preview.module.css';
+import { useLocalStorage } from "../../hooks/useLocalStorage";
+import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
+import Link from 'next/link'
+import { FaFilePdf, FaFileWord, FaEdit } from 'react-icons/fa';
+import axios from 'axios';
 
 export default function Preview() {
+
+  const { user, error, isLoading } = useUser();
+
+  // local storage hook
+  const [storedResume, storeResume] = useLocalStorage('resumeData', {} as any);
+
+  const r = storedResume?.resume;
+
+  const handleClick = (e: any) => {
+    e.preventDefault();
+
+    console.log('handleSubmit called');
+    if (document) {
+      const html = document.querySelector('#preview')?.cloneNode(true);
+      console.log((new XMLSerializer()).serializeToString(html as Node));
+  
+      // save to database - permanent
+      axios.post(process.env.NEXT_PUBLIC_API + 'pdf', { html: (new XMLSerializer()).serializeToString(html as Node) })
+        .then(function (response) {
+          console.log(response);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    }
+  }
+
   return (
-    <div className="mt-5">
+    <>
+      <div className="flex gap-4 justify-end">
+        <div>
+          <button className="btn btn-sm btn-outline btn-accent" onClick={handleClick}>
+            <FaFilePdf/> &nbsp; GET PDF
+          </button>
+        </div>
+        {/* <div className="flex-1"><button className="btn btn-outline btn-secondary"><FaFileWord /> GET Word</button> </div> */}
+        <div>
+          <Link href="/resume/create" passHref>
+          <button className="btn btn-sm btn-outline btn-primary"><FaEdit/> &nbsp; Edit</button>
+          </Link>
+        </div>
+      </div>
+
+    <div className="mt-5" id="preview">
 
       <div className="px-5 py-5 bg-base-100 rounded shadow">
         <header className="py-4">
-          <h1 className="text-5xl uppercase">Aravind Appadurai</h1>
-          <span className="text-xl text-gray-500">Senior Software Engineer II</span>
+          <h1 className="text-5xl uppercase">{r.personal?.firstName + ' ' + r.personal?.lastName}</h1>
+          <span className="text-xl text-gray-500">{r.employment[0]?.title}</span>
         </header>
 
         <hr></hr>
@@ -20,188 +66,184 @@ export default function Preview() {
               <hr className="mt-2 border-2 border-solid border-gray-700 w-1/3"></hr>
               <div className="mt-4">
                 <h3 className="text-lg uppercase">Phone</h3>
-                <p className="mt-1 text-gray-500"> (+91) 9710549943 </p>
+                <p className="mt-1 text-gray-500"> {r.personal?.phone} </p>
               </div>
               <div className="mt-4">
                 <h3 className="text-lg uppercase">Email</h3>
-                <p className="mt-1 text-gray-500"> aravin.it@gmail.com </p>
+                <p className="mt-1 text-gray-500"> {r.personal?.email} </p>
               </div>
             </section>
 
-            <section className="py-4">
-              <h2 className="text-2xl font-bold uppercase">LINKS</h2>
-              <hr className="mt-2 border-2 border-solid border-gray-700 w-1/3"></hr>
-              <div className="mt-4">
-                <p className="mt-1 text-gray-500">
-                  <a href="https://www.aravin.net" target="_blank" rel="noopener noreferrer" className="underline">Blog</a>
-                </p>
-              </div>
-              <div className="mt-4">
-                <p className="mt-1 text-gray-500">
-                  <a href="https://github.com/Aravin/" target="_blank" rel="noopener noreferrer" className="underline">Github</a>
-                </p>
-              </div>
-            </section>
+            {
+              r.links[0] &&
 
-            <section className="py-4">
-              <h2 className="text-2xl font-bold uppercase">SKILLS</h2>
-              <hr className="mt-2 border-2 border-solid border-gray-700 w-1/3"></hr>
-              <div className="mt-4">
-                <div className="badge"> Node.js</div>
-              </div>
-              <div className="mt-4">
-                <div className="badge"> Typescript</div>
-              </div>
-              <div className="mt-4">
-                <div className="badge"> Javascript</div>
-              </div>
-              <div className="mt-4">
-                <div className="badge"> C#</div>
-              </div>
-              <div className="mt-4">
-                <div className="badge"> SQL</div>
-              </div>
-              <div className="mt-4">
-                <div className="badge"> HTML/CSS</div>
-              </div>
-              <div className="mt-4">
-                <div className="badge"> React.js/Angular</div>
-              </div>
-              <div className="mt-4">
-                <div className="badge"> Flutter</div>
-              </div>
-            </section>
+              <section className="py-4">
+                <h2 className="text-2xl font-bold uppercase">LINKS</h2>
+                <hr className="mt-2 border-2 border-solid border-gray-700 w-1/3"></hr>
 
+                {
+                  r.links.map((v: any, i: number) => {
+
+                    return <>
+                      <div className="mt-4" key={i}>
+                        <p className="mt-1 text-gray-500">
+                          <a href={v?.link} target="_blank" rel="noopener noreferrer" className="underline">{v?.label}</a>
+                        </p>
+                      </div>
+                    </>
+                  })
+                }
+              </section>
+            }
+
+            {
+              r.skills[0] &&
+
+              <section className="py-4">
+                <h2 className="text-2xl font-bold uppercase">SKILLS</h2>
+                <hr className="mt-2 border-2 border-solid border-gray-700 w-1/3"></hr>
+
+                {
+                  r.skills.map((v: any, i: number) => {
+                    return <>
+                      <div className="mt-4" key={i}>
+                        <div className="badge"> {v?.name}</div>
+                      </div>
+                    </>
+                  })
+                }
+              </section>
+            }
           </div>
+
+          {/* Divider */}
           <div className="grid grid-cols-2 divide-x divide-gray-200">
             <div></div>
             <div></div>
           </div>
+
+
           <div className="flex-auto ml-5">
             {/* Main Content */}
             <section className="py-4">
               <h2 className="text-2xl font-bold uppercase ">Profile</h2>
               <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
               <p className="mt-4 text-gray-500">
-                To gain a dynamic and challenging role in Information Technology, that will offer me the best opportunity for the further development of abilities, skills, and knowledge in a well-established firm with long term career growth possibilities.
+                {r.personal?.summary}
               </p>
             </section>
 
-            <section className="py-4">
-              <h2 className="text-2xl font-bold uppercase">Employment History</h2>
-              <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
+            {
+              r.employment[0] &&
 
-              {/* employment 0  */}
-              <article className="">
-                <div className="flex flex-row mt-8">
-                  <div className="flex-auto"><h3 className="text-xl font-bold">Senior Software Engineer II, Everi Fintech</h3></div>
-                  <div className="flex-2"><h3 className="">Chennai</h3></div>
-                </div>
-                <h4 className="mt-2">Aug 2018 - Present</h4>
-                <p className="mt-4 text-gray-500">
-                  Leading and Co-ordinating the team and completing the project/features/work item on the time. Supporting the peer for their queries and issues. Attending the meeting with management and consolidating the requirements. Supporting for Production issues.
-                </p>
-                <p>
-                  <span className="text-lg text-bold">Primary Skills</span>: Node.js, React.js, Angular.js, Flutter, ISO 8583 Messages
-                </p>
+              <section className="py-4">
+                <h2 className="text-2xl font-bold uppercase">Employment History</h2>
+                <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
 
-              </article>
+                {/* employment 0  */}
+                {
+                  r.employment.map((v: any, i: number) => {
+                    return <>
+                      <article className="" key={i}>
+                        <div className="flex flex-row mt-8">
+                          <div className="flex-auto"><h3 className="text-xl font-bold">{v?.title + ', ' + v?.company} </h3></div>
+                          <div className="flex-2"><h3 className="">{v?.location}</h3></div>
+                        </div>
+                        <h4 className="mt-2">{v?.startDate} to {v?.isCurrent ? 'Present' : v?.endDate}</h4>
+                        <p className="mt-4 text-gray-500">
+                          {v?.summary}
+                        </p>
+                      </article>
+                    </>
+                  })
+                }
+              </section>
+            }
 
+            {r.education[0] &&
 
-              {/* employment 1  */}
-              <article className="">
-                <div className="flex flex-row mt-8">
-                  <div className="flex-auto"><h3 className="text-xl font-bold">Senior Engineer, CSS Corp</h3></div>
-                  <div className="flex-2"><h3 className="">Chennai</h3></div>
-                </div>
-                <h4 className="mt-2">Feb, 2017 - Jul, 2018</h4>
-                <p className="mt-4 text-gray-500">
-                  Maintaining and Feature enhancement for existing web application using ASP.NET MVC, C#, Oracle Databases, Web/Windows  Service, ADS server and Angular.
-                </p>
-              </article>
+              <section className="py-4">
+                <h2 className="text-2xl font-bold uppercase">Education</h2>
+                <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
 
-              {/* employment 2  */}
-              <article className="">
-                <div className="flex flex-row mt-8">
-                  <div className="flex-auto"><h3 className="text-xl font-bold">Software Engineer, Quess Corp (contract on IBM)</h3></div>
-                  <div className="flex-2"><h3 className="">Chennai</h3></div>
-                </div>
-                <h4 className="mt-2">Jun, 2016 - Feb, 2017</h4>
-                <p className="mt-4 text-gray-500">
-                  Developing web application using ASP.NET MVC, C#, SQL, HTML5, CSS3, JavaScript, JQuery.
-                </p>
-              </article>
+                {/* education 0  */}
+                {
+                  r.education?.map((v: any, i: number) => {
+                    return <>
+                      <article className="" key={i}>
+                        <div className="flex flex-row mt-8">
+                          <div className="flex-auto">
+                            <h3 className="text-xl font-bold">{v?.subject}</h3>
+                            <h4 className="text-lg">{v?.institution}</h4>
+                          </div>
+                          <div className="flex-2">
+                            <h3 className="">{v?.startDate} to {v?.endDate}</h3>
+                            {/* <h4 className="text-lg">{ r.education[0]?.score }</h4> */}
+                          </div>
+                        </div>
+                      </article>
+                    </>
+                  })
+                }
+              </section>
+            }
 
-              {/* employment 3  */}
-              <article className="">
-                <div className="flex flex-row mt-8">
-                  <div className="flex-auto"><h3 className="text-xl font-bold">Associate, EC Software</h3></div>
-                  <div className="flex-2"><h3 className="">Chennai</h3></div>
-                </div>
-                <h4 className="mt-2">Aug, 2014 - Apr, 2016</h4>
-                <p className="mt-4 text-gray-500">
-                  Developed and Maintained Online Catalog Tool using ASP.NET, C#, SQL, HTML5, CSS, JavaScript, Capybara, Calabash, Jenkins,  BrowserStack and Amazon DeviceFarm.
-                </p>
-              </article>
+            {r.course[0] &&
+              <section className="py-4">
+                <h2 className="text-2xl font-bold uppercase">Certification</h2>
+                <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
 
-            </section>
+                {/* certificate 0  */}
+                {
+                  r.course.map((v: any, i: number) => {
+                    return <>
+                      <article className="mb-8" key={i}>
+                        <div className="flex flex-row mt-4">
+                          <div className="flex-auto">
+                            <h3 className="text-xl font-bold">{v?.name}</h3>
+                          </div>
+                          <div className="flex-2"><h3 className="">{v?.institution}</h3></div>
+                        </div>
+                        <h4 className="mt-2">{v?.startDate} {v?.startDate ? 'to ' + v?.startDate : ''}</h4>
+                      </article>
+                    </>
+                  })
+                }
+              </section>
+            }
 
-            <section className="py-4">
-              <h2 className="text-2xl font-bold uppercase">Education</h2>
-              <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
+            {r.reference[0] &&
 
-              {/* education 0  */}
-              <article className="">
-                <div className="flex flex-row mt-8">
-                  <div className="flex-auto">
-                    <h3 className="text-xl font-bold">B. Tech – Information Technology</h3>
-                    <h4 className="text-lg">Bhajarang Engineering College</h4>
-                  </div>
-                  <div className="flex-2"><h3 className="">Apr, 2010 - Apr, 2014</h3></div>
-                </div>
-              </article>
+              <section className="py-4">
+                <h2 className="text-2xl font-bold uppercase">References</h2>
+                <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
 
-              {/* education 1  */}
-              <article className="">
-                <div className="flex flex-row mt-8">
-                  <div className="flex-auto">
-                    <h3 className="text-xl font-bold">HSC (12th)</h3>
-                    <h4 className="text-lg">Salvation Matriculation Hr. Sec School – Matriculation</h4>
-                  </div>
-                  <div className="flex-2"><h3 className="">Apr, 2009 - Apr, 2010</h3></div>
-                </div>
-              </article>
-
-              {/* education 2  */}
-              <article className="">
-                <div className="flex flex-row mt-8">
-                  <div className="flex-auto">
-                    <h3 className="text-xl font-bold">SSL (10th)</h3>
-                    <h4 className="text-lg">Salvation Matriculation School – Matriculation</h4>
-                  </div>
-                  <div className="flex-2"><h3 className="">Apr, 2007 - Apr, 2008</h3></div>
-                </div>
-              </article>
-            </section>
-
-            <section className="py-4">
-              <h2 className="text-2xl font-bold uppercase">Certification</h2>
-              <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
-
-              {/* certificate 0  */}
-              <article className="mb-8">
-                <div className="flex flex-row mt-4">
-                  <div className="flex-auto">
-                    <h3 className="text-xl font-bold">70-483 - Programming in C# (MCP)</h3>
-                  </div>
-                  <div className="flex-2"><h3 className="">Microsoft</h3></div>
-                </div>
-                <h4 className="mt-2">Jan, 2018</h4>
-              </article>
-            </section>
+                {/* education 0  */}
+                {
+                  r.reference?.map((v: any, i: number) => {
+                    return <>
+                      <article className="" key={i}>
+                        <div className="flex flex-row mt-8">
+                          <div className="flex-auto">
+                            <h3 className="text-xl font-bold">{v?.company}</h3>
+                            <h4 className="text-lg">Phone: {v?.phone}, Email: {v?.email}</h4>
+                          </div>
+                          <div className="flex-2">
+                            <h3 className="">{v?.name} </h3>
+                            {/* <h4 className="text-lg">{ r.education[0]?.score }</h4> */}
+                          </div>
+                        </div>
+                      </article>
+                    </>
+                  })
+                }
+              </section>
+            }
           </div>
         </div>
       </div>
     </div>
+
+    </>
   );
 }

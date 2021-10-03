@@ -27,7 +27,13 @@ import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orien
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
+import FilePondPluginImageCrop from 'filepond-plugin-image-crop';
+import FilePondPluginImageResize from 'filepond-plugin-image-resize';
+import FilePondPluginImageTransform from 'filepond-plugin-image-transform';
+import FilePondPluginImageEdit from 'filepond-plugin-image-edit';
+
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+import 'filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css';
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 // Register the plugins
@@ -36,6 +42,10 @@ registerPlugin(
   FilePondPluginImagePreview,
   FilePondPluginFileValidateType,
   FilePondPluginFileValidateSize,
+  FilePondPluginImageCrop,
+  FilePondPluginImageResize,
+  FilePondPluginImageTransform,
+  FilePondPluginImageEdit,  
 );
 
 // type Inputs = {
@@ -64,6 +74,7 @@ const schema = yup.object({
     startDate: yup.string(),
     endDate: yup.string(),
     location: yup.string(),
+    isCurrent: yup.bool(),
     summary: yup.string(),
   })),
   skill: yup.array().of(yup.object({
@@ -83,7 +94,7 @@ export default function ResumeForm() {
   // local storage hook
   const [storedResume, storeResume] = useLocalStorage('resumeData', {} as any);
 
-  const employmentInit = { index: 0, title: '', company: '', startDate: '', endDate: '', isCurrent: false, location: '', summary: '' };
+  const employmentInit = { index: 0, title: '', company: '', startDate: '', endDate: '', isCurrent: '', location: '', summary: '' };
   const educationInit = { index: 0, institution: '', subject: '', startDate: '', endDate: '', location: '', score: '' };
   const skillInit = { index: 0, name: '', level: '' };
   const langInit = { index: 0, name: '', level: '' };
@@ -93,9 +104,9 @@ export default function ResumeForm() {
 
   const [employmentEle, updateEmployment] = useState(storedResume?.resume?.employment || [employmentInit]);
   const [educationEle, updateEducation] = useState(storedResume?.resume?.education || [educationInit]);
-  const [skillEle, updateSkill] = useState(storedResume?.resume?.skill || [skillInit]);
+  const [skillEle, updateSkill] = useState(storedResume?.resume?.skills || [skillInit]);
   const [languageEle, updateLanguage] = useState(storedResume?.resume?.language || [langInit]);
-  const [linkEle, updateLink] = useState(storedResume?.resume?.link || [linkInit]);
+  const [linkEle, updateLink] = useState(storedResume?.resume?.links || [linkInit]);
   const [courseEle, updateCourse] = useState(storedResume?.resume?.course || [courseInit]);
   const [referenceEle, updateReference] = useState(storedResume?.resume?.reference || [referenceInit]);
 
@@ -119,7 +130,7 @@ export default function ResumeForm() {
     storeResume(resumeData);
 
     // save to database - permanent
-    axios.post(process.env.NEXT_PUBLIC_API + '', resumeData)
+    axios.post(process.env.NEXT_PUBLIC_API + 'resume', resumeData)
       .then(function (response) {
         console.log(response);
 
@@ -127,7 +138,7 @@ export default function ResumeForm() {
       })
       .catch(function (error) {
         console.log(error);
-      });      
+      });   
   }
   console.log({ errors: errors });
   console.log(watch()); // watch input value by passing the name of it
@@ -262,22 +273,23 @@ export default function ResumeForm() {
             </div>
           </div>
 
-          <div className="flex-1 h-full items-center self-center">
+          {/* <div className="flex-1 h-full items-center self-center">
             <FilePond
               files={[]}
               acceptedFileTypes={['image/*']}
               maxFileSize={'1MB'}
               imagePreviewHeight={128}
               allowMultiple={false}
+              stylePanelLayout='compact'
               // name="files"
               labelIdle='Add Photo (Optional) <span class="filepond--label-action">Browse</span>'
               // oninit={() => this.handleInit()}
               onupdatefiles={fileItems => {
-
+                console.log(fileItems)
               }}
               {...register("personal.photo")}
             />
-          </div>
+          </div> */}
         </div>
 
         <div className="flex gap-6">
@@ -325,7 +337,7 @@ export default function ResumeForm() {
       <div className="bg-white p-6 rounded shadow">
 
         {
-          educationEle.map((e, i) => {
+          educationEle.map((e: any, i: number) => {
             e.index = i;
             return EducationForm({ ...e, register, delete: handleEducationDelete, errors: errors.education });
           })
@@ -346,7 +358,7 @@ export default function ResumeForm() {
       <div className="bg-white p-6 rounded shadow">
 
         {
-          employmentEle.map((e, i) => {
+          employmentEle.map((e: any, i: number) => {
             e.index = i;
             return EmploymentForm({ ...e, register, delete: handleEmployeeDelete, errors: errors.employee });
           })
@@ -367,9 +379,9 @@ export default function ResumeForm() {
       <div className="bg-white p-6 rounded shadow">
 
         {
-          skillEle.map((e, i) => {
+          skillEle.map((e: any, i: number) => {
             e.index = i;
-            return SkillForm({ ...e, register, delete: handleSkillDelete, errors: errors.skill });
+            return SkillForm({ ...e, register, delete: handleSkillDelete, errors: errors.skills });
           })
         }
 
@@ -388,7 +400,7 @@ export default function ResumeForm() {
       <div className="bg-white p-6 rounded shadow">
 
         {
-          languageEle.map((e, i) => {
+          languageEle.map((e: any, i: number) => {
             e.index = i;
             return LanguageForm({ ...e, register, delete: handleLangDelete, errors: errors.language });
           })
@@ -409,9 +421,9 @@ export default function ResumeForm() {
       <div className="bg-white p-6 rounded shadow">
 
         {
-          linkEle.map((e, i) => {
+          linkEle.map((e: any, i: number) => {
             e.index = i;
-            return LinkForm({ ...e, register, delete: handleLinkDelete, errors: errors.link });
+            return LinkForm({ ...e, register, delete: handleLinkDelete, errors: errors.links });
           })
         }
 
@@ -430,7 +442,7 @@ export default function ResumeForm() {
       <div className="bg-white p-6 rounded shadow">
 
         {
-          courseEle.map((e, i) => {
+          courseEle.map((e: any, i: number) => {
             e.index = i;
             return CourseForm({ ...e, register, delete: handleCourseDelete, errors: errors.course });
           })
@@ -450,7 +462,7 @@ export default function ResumeForm() {
       <div className="bg-white p-6 rounded shadow">
 
         {
-          referenceEle.map((e, i) => {
+          referenceEle.map((e: any, i: number) => {
             e.index = i;
             return ReferenceForm({ ...e, register, delete: handleReferenceDelete, errors: errors.reference });
           })

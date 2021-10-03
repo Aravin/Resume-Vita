@@ -11,7 +11,7 @@ const Home: NextPage = () => {
           <img src="/resume_undraw.svg" className="max-w-md" />
           <div>
           <h1 className="mb-5 text-5xl font-bold">
-          Resume Tree
+          Resume Tree (Alpha)
           </h1>
           <p className="mb-5">
           Generate a resume, download as PDF, download as Word and share directly to your friends or recruiter. This is free and open source service. 

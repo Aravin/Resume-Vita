@@ -1,5 +1,5 @@
 import { Router, Request, Response} from 'express';
-import { generatePDF } from './api/pdf';
+import { generatePDF } from './api/pdf/generate';
 import { addResume } from './api/resume/add';
 
 export const router = Router(); 
