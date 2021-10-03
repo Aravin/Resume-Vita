@@ -1,10 +1,10 @@
-import { Request, Response} from 'express';
+import { Request, Response } from 'express';
 import { MongoClient } from 'mongodb';
 
 export async function addResume(req: Request, res: Response) {
 
     try {
-        
+
         const body = req.body;
 
         // basic validation
@@ -17,9 +17,13 @@ export async function addResume(req: Request, res: Response) {
         }
 
         // collections
-        const collection = (res.locals.db as MongoClient).db("resumeTree").collection("resume");
+        const collection = (res.locals.db as MongoClient).db("resumeTree").collection("resumes");
 
-        const response = await collection.insertOne(body);
+        const query = { user: body.user };
+        const update = { $set: body };
+        const options = { upsert: true };
+
+        const response = await collection.updateOne(query, update, options);
 
         res.send(response);
     }
