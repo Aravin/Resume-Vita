@@ -25,10 +25,14 @@ export default function Preview() {
       }
 
       // save to database - permanent
-      axios.post(process.env.NEXT_PUBLIC_API + 'pdf', body)
+      axios.post(process.env.NEXT_PUBLIC_API + '/pdf', body)
         .then(function (response) {
 
-          window.open(`${process.env.NEXT_PUBLIC_API_BASE_PATH}${response.data.pdf}`);
+          var link = document.createElement('a');
+          link.href = `${process.env.NEXT_PUBLIC_API_BASE_PATH}${response.data.pdf}`;
+          link.download = response.data.pdf;
+          link.target = '_blank';
+          link.dispatchEvent(new MouseEvent('click'));
         })
         .catch(function (error) {
         });
