@@ -1,12 +1,8 @@
 import type { NextPage } from 'next'
 import Preview from '../../components/preview/preview';
-import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 
 const PreviewPage: NextPage = () => {
-
-  if (document) {
-    console.log(document.querySelector('#preview')?.cloneNode(true));
-  }
 
   return (
     <div className="flex justify-center">

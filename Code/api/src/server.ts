@@ -5,6 +5,7 @@ import { appConfig } from './config';
 import { router } from './router';
 import { db } from './helpers/db';
 import path from 'path';
+import { browser } from './helpers/browser';
 
 // initialize the express app
 const app = express();
@@ -13,7 +14,7 @@ const app = express();
 app
     .use(cors())
     .use(express.static(path.join(__dirname, 'public')))
-    .use((req, res, next) => {
+    .use(async (req, res, next) => {
         // initialize the db
         res.locals.db = db;
         next()

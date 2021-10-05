@@ -2,3 +2,5 @@
 /dist
 /generated
 .env
+
+*.tsbuildinfo

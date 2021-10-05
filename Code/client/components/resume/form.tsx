@@ -132,16 +132,14 @@ export default function ResumeForm() {
     // save to database - permanent
     axios.post(process.env.NEXT_PUBLIC_API + 'resume', resumeData)
       .then(function (response) {
-        console.log(response);
 
         Router.push('/resume/preview');
       })
       .catch(function (error) {
-        console.log(error);
       });   
   }
-  console.log({ errors: errors });
-  console.log(watch()); // watch input value by passing the name of it
+  // console.log({ errors: errors });
+  // console.log(watch()); // watch input value by passing the name of it
 
   // employee functions
   const handleEmployeeAdd = (e: any) => {

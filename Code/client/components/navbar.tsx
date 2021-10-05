@@ -17,7 +17,6 @@ function classNames(...classes: string[]) {
 export default function Navbar() {
 
   const { user, error, isLoading } = useUser();
-  console.log(user);
 
   if (user) {
     // navigation = [{ name: '📃 Edit Resume', href: '/resume/create', current: true }];
