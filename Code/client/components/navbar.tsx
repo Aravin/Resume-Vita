@@ -100,7 +100,7 @@ export default function Navbar() {
                             <span
                               className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                             >
-                              <Link href="/resume/create" key="resume">📄 Your Resume</Link>
+                              <Link href="/resume" key="resume">📄 Your Resume</Link>
                             </span>
                           )}
                         </Menu.Item>
@@ -109,7 +109,7 @@ export default function Navbar() {
                             <span
                               className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                             >
-                              <Link href="/account/index" key="account">⚙️ Account & Settings</Link>
+                              <Link href="/account" key="account">⚙️ Account & Settings</Link>
                             </span>
                           )}
                         </Menu.Item>

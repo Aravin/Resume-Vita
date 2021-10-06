@@ -21,7 +21,7 @@ export default function Preview() {
 
       const body = {
         html: (new XMLSerializer()).serializeToString(html as Node),
-        user: user?.sub?.replace('|', '-'),
+        user: user?.sub?.split('|')[1],
       }
 
       // save to database - permanent

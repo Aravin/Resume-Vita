@@ -24,6 +24,8 @@ export async function generatePDF(req: Request, res: Response) {
         // create a new page
         const page = await browser.newPage();
 
+        await page.setViewport({ width: 800, height: 1000 })
+
         // set your html as the pages content
         const html = fs.readFileSync(`${process.cwd()}/dist/public/${user}.html`, 'utf8');
 
@@ -36,6 +38,8 @@ export async function generatePDF(req: Request, res: Response) {
             format: 'A4' as any,
             path: `${process.cwd()}/dist/public/${user}.pdf`
         })
+
+        await page.screenshot({ path: `${process.cwd()}/dist/public/${user}.png` });
 
         res.send({ pdf: `${user}.pdf` });
     }

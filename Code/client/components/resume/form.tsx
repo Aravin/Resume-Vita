@@ -122,7 +122,7 @@ export default function ResumeForm() {
 
     // create object
     const resumeData = {
-      user: user?.sub?.replace('|', '-'),
+      user: user?.sub?.split('|')[1],
       resume: data,
     }
 
