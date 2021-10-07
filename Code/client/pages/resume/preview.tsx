@@ -1,5 +1,5 @@
 import type { NextPage } from 'next'
-import Preview from '../../components/preview/preview';
+import Preview from '../../components/preview/Preview';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 
 const PreviewPage: NextPage = () => {

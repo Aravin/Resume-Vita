@@ -1,6 +1,6 @@
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
-import Layout from '../components/layout';
+import Layout from '../components/Layout';
 import Head from 'next/head'
 import { UserProvider } from '@auth0/nextjs-auth0';
 import Router from 'next/router';

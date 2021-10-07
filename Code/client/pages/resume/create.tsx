@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import React from 'react';
-import ResumeForm from '../../components/resume/form';
+import ResumeForm from '../../components/resume/Form';
 import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
 
 const CreateResume: NextPage = () => {

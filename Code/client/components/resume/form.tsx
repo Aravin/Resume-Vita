@@ -5,13 +5,13 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 
-import CourseForm from "./courseForm";
-import EducationForm from "./educationForm";
-import EmploymentForm from "./employmentForm";
-import LanguageForm from "./languageForm";
-import LinkForm from "./linkForm";
-import ReferenceForm from "./referenceForm";
-import SkillForm from "./skillForm";
+import CourseForm from "./CourseForm";
+import EducationForm from "./EducationForm";
+import EmploymentForm from "./EmploymentForm";
+import LanguageForm from "./LanguageForm";
+import LinkForm from "./LinkForm";
+import ReferenceForm from "./ReferenceForm";
+import SkillForm from "./SkillForm";
 
 import axios from 'axios';
 
