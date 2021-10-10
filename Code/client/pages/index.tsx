@@ -1,5 +1,4 @@
 import type { NextPage } from 'next'
-import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 
@@ -8,7 +7,7 @@ const Home: NextPage = () => {
     <>
       <div className="hero min-h-screen bg-base-200">
         <div className="flex-col hero-content lg:flex-row-reverse">
-          <img src="/resume_undraw.svg" className="max-w-md" />
+          <Image src="/resume_undraw.svg" alt="Resume Tree Hero Image" className="max-w-md" />
           <div>
           <h1 className="mb-5 text-5xl font-bold">
           Resume Tree (Alpha)
