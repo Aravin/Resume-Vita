@@ -59,11 +59,11 @@ const AccountPage: NextPage = () => {
             </div>
           </div>
 
-          <div className="mt-5">
+          {/* <div className="mt-5">
             <div className="btn btn-block btn-outline btn-primary">
               <Link href="/account/edit">Edit</Link>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
