@@ -2,7 +2,7 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { MenuIcon, XIcon } from '@heroicons/react/outline'
+import { MenuIcon, XIcon, ChevronDownIcon } from '@heroicons/react/outline'
 
 import { useUser } from '@auth0/nextjs-auth0';
 import Link from 'next/link';
@@ -69,19 +69,23 @@ export default function Navbar() {
 
               {user &&
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                  <div className="btn btn-ghost text-md font-bold capitalize">
-                    👋🏻 Welcome, {user.nickname || user.name}!
+                  <div className="text-md font-bold capitalize pr-5">
+                    👋🏻 Welcome, {user.name || user.given_name || user.nickname}!
+                  </div>
+
+                  <div className="avatar">
+                    <div className="rounded-full w-12 h-12 m-1">
+                      <Image src={user?.picture + ""} width="48" height="48" alt="ResumeTree Logged User Profile Picture" />
+                    </div>
                   </div>
 
                   {/* Profile dropdown */}
                   <Menu as="div" className="ml-3 relative">
                     <div>
-                      <Menu.Button className="bg-primary flex text-sm rounded-full focus:outline-none focus:ring-1 focus:ring-offset-2 focus:ring-offset-neutral focus:ring-primary">
+                      <Menu.Button className="bg-primary flex text-sm">
                         <span className="sr-only">Open user menu</span>
-                        <div className="avatar">
-                          <div className="rounded-full w-12 h-12 m-1">
-                            <img src={user?.picture + ""} alt="ResumeTree Logged User Profile Picture" />
-                          </div>
+                        <div>
+                          <ChevronDownIcon className="block h-6 w-6" aria-hidden="true" />
                         </div>
                       </Menu.Button>
                     </div>
