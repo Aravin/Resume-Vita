@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
 /* eslint-disable @next/next/no-img-element */
 /* This example requires Tailwind CSS v2.0+ */
 import { Fragment } from 'react'
@@ -21,8 +22,6 @@ export default function Navbar() {
   if (user) {
     // navigation = [{ name: '📃 Edit Resume', href: '/resume/create', current: true }];
     navigation = [];
-  } else {
-    [{ name: '🔐 Login', href: '/api/auth/login', current: true }]
   }
 
   return (
@@ -122,7 +121,7 @@ export default function Navbar() {
                             <span
                               className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                             >
-                              <Link href="/api/auth/logout" key="logout">🔓 Sign out</Link>
+                              <a href="/api/auth/logout" key="logout">🔓 Sign out</a>
                             </span>
                           )}
                         </Menu.Item>
