@@ -4,8 +4,8 @@ export default function Footer() {
     <>
       <section className="text-gray-700 bg-white body-font">
         <div className="container flex flex-col items-center px-8 py-8 mx-auto max-w-7xl sm:flex-row">
-          <a href="#_" className="text-xl font-black leading-none text-gray-700 select-none logo">Resume<span className="text-primary">Tree</span></a>
-          <p className="mt-4 text-sm text-gray-500 sm:ml-4 sm:pl-4 sm:border-l sm:border-gray-200 sm:mt-0">© { new Date().getFullYear() } | Free | Open Source | Developed by <a href="https://www.aravin.net/?ref=resumeTree" target="_blank" rel="noopener noreferrer">Aravin</a> 
+          <a href="#_" className="text-xl font-black leading-none text-gray-700 select-none logo">Resume<span className="text-primary">Vita</span></a>
+          <p className="mt-4 text-sm text-gray-500 sm:ml-4 sm:pl-4 sm:border-l sm:border-gray-200 sm:mt-0">© { new Date().getFullYear() } | Free | Open Source | Developed by <a href="https://www.aravin.net/?ref=resumeVita" target="_blank" rel="noopener noreferrer">Aravin</a> 
           </p>
           <span className="inline-flex justify-center mt-4 space-x-5 sm:ml-auto sm:mt-0 sm:justify-start">
             <a href="#" className="text-gray-400 hover:text-gray-500">

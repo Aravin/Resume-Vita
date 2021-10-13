@@ -44,7 +44,7 @@ export default function Navbar() {
               <div className="flex-1 flex sm:items-stretch sm:justify-start md:items-center md:justify-between">
                 <div className="flex-shrink-0 flex items-center">
                   <span className="text-lg font-bold hidden sm:block h-8 w-auto">
-                    <Link href="/" key="logo">📃 ResumeTree</Link>
+                    <Link href="/" key="logo">📃 ResumeVita</Link>
                   </span>
                 </div>
                 <div className="hidden sm:block sm:ml-6">
@@ -74,7 +74,7 @@ export default function Navbar() {
 
                   <div className="avatar">
                     <div className="rounded-full w-12 h-12 m-1">
-                      <Image src={user?.picture + ""} width="48" height="48" alt="ResumeTree Logged User Profile Picture" />
+                      <Image src={user?.picture + ""} width="48" height="48" alt="resumeVita Logged User Profile Picture" />
                     </div>
                   </div>
 

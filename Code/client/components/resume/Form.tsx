@@ -129,8 +129,6 @@ export default function ResumeForm() {
     // store to localStorage - temp
     storeResume(resumeData);
 
-    console.log(process.env)
-
     // save to database - permanent
     axios.post(process.env.NEXT_PUBLIC_API + '/resume', resumeData)
       .then(function (response) {
