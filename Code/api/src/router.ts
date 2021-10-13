@@ -1,6 +1,7 @@
 import { Router, Request, Response} from 'express';
 import { generatePDF } from './api/pdf/generate';
 import { addResume } from './api/resume/add';
+import { readResume } from './api/resume/read';
 
 export const router = Router(); 
 
@@ -10,6 +11,10 @@ router.get('/health', (req: Request, res: Response) => {
 
 router.post('/pdf', async (req: Request, res: Response) => {
     return await generatePDF(req, res);
+});
+
+router.get('/resume/:userId', async (req: Request, res: Response) => {
+    return await readResume(req, res);
 });
 
 router.post('/resume', async (req: Request, res: Response) => {
