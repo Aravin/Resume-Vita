@@ -9,6 +9,7 @@ const ResumePage: NextPage = () => {
 
   const { user, error, isLoading } = useUser();
 
+
   const handleClick = (e: any) => {
     e.preventDefault();
 
@@ -57,4 +58,6 @@ const ResumePage: NextPage = () => {
 
 export default ResumePage
 
-export const getServerSideProps = withPageAuthRequired();
+export const getServerSideProps = withPageAuthRequired({
+  returnTo: '/resume'
+});

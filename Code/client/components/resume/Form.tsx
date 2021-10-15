@@ -23,29 +23,29 @@ import "filepond/dist/filepond.min.css";
 
 // Import the Image EXIF Orientation and Image Preview plugins
 // Note: These need to be installed separately
-import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
-import FilePondPluginImagePreview from "filepond-plugin-image-preview";
-import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
-import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
-import FilePondPluginImageCrop from 'filepond-plugin-image-crop';
-import FilePondPluginImageResize from 'filepond-plugin-image-resize';
-import FilePondPluginImageTransform from 'filepond-plugin-image-transform';
-import FilePondPluginImageEdit from 'filepond-plugin-image-edit';
+// import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
+// import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+// import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+// import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
+// import FilePondPluginImageCrop from 'filepond-plugin-image-crop';
+// import FilePondPluginImageResize from 'filepond-plugin-image-resize';
+// import FilePondPluginImageTransform from 'filepond-plugin-image-transform';
+// import FilePondPluginImageEdit from 'filepond-plugin-image-edit';
 
-import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
-import 'filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css';
+// import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+// import 'filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css';
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 // Register the plugins
 registerPlugin(
-  FilePondPluginImageExifOrientation,
-  FilePondPluginImagePreview,
-  FilePondPluginFileValidateType,
-  FilePondPluginFileValidateSize,
-  FilePondPluginImageCrop,
-  FilePondPluginImageResize,
-  FilePondPluginImageTransform,
-  FilePondPluginImageEdit,  
+  // FilePondPluginImageExifOrientation,
+  // FilePondPluginImagePreview,
+  // FilePondPluginFileValidateType,
+  // FilePondPluginFileValidateSize,
+  // FilePondPluginImageCrop,
+  // FilePondPluginImageResize,
+  // FilePondPluginImageTransform,
+  // FilePondPluginImageEdit,
 );
 
 // type Inputs = {
@@ -87,12 +87,26 @@ const schema = yup.object({
   })),
 }).required();
 
-export default function ResumeForm() {
+export default function ResumeForm(prop: any) {
+
+  const [storedResume, updateResume] = useState({} as any);
 
   // auth hook
   const { user, error, isLoading } = useUser();
+
+  useEffect(() => {
+    async function fetchData() {
+
+      const res = await fetch(process.env.NEXT_PUBLIC_API + `/resume/${user?.sub?.split('|')[1]}`);
+      const data = await res.json();
+
+      updateResume(data?.resume || {});
+    }
+    fetchData();
+  }, []);
+
   // local storage hook
-  const [storedResume, storeResume] = useLocalStorage('resumeData', {} as any);
+  // const [storedResume, storeResume] = useLocalStorage('resumeData', {} as any);
 
   const employmentInit = { index: 0, title: '', company: '', startDate: '', endDate: '', isCurrent: '', location: '', summary: '' };
   const educationInit = { index: 0, institution: '', subject: '', startDate: '', endDate: '', location: '', score: '' };
@@ -102,23 +116,24 @@ export default function ResumeForm() {
   const courseInit = { index: 0, name: '', institution: '', startDate: '', endDate: '' };
   const referenceInit = { index: 0, name: '', company: '', phone: '', email: '' };
 
-  const [employmentEle, updateEmployment] = useState(storedResume?.resume?.employment || [employmentInit]);
-  const [educationEle, updateEducation] = useState(storedResume?.resume?.education || [educationInit]);
-  const [skillEle, updateSkill] = useState(storedResume?.resume?.skills || [skillInit]);
-  const [languageEle, updateLanguage] = useState(storedResume?.resume?.language || [langInit]);
-  const [linkEle, updateLink] = useState(storedResume?.resume?.links || [linkInit]);
-  const [courseEle, updateCourse] = useState(storedResume?.resume?.course || [courseInit]);
-  const [referenceEle, updateReference] = useState(storedResume?.resume?.reference || [referenceInit]);
+  console.log(storedResume?.employment);
 
+  const [employmentEle, updateEmployment] = useState(storedResume?.employment || [employmentInit]);
+  const [educationEle, updateEducation] = useState(storedResume?.education || [educationInit]);
+  const [skillEle, updateSkill] = useState(storedResume?.skills || [skillInit]);
+  const [languageEle, updateLanguage] = useState(storedResume?.language || [langInit]);
+  const [linkEle, updateLink] = useState(storedResume?.links || [linkInit]);
+  const [courseEle, updateCourse] = useState(storedResume?.course || [courseInit]);
+  const [referenceEle, updateReference] = useState(storedResume?.reference || [referenceInit]);
 
   // form hook
   const { register, handleSubmit, watch, formState: { errors } } = useForm<any>({
     resolver: yupResolver(schema),
-    defaultValues: storedResume?.resume || {},
+    // defaultValues: storedResume || {},
   });
 
   // resume submit
-  const onSubmit: SubmitHandler<any> = data => {    
+  const onSubmit: SubmitHandler<any> = data => {
 
     // create object
     const resumeData = {
@@ -127,7 +142,7 @@ export default function ResumeForm() {
     }
 
     // store to localStorage - temp
-    storeResume(resumeData);
+    // storeResume(resumeData);
 
     // save to database - permanent
     axios.post(process.env.NEXT_PUBLIC_API + '/resume', resumeData)
@@ -136,7 +151,7 @@ export default function ResumeForm() {
         Router.push('/resume/preview');
       })
       .catch(function (error) {
-      });   
+      });
   }
   // console.log({ errors: errors });
   // console.log(watch()); // watch input value by passing the name of it
@@ -231,10 +246,6 @@ export default function ResumeForm() {
     updateReference(list);
   }
   // end of Reference functions
-
-  useEffect(() => {
-  }, []);
-
 
   return (
     // onSubmit={handleSubmit(onSubmit)}
