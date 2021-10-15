@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import puppeteer from 'puppeteer';
 import fs from 'fs';
+import { s3Client } from "../../helpers/s3";
+import { appConfig } from '../../config';
+import { PutObjectCommand, CreateBucketCommand } from "@aws-sdk/client-s3";
 
 export async function generatePDF(req: Request, res: Response) {
 
@@ -19,27 +22,53 @@ export async function generatePDF(req: Request, res: Response) {
 
         const fullPdf = header + pdfBody + footer;
 
-        fs.writeFileSync(`${process.cwd()}/dist/public/${user}.html`, fullPdf);
+        // fs.writeFileSync(`${process.cwd()}/dist/public/${user}.html`, fullPdf);
+
+        // s3 params
+        const HTMLparams = {
+            Bucket: appConfig.aws.storageBucket,
+            Key: `${user}/${user}.html`, // The name of the object. For example, 'sample_upload.txt'.
+            Body: fullPdf,
+        };
+
+        // save HTML
+        await saveToAWS(HTMLparams);
 
         // create a new page
         const page = await browser.newPage();
-
         await page.setViewport({ width: 800, height: 1000 })
 
-        // set your html as the pages content
-        const html = fs.readFileSync(`${process.cwd()}/dist/public/${user}.html`, 'utf8');
+        // const html = await fs.readFileSync(`${appConfig.aws.bucketURL}/${user}/${user}.html`, 'utf8');
 
-        await page.setContent(html, {
+        await page.setContent(fullPdf, {
             waitUntil: 'networkidle2'
         });
 
-        // or a .pdf file
-        await page.pdf({
+        // save PDF
+        const pdfBuffer = await page.pdf({
             format: 'A4' as any,
-            path: `${process.cwd()}/dist/public/${user}.pdf`
-        })
+            // path: `${process.cwd()}/dist/public/${user}.pdf`
+        });
 
-        await page.screenshot({ path: `${process.cwd()}/dist/public/${user}.png` });
+        const PdfParams = {
+            Bucket: appConfig.aws.storageBucket,
+            Key: `${user}/${user}.pdf`, // The name of the object. For example, 'sample_upload.txt'.
+            Body: pdfBuffer,
+        }; 
+
+        await saveToAWS(PdfParams);
+
+        // save PNG
+        const imgBuffer = await page.screenshot(
+            // { path: `${process.cwd()}/dist/public/${user}.png` }
+        );
+
+        const ImgParams = {
+            Bucket: appConfig.aws.storageBucket,
+            Key: `${user}/${user}.png`, // The name of the object. For example, 'sample_upload.txt'.
+            Body: imgBuffer,
+        };
+        await saveToAWS(ImgParams);
 
         res.send({ pdf: `${user}.pdf` });
     }
@@ -47,11 +76,28 @@ export async function generatePDF(req: Request, res: Response) {
         console.log(err)
         res.sendStatus(500);
     }
-    finally
-    {
+    finally {
         await browser.close();
     }
 }
+
+const saveToAWS = async (params: any) => {
+    // Create an object and upload it to the Amazon S3 bucket.
+    try {
+        const results = await s3Client.send(new PutObjectCommand(params));
+        console.log(
+            "Successfully created " +
+            params.Key +
+            " and uploaded it to " +
+            params.Bucket +
+            "/" +
+            params.Key
+        );
+        return results; // For unit tests.
+    } catch (err) {
+        console.log({err});
+    }
+};
 
 
 // generate styles

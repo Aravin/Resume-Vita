@@ -14,8 +14,8 @@ const ResumePage: NextPage = () => {
     e.preventDefault();
 
     var link = document.createElement('a');
-    link.href = `${process.env.NEXT_PUBLIC_API_BASE_PATH}${user?.sub?.split('|')[1]}.pdf`;
-    link.download = `${process.env.NEXT_PUBLIC_API_BASE_PATH}${user?.sub?.split('|')[1]}.pdf`;
+    link.href = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${user?.sub?.split('|')[1]}/${user?.sub?.split('|')[1]}.pdf`;
+    link.download = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${user?.sub?.split('|')[1]}/${user?.sub?.split('|')[1]}.pdf`;
     link.target = '_blank';
     link.dispatchEvent(new MouseEvent('click'));
   }
@@ -32,8 +32,8 @@ const ResumePage: NextPage = () => {
 
         <div className="grid grid-cols-3 my-5">
           <div data-tip="Edit Resume" className="tooltip tooltip-bottom">
-            <Link href="/resume/create" passHref>
-              <Image className="cursor-pointer hover:opacity-50 hover:tooltip" src={`${process.env.NEXT_PUBLIC_API_BASE_PATH}${user?.sub?.split('|')[1]}.png`} width="240" height="300" alt="PDF Preview"></Image>
+            <Link href="/resume/preview" passHref>
+              <Image className="cursor-pointer hover:opacity-50 hover:tooltip" src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${user?.sub?.split('|')[1]}/${user?.sub?.split('|')[1]}.png`} width="240" height="300" alt="PDF Preview"></Image>
             </Link>
           </div>
           <div>
