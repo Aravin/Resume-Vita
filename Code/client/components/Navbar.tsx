@@ -43,8 +43,8 @@ export default function Navbar() {
               </div>
               <div className="flex-1 flex sm:items-stretch sm:justify-start md:items-center md:justify-between">
                 <div className="flex-shrink-0 flex items-center">
-                  <span className="text-lg font-bold hidden sm:block h-8 w-auto">
-                    <Link href="/" key="logo">📃 ResumeVita</Link>
+                  <span className="text-xl font-black hidden sm:block h-8 w-auto text-shadow-lg">
+                    <a href="/" key="logo"><span className="text-white">📃 Resume</span><span className="">Vita</span></a>
                   </span>
                 </div>
                 <div className="hidden sm:block sm:ml-6">
