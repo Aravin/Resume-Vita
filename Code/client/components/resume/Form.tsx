@@ -103,7 +103,7 @@ export default function ResumeForm() {
   const { user, error, isLoading } = useUser();
 
   // local storage hook
-  // const [localResume, setLocalResume] = useLocalStorage('resumeData', data?.resume);
+  const [localResume, setLocalResume] = useLocalStorage('resumeData', {} as any);
 
   // form hook
   const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<any>({
@@ -149,7 +149,7 @@ export default function ResumeForm() {
     }
 
     // store to localStorage - temp
-    // storeResume(resumeData);
+    setLocalResume(resumeData);
 
     // save to database - permanent
     axios.post(process.env.NEXT_PUBLIC_API + '/resume', resumeData)
