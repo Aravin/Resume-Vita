@@ -33,7 +33,7 @@ const ResumePage: NextPage = () => {
         <div className="grid grid-cols-3 my-5">
           <div data-tip="Edit Resume" className="tooltip tooltip-bottom">
             <Link href="/resume/preview" passHref>
-              <Image className="cursor-pointer hover:opacity-50 hover:tooltip" src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${user?.sub?.split('|')[1]}/${user?.sub?.split('|')[1]}.png`} width="240" height="300" alt="PDF Preview"></Image>
+              <Image className="cursor-pointer hover:opacity-50 hover:tooltip" src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${user?.sub?.split('|')[1]}/${user?.sub?.split('|')[1]}.webp`} width="240" height="300" alt="PDF Preview"></Image>
             </Link>
           </div>
           <div>

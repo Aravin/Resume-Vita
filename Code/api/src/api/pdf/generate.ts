@@ -60,12 +60,13 @@ export async function generatePDF(req: Request, res: Response) {
 
         // save PNG
         const imgBuffer = await page.screenshot(
+            { type: 'webp' }
             // { path: `${process.cwd()}/dist/public/${user}.png` }
         );
 
         const ImgParams = {
             Bucket: appConfig.aws.storageBucket,
-            Key: `${user}/${user}.png`, // The name of the object. For example, 'sample_upload.txt'.
+            Key: `${user}/${user}.webp`, // The name of the object. For example, 'sample_upload.txt'.
             Body: imgBuffer,
         };
         await saveToAWS(ImgParams);
