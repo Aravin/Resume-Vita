@@ -3,7 +3,7 @@ import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react';
-import { FaFilePdf, FaFileWord, FaEdit } from 'react-icons/fa';
+import { FaFilePdf, FaEdit } from 'react-icons/fa';
 
 const ResumePage: NextPage = () => {
 

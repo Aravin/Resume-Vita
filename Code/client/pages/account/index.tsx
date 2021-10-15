@@ -7,7 +7,6 @@ import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/solid';
 const AccountPage: NextPage = () => {
 
   const { user, error, isLoading } = useUser();
-  console.log(user);
 
   return (
     <>

@@ -35,6 +35,7 @@ import "filepond/dist/filepond.min.css";
 // import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 // import 'filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css';
 import { useLocalStorage } from "../../hooks/useLocalStorage";
+import useFetch from "../../hooks/useFetch";
 
 // Register the plugins
 registerPlugin(
@@ -87,26 +88,7 @@ const schema = yup.object({
   })),
 }).required();
 
-export default function ResumeForm(prop: any) {
-
-  const [storedResume, updateResume] = useState({} as any);
-
-  // auth hook
-  const { user, error, isLoading } = useUser();
-
-  useEffect(() => {
-    async function fetchData() {
-
-      const res = await fetch(process.env.NEXT_PUBLIC_API + `/resume/${user?.sub?.split('|')[1]}`);
-      const data = await res.json();
-
-      updateResume(data?.resume || {});
-    }
-    fetchData();
-  }, []);
-
-  // local storage hook
-  // const [storedResume, storeResume] = useLocalStorage('resumeData', {} as any);
+export default function ResumeForm() {
 
   const employmentInit = { index: 0, title: '', company: '', startDate: '', endDate: '', isCurrent: '', location: '', summary: '' };
   const educationInit = { index: 0, institution: '', subject: '', startDate: '', endDate: '', location: '', score: '' };
@@ -116,7 +98,21 @@ export default function ResumeForm(prop: any) {
   const courseInit = { index: 0, name: '', institution: '', startDate: '', endDate: '' };
   const referenceInit = { index: 0, name: '', company: '', phone: '', email: '' };
 
-  console.log(storedResume?.employment);
+  const [storedResume, setResume] = useState({} as any);
+  // auth hook
+  const { user, error, isLoading } = useUser();
+
+  // local storage hook
+  // const [localResume, setLocalResume] = useLocalStorage('resumeData', data?.resume);
+
+  // form hook
+  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<any>({
+    resolver: yupResolver(schema),
+    defaultValues: storedResume || {},
+  });
+
+  // fetch hook
+  const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${user?.sub?.split('|')[1]}`);
 
   const [employmentEle, updateEmployment] = useState(storedResume?.employment || [employmentInit]);
   const [educationEle, updateEducation] = useState(storedResume?.education || [educationInit]);
@@ -126,11 +122,22 @@ export default function ResumeForm(prop: any) {
   const [courseEle, updateCourse] = useState(storedResume?.course || [courseInit]);
   const [referenceEle, updateReference] = useState(storedResume?.reference || [referenceInit]);
 
-  // form hook
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<any>({
-    resolver: yupResolver(schema),
-    // defaultValues: storedResume || {},
-  });
+  // onchange hook
+  useEffect(() => {
+    setResume(data?.resume);
+    reset(data.resume);
+    updateEmployment(data?.resume?.employment || []);
+    updateEducation(data?.resume?.education || []);
+    updateSkill(data?.resume?.skills || []);
+    updateLanguage(data?.resume?.language || []);
+    updateLink(data?.resume?.links || []);
+    updateCourse(data?.resume?.course || []);
+    updateReference(data?.resume?.reference || []);
+  },
+    [setResume, reset, data.resume]);
+
+  console.log(JSON.stringify(storedResume));
+
 
   // resume submit
   const onSubmit: SubmitHandler<any> = data => {
