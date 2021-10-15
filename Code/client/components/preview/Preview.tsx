@@ -29,8 +29,8 @@ export default function Preview() {
         .then(function (response) {
 
           var link = document.createElement('a');
-          link.href = `${process.env.NEXT_PUBLIC_API_BASE_PATH}${response.data.pdf}`;
-          link.download = response.data.pdf;
+          link.href = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${user?.sub?.split('|')[1]}/${user?.sub?.split('|')[1]}.pdf`;
+          link.download = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${user?.sub?.split('|')[1]}/${user?.sub?.split('|')[1]}.pdf`;
           link.target = '_blank';
           link.dispatchEvent(new MouseEvent('click'));
         })
