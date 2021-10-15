@@ -16,7 +16,7 @@ export async function generatePDF(req: Request, res: Response) {
     }
 
     // open the browser
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
 
     try {
 
