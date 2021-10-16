@@ -1,4 +1,4 @@
-# Resume Free
+# Resume Vita
 
 Free and Open Source Resume Generator App with other cool features such public links, share link to recruiter...
 
