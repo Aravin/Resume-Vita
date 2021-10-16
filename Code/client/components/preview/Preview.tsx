@@ -31,7 +31,7 @@ export default function Preview() {
 
           var link = document.createElement('a');
           link.href = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
-          link.download = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
+          // link.download = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
           link.target = '_blank';
           link.dispatchEvent(new MouseEvent('click'));
         })

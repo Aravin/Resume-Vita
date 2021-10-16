@@ -141,8 +141,8 @@ export default function ResumeForm() {
   },
     [setResume, reset, data.resume]);
 
-  if (loading) return <div><Loader/></div>;
-  if (fetchError) return <div>{fetchError}</div>;
+  if (isLoading || loading) return <div><Loader /></div>;
+  // if (fetchError) return <div>{fetchError}</div>;
 
 
   // resume submit
@@ -158,8 +158,7 @@ export default function ResumeForm() {
     setLocalResume(resumeData);
 
     // if data is same, dont save
-    if (JSON.stringify(data) === JSON.stringify(initialResumeData))
-    {
+    if (JSON.stringify(data) === JSON.stringify(initialResumeData)) {
       return Router.push('/resume/preview');
     }
     // save to database - permanent
