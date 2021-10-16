@@ -11,7 +11,7 @@ export default function Preview() {
   // local storage hook
   const [storedResume, storeResume] = useLocalStorage('resumeData', {} as any);
 
-  const r = storedResume?.resume;
+  const r = (storedResume?.user === user?.sub?.split('|')[1]) ? storedResume?.resume : {};
 
   const handleClick = (e: any) => {
     e.preventDefault();
@@ -58,8 +58,8 @@ export default function Preview() {
       <div id="preview">
         <div className="px-5 py-5 bg-base-100 rounded shadow">
           <header className="py-4">
-            <h1 className="text-5xl uppercase">{r.personal?.firstName + ' ' + r.personal?.lastName}</h1>
-            <span className="text-xl text-gray-500">{r.employment[0]?.title}</span>
+            <h1 className="text-5xl uppercase">{r?.personal?.firstName + ' ' + r?.personal?.lastName}</h1>
+            <span className="text-xl text-gray-500">{r?.employment?.[0]?.title}</span>
           </header>
 
           <hr></hr>
@@ -72,23 +72,23 @@ export default function Preview() {
                 <hr className="mt-2 border-2 border-solid border-gray-700 w-1/3"></hr>
                 <div className="mt-4">
                   <h3 className="text-lg uppercase">Phone</h3>
-                  <p className="mt-1 text-gray-500"> {r.personal?.phone} </p>
+                  <p className="mt-1 text-gray-500"> {r?.personal?.phone} </p>
                 </div>
                 <div className="mt-4">
                   <h3 className="text-lg uppercase">Email</h3>
-                  <p className="mt-1 text-gray-500"> {r.personal?.email} </p>
+                  <p className="mt-1 text-gray-500"> {r?.personal?.email} </p>
                 </div>
               </section>
 
               {
-                r.links[0] &&
+                r?.links?.[0] &&
 
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">LINKS</h2>
                   <hr className="mt-2 border-2 border-solid border-gray-700 w-1/3"></hr>
 
                   {
-                    r.links.map((v: any, i: number) => {
+                    r?.links.map((v: any, i: number) => {
 
                       return <>
                         <div className="mt-4" key={i}>
@@ -103,14 +103,14 @@ export default function Preview() {
               }
 
               {
-                r.skills[0] &&
+                r?.skills?.[0] &&
 
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">SKILLS</h2>
                   <hr className="mt-2 border-2 border-solid border-gray-700 w-1/3"></hr>
 
                   {
-                    r.skills.map((v: any, i: number) => {
+                    r?.skills.map((v: any, i: number) => {
                       return <>
                         <div className="mt-4" key={i}>
                           <div className="badge"> {v?.name}</div>
@@ -135,12 +135,12 @@ export default function Preview() {
                 <h2 className="text-2xl font-bold uppercase ">Profile</h2>
                 <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
                 <p className="mt-4 text-gray-500">
-                  {r.personal?.summary}
+                  {r?.personal?.summary}
                 </p>
               </section>
 
               {
-                r.employment[0] &&
+                r?.employment?.[0] &&
 
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">Employment History</h2>
@@ -148,7 +148,7 @@ export default function Preview() {
 
                   {/* employment 0  */}
                   {
-                    r.employment.map((v: any, i: number) => {
+                    r?.employment.map((v: any, i: number) => {
                       return <>
                         <article className="" key={i}>
                           <div className="flex flex-row mt-8">
@@ -166,7 +166,7 @@ export default function Preview() {
                 </section>
               }
 
-              {r.education[0] &&
+              {r?.education?.[0] &&
 
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">Education</h2>
@@ -174,7 +174,7 @@ export default function Preview() {
 
                   {/* education 0  */}
                   {
-                    r.education?.map((v: any, i: number) => {
+                    r?.education?.map((v: any, i: number) => {
                       return <>
                         <article className="" key={i}>
                           <div className="flex flex-row mt-8">
@@ -184,7 +184,7 @@ export default function Preview() {
                             </div>
                             <div className="flex-2">
                               <h3 className="">{v?.startDate} to {v?.endDate}</h3>
-                              {/* <h4 className="text-lg">{ r.education[0]?.score }</h4> */}
+                              {/* <h4 className="text-lg">{ r?.education?.[0]?.score }</h4> */}
                             </div>
                           </div>
                         </article>
@@ -194,14 +194,14 @@ export default function Preview() {
                 </section>
               }
 
-              {r.course[0] &&
+              {r?.course?.[0] &&
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">Certification</h2>
                   <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
 
                   {/* certificate 0  */}
                   {
-                    r.course.map((v: any, i: number) => {
+                    r?.course.map((v: any, i: number) => {
                       return <>
                         <article className="mb-8" key={i}>
                           <div className="flex flex-row mt-4">
@@ -218,7 +218,7 @@ export default function Preview() {
                 </section>
               }
 
-              {r.reference[0] &&
+              {r?.reference?.[0] &&
 
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">References</h2>
@@ -226,7 +226,7 @@ export default function Preview() {
 
                   {/* education 0  */}
                   {
-                    r.reference?.map((v: any, i: number) => {
+                    r?.reference?.map((v: any, i: number) => {
                       return <>
                         <article className="" key={i}>
                           <div className="flex flex-row mt-8">
@@ -236,7 +236,7 @@ export default function Preview() {
                             </div>
                             <div className="flex-2">
                               <h3 className="">{v?.name} </h3>
-                              {/* <h4 className="text-lg">{ r.education[0]?.score }</h4> */}
+                              {/* <h4 className="text-lg">{ r?.education?.[0]?.score }</h4> */}
                             </div>
                           </div>
                         </article>
