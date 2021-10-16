@@ -36,6 +36,7 @@ import "filepond/dist/filepond.min.css";
 // import 'filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css';
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import useFetch from "../../hooks/useFetch";
+import Loader from "../Loader";
 
 // Register the plugins
 registerPlugin(
@@ -114,6 +115,9 @@ export default function ResumeForm() {
   // fetch hook
   const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${user?.sub?.split('|')[1]}`);
 
+  // ref hook
+  const initialResumeData = data.resume;
+
   const [employmentEle, updateEmployment] = useState(storedResume?.employment || [employmentInit]);
   const [educationEle, updateEducation] = useState(storedResume?.education || [educationInit]);
   const [skillEle, updateSkill] = useState(storedResume?.skills || [skillInit]);
@@ -136,7 +140,8 @@ export default function ResumeForm() {
   },
     [setResume, reset, data.resume]);
 
-  console.log(JSON.stringify(storedResume));
+  if (loading) return <div><Loader/></div>;
+  if (fetchError) return <div>{fetchError}</div>;
 
 
   // resume submit
@@ -151,6 +156,11 @@ export default function ResumeForm() {
     // store to localStorage - temp
     setLocalResume(resumeData);
 
+    // if data is same, dont save
+    if (JSON.stringify(data) === JSON.stringify(initialResumeData))
+    {
+      return Router.push('/resume/preview');
+    }
     // save to database - permanent
     axios.post(process.env.NEXT_PUBLIC_API + '/resume', resumeData)
       .then(function (response) {
