@@ -34,7 +34,7 @@ const ResumePage: NextPage = () => {
         </div>
 
         <div className="grid grid-cols-3 my-5">
-          <div data-tip="Edit Resume" className="tooltip tooltip-bottom">
+          <div data-tip="Preview Resume" className="tooltip tooltip-bottom">
             <Link href="/resume/preview" passHref>
               <Image className="cursor-pointer hover:opacity-50 hover:tooltip" src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${user?.sub?.split('|')[1]}/${user?.sub?.split('|')[1]}.webp`} width="240" height="300" alt="PDF Preview"></Image>
             </Link>
@@ -47,9 +47,7 @@ const ResumePage: NextPage = () => {
               </Link>
             </div>
             <div className="mt-4">
-
               <button className="btn btn-outline btn-accent" onClick={handleClick}><FaFilePdf /> &nbsp;Download Resume</button>
-
             </div>
           </div>
         </div>
