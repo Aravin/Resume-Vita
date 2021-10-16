@@ -3,10 +3,14 @@ import Link from 'next/link';
 import React from 'react';
 import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/solid';
+import Loader from '../../components/Loader';
 
 const AccountPage: NextPage = () => {
 
   const { user, error, isLoading } = useUser();
+
+  if (isLoading) return <div><Loader/></div>;
+  if (error) return <div>{error.message}</div>;
 
   return (
     <>

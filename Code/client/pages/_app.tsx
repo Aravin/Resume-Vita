@@ -10,7 +10,7 @@ import 'nprogress/nprogress.css'; //styles of nprogress
 //Binding events. 
 Router.events.on('routeChangeStart', () => NProgress.start());
 Router.events.on('routeChangeComplete', () => NProgress.done());
-Router.events.on('routeChangeError', () => NProgress.done());  
+Router.events.on('routeChangeError', () => NProgress.remove());
 
 function MyApp({ Component, pageProps }: AppProps) {
 

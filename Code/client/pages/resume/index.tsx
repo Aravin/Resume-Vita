@@ -4,11 +4,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react';
 import { FaFilePdf, FaEdit } from 'react-icons/fa';
+import Loader from '../../components/Loader';
 
 const ResumePage: NextPage = () => {
 
   const { user, error, isLoading } = useUser();
 
+  if (isLoading) return <div><Loader/></div>;
+  if (error) return <div>{error.message}</div>;
 
   const handleClick = (e: any) => {
     e.preventDefault();

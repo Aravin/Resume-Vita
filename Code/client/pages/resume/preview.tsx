@@ -1,8 +1,15 @@
 import type { NextPage } from 'next'
 import Preview from '../../components/preview/Preview';
-import { withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
+import React from 'react';
+import Loader from '../../components/Loader';
 
 const PreviewPage: NextPage = () => {
+
+  const { user, error, isLoading } = useUser();
+
+  if (isLoading) return <div><Loader/></div>;
+  if (error) return <div>{error.message}</div>;
 
   return (
     <div className="flex justify-center">
