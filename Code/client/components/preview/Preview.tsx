@@ -1,17 +1,18 @@
 import { useLocalStorage } from "../../hooks/useLocalStorage";
-import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { useUser } from '@auth0/nextjs-auth0';
 import Link from 'next/link'
-import { FaFilePdf, FaFileWord, FaEdit } from 'react-icons/fa';
+import { FaFilePdf, FaEdit } from 'react-icons/fa';
 import axios from 'axios';
 
 export default function Preview() {
 
   const { user, error, isLoading } = useUser();
+  const userId = user?.sub?.split('|')[1];
 
   // local storage hook
   const [storedResume, storeResume] = useLocalStorage('resumeData', {} as any);
 
-  const r = (storedResume?.user === user?.sub?.split('|')[1]) ? storedResume?.resume : {};
+  const r = (storedResume?.user === userId) ? storedResume?.resume : {};
 
   const handleClick = (e: any) => {
     e.preventDefault();
@@ -21,7 +22,7 @@ export default function Preview() {
 
       const body = {
         html: (new XMLSerializer()).serializeToString(html as Node),
-        user: user?.sub?.split('|')[1],
+        user: userId,
       }
 
       // save to database - permanent
@@ -29,8 +30,8 @@ export default function Preview() {
         .then(function (response) {
 
           var link = document.createElement('a');
-          link.href = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${user?.sub?.split('|')[1]}/${user?.sub?.split('|')[1]}.pdf`;
-          link.download = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${user?.sub?.split('|')[1]}/${user?.sub?.split('|')[1]}.pdf`;
+          link.href = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
+          link.download = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
           link.target = '_blank';
           link.dispatchEvent(new MouseEvent('click'));
         })

@@ -9,6 +9,7 @@ import Loader from '../../components/Loader';
 const ResumePage: NextPage = () => {
 
   const { user, error, isLoading } = useUser();
+  const userId = user?.sub?.split('|')[1];
 
   if (isLoading) return <div><Loader/></div>;
   if (error) return <div>{error.message}</div>;
@@ -17,8 +18,8 @@ const ResumePage: NextPage = () => {
     e.preventDefault();
 
     var link = document.createElement('a');
-    link.href = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${user?.sub?.split('|')[1]}/${user?.sub?.split('|')[1]}.pdf`;
-    link.download = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${user?.sub?.split('|')[1]}/${user?.sub?.split('|')[1]}.pdf`;
+    link.href = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
+    link.download = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
     link.target = '_blank';
     link.dispatchEvent(new MouseEvent('click'));
   }
@@ -36,7 +37,7 @@ const ResumePage: NextPage = () => {
         <div className="grid grid-cols-3 my-5">
           <div data-tip="Preview Resume" className="tooltip tooltip-bottom">
             <Link href="/resume/preview" passHref>
-              <Image className="cursor-pointer hover:opacity-50 hover:tooltip" src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${user?.sub?.split('|')[1]}/${user?.sub?.split('|')[1]}.webp`} width="240" height="300" alt="PDF Preview"></Image>
+              <Image className="cursor-pointer hover:opacity-50 hover:tooltip" src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.webp`} width="240" height="300" alt="PDF Preview"></Image>
             </Link>
           </div>
           <div>

@@ -102,6 +102,7 @@ export default function ResumeForm() {
   const [storedResume, setResume] = useState({} as any);
   // auth hook
   const { user, error, isLoading } = useUser();
+  const userId = user?.sub?.split('|')[1];
 
   // local storage hook
   const [localResume, setLocalResume] = useLocalStorage('resumeData', {} as any);
@@ -113,7 +114,7 @@ export default function ResumeForm() {
   });
 
   // fetch hook
-  const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${user?.sub?.split('|')[1]}`);
+  const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
 
   // ref hook
   const initialResumeData = data.resume;
@@ -149,7 +150,7 @@ export default function ResumeForm() {
 
     // create object
     const resumeData = {
-      user: user?.sub?.split('|')[1],
+      user: userId,
       resume: data,
     }
 
