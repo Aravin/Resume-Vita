@@ -8,10 +8,12 @@ import { MenuIcon, XIcon, ChevronDownIcon } from '@heroicons/react/outline'
 import { useUser } from '@auth0/nextjs-auth0';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 let navigation = [
-  { name: '🧑🏽‍💻 Features', href: '/features', current: true },
-  { name: '🔐 Login', href: '/api/auth/login', current: true },
+  { name: 'Home', href: '/', current: false },
+  { name: 'Features', href: '/features', current: false },
+  { name: '🔐 Login', href: '/api/auth/login', current: false },
 ];
 
 function classNames(...classes: string[]) {
@@ -21,6 +23,8 @@ function classNames(...classes: string[]) {
 export default function Navbar() {
 
   const { user, error, isLoading } = useUser();
+
+  const { route } = useRouter();
 
   if (user) {
     // navigation = [{ name: '📃 Edit Resume', href: '/resume/create', current: true }];
@@ -57,10 +61,10 @@ export default function Navbar() {
                         key={item.name}
                         href={item.href}
                         className={classNames(
-                          item.current ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-800 hover:text-white',
+                          route === item.href ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-800 hover:text-white',
                           'px-3 py-2 rounded-md text-sm font-medium'
                         )}
-                        aria-current={item.current ? 'page' : undefined}
+                        aria-current={route === item.href ? 'page' : undefined}
                       >
                         {item.name}
                       </a>
