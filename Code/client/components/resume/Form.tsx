@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import Router from 'next/router';
 import { useUser } from '@auth0/nextjs-auth0';
@@ -79,7 +80,7 @@ const schema = yup.object({
     isCurrent: yup.bool(),
     summary: yup.string(),
   })),
-  skill: yup.array().of(yup.object({
+  skills: yup.array().of(yup.object({
     name: yup.string().required(),
     level: yup.number().positive().required(),
   })),
@@ -131,13 +132,13 @@ export default function ResumeForm() {
   useEffect(() => {
     setResume(data?.resume);
     reset(data.resume);
-    updateEmployment(data?.resume?.employment || []);
-    updateEducation(data?.resume?.education || []);
-    updateSkill(data?.resume?.skills || []);
-    updateLanguage(data?.resume?.language || []);
-    updateLink(data?.resume?.links || []);
-    updateCourse(data?.resume?.course || []);
-    updateReference(data?.resume?.reference || []);
+    updateEmployment(data?.resume?.employment || [employmentInit]);
+    updateEducation(data?.resume?.education || [educationInit]);
+    updateSkill(data?.resume?.skills || [skillInit]);
+    updateLanguage(data?.resume?.language || [langInit]);
+    updateLink(data?.resume?.links || [linkInit]);
+    updateCourse(data?.resume?.course || [courseInit]);
+    updateReference(data?.resume?.reference || [referenceInit]);
   },
     [setResume, reset, data.resume]);
 

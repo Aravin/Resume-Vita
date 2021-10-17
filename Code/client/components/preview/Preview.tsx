@@ -82,7 +82,7 @@ export default function Preview() {
               </section>
 
               {
-                r?.links?.[0] &&
+                r?.links?.[0]?.label &&
 
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">LINKS</h2>
@@ -104,7 +104,7 @@ export default function Preview() {
               }
 
               {
-                r?.skills?.[0] &&
+                r?.skills?.[0]?.name &&
 
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">SKILLS</h2>
@@ -141,10 +141,10 @@ export default function Preview() {
               </section>
 
               {
-                r?.employment?.[0] &&
+                r?.employment?.[0]?.title &&
 
                 <section className="py-4">
-                  <h2 className="text-2xl font-bold uppercase">Employment History</h2>
+                  <h2 className="text-2xl font-bold uppercase">Employment History </h2>
                   <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
 
                   {/* employment 0  */}
@@ -167,7 +167,7 @@ export default function Preview() {
                 </section>
               }
 
-              {r?.education?.[0] &&
+              {r?.education?.[0]?.institution &&
 
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">Education</h2>
@@ -195,7 +195,7 @@ export default function Preview() {
                 </section>
               }
 
-              {r?.course?.[0] &&
+              {r?.course?.[0]?.name &&
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">Certification</h2>
                   <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
@@ -219,7 +219,7 @@ export default function Preview() {
                 </section>
               }
 
-              {r?.reference?.[0] &&
+              {r?.reference?.[0]?.name &&
 
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">References</h2>
