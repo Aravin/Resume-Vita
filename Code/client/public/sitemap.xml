@@ -1,0 +1,16 @@
+<xml version="1.0" encoding="UTF-8">
+  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+      <loc>httpa://www.ResumeVita.com/</loc>
+      <lastmod>2021-10-01</lastmod>
+      <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
+    </url>
+    <url>
+      <loc>httpa://www.ResumeVita.com/features</loc>
+      <lastmod>2021-10-01</lastmod>
+      <changefreq>hourly</changefreq>
+      <priority>0.5</priority>
+    </url>
+  </urlset>
+</xml>
