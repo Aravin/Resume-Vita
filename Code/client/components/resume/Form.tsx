@@ -64,14 +64,14 @@ const schema = yup.object({
     phone: yup.string().required(),
     summary: yup.string().required(),
   }),
-  education: yup.array().of(yup.object({
+  educations: yup.array().of(yup.object({
     institution: yup.string().required(),
     subject: yup.string().required(),
     startDate: yup.string().required(),
     endDate: yup.string().required(),
     score: yup.number().positive().required(),
   })),
-  employment: yup.array().of(yup.object({
+  employments: yup.array().of(yup.object({
     title: yup.string(),
     company: yup.string(),
     startDate: yup.string(),
@@ -84,7 +84,7 @@ const schema = yup.object({
     name: yup.string().required(),
     level: yup.number().positive().required(),
   })),
-  language: yup.array().of(yup.object({
+  languages: yup.array().of(yup.object({
     name: yup.string().required(),
     level: yup.number().positive().required(),
   })),
@@ -120,13 +120,13 @@ export default function ResumeForm() {
   // ref hook
   const initialResumeData = data.resume;
 
-  const [employmentEle, updateEmployment] = useState(storedResume?.employment || [employmentInit]);
-  const [educationEle, updateEducation] = useState(storedResume?.education || [educationInit]);
+  const [employmentEle, updateEmployment] = useState(storedResume?.employments || [employmentInit]);
+  const [educationEle, updateEducation] = useState(storedResume?.educations || [educationInit]);
   const [skillEle, updateSkill] = useState(storedResume?.skills || [skillInit]);
-  const [languageEle, updateLanguage] = useState(storedResume?.language || [langInit]);
+  const [languageEle, updateLanguage] = useState(storedResume?.languages || [langInit]);
   const [linkEle, updateLink] = useState(storedResume?.links || [linkInit]);
-  const [courseEle, updateCourse] = useState(storedResume?.course || [courseInit]);
-  const [referenceEle, updateReference] = useState(storedResume?.reference || [referenceInit]);
+  const [courseEle, updateCourse] = useState(storedResume?.courses || [courseInit]);
+  const [referenceEle, updateReference] = useState(storedResume?.references || [referenceInit]);
 
   // onchange hook
   useEffect(() => {

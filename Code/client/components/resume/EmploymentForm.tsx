@@ -25,14 +25,14 @@ export default function EmploymentForm(prop: EmploymentType) {
             <label className="label">
               <span className="label-text">Job Title*</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="e.g. Software Engineer" defaultValue={prop.title} {...prop.register(`employment.${prop.index}.title`)} />
+            <input type="text" className="input input-bordered" placeholder="e.g. Software Engineer" defaultValue={prop.title} {...prop.register(`employments.${prop.index}.title`)} />
           </div>
 
           <div className="form-control">
             <label className="label">
               <span className="label-text">Company Name*</span>
             </label>
-            <input type="text" className="input input-bordered" defaultValue={prop.company} {...prop.register(`employment.${prop.index}.company`)} />
+            <input type="text" className="input input-bordered" defaultValue={prop.company} {...prop.register(`employments.${prop.index}.company`)} />
           </div>
         </div>
 
@@ -41,14 +41,14 @@ export default function EmploymentForm(prop: EmploymentType) {
             <label className="label">
               <span className="label-text">Start Date*</span>
             </label>
-            <input type="month" className="input input-bordered" defaultValue={prop.startDate} {...prop.register(`employment.${prop.index}.startDate`)} />
+            <input type="month" className="input input-bordered" defaultValue={prop.startDate} {...prop.register(`employments.${prop.index}.startDate`)} />
           </div>
 
           <div className="form-control">
             <label className="label">
               <span className="label-text">End Date*</span>
             </label>
-            <input type="month" className="input input-bordered" defaultValue={prop.endDate} {...prop.register(`employment.${prop.index}.endDate`, {})} />
+            <input type="month" className="input input-bordered" defaultValue={prop.endDate} {...prop.register(`employments.${prop.index}.endDate`, {})} />
           </div>
         </div>
 
@@ -57,7 +57,7 @@ export default function EmploymentForm(prop: EmploymentType) {
             <label className="label">
               <span className="label-text">Location</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="eg. Chennai" defaultValue={prop.location} {...prop.register(`employment.${prop.index}.location`, {})} />
+            <input type="text" className="input input-bordered" placeholder="eg. Chennai" defaultValue={prop.location} {...prop.register(`employments.${prop.index}.location`, {})} />
           </div>
           <div className="form-control">
             <label className="cursor-pointer label">
@@ -65,7 +65,7 @@ export default function EmploymentForm(prop: EmploymentType) {
             </label>
             <input type="checkbox" className={`${
             prop.isCurrent ? 'bg-blue-600' : 'bg-gray-200'
-          } relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`} {...prop.register(`employment.${prop.index}.isCurrent`)} />
+          } relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`} {...prop.register(`employments.${prop.index}.isCurrent`)} />
           </div>
         </div>
 
@@ -74,7 +74,7 @@ export default function EmploymentForm(prop: EmploymentType) {
             <label className="label">
               <span className="label-text">Summary*</span>
             </label>
-            <textarea className="textarea h-24 textarea-bordered" defaultValue={prop.summary} {...prop.register(`employment.${prop.index}.summary`, { required: true, maxLength: 4000, minLength: 50 })} />
+            <textarea className="textarea h-24 textarea-bordered" defaultValue={prop.summary} {...prop.register(`employments.${prop.index}.summary`, { required: true, maxLength: 4000, minLength: 50 })} />
           </div>
         </div>
       </div>

@@ -21,14 +21,14 @@ export default function ReferenceForm(prop: ReferenceType) {
             <label className="label">
               <span className="label-text">Full Name</span>
             </label>
-            <input type="text" className="input input-bordered" defaultValue={prop.name} {...prop.register(`reference.${prop.index}.name`)} />
+            <input type="text" className="input input-bordered" defaultValue={prop.name} {...prop.register(`references.${prop.index}.name`)} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
               <span className="label-text">Company Name</span>
             </label>
-            <input type="text" className="input input-bordered" defaultValue={prop.company} {...prop.register(`reference.${prop.index}.company`)} />
+            <input type="text" className="input input-bordered" defaultValue={prop.company} {...prop.register(`references.${prop.index}.company`)} />
           </div>
         </div>
 
@@ -37,14 +37,14 @@ export default function ReferenceForm(prop: ReferenceType) {
             <label className="label">
               <span className="label-text">Email</span>
             </label>
-            <input type="email" className="input input-bordered" defaultValue={prop.email} {...prop.register(`reference.${prop.index}.email`)} />
+            <input type="email" className="input input-bordered" defaultValue={prop.email} {...prop.register(`references.${prop.index}.email`)} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
               <span className="label-text">Phone</span>
             </label>
-            <input type="tel" className="input input-bordered" defaultValue={prop.phone} {...prop.register(`reference.${prop.index}.phone`)} />
+            <input type="tel" className="input input-bordered" defaultValue={prop.phone} {...prop.register(`references.${prop.index}.phone`)} />
           </div>
         </div>
       </div>
