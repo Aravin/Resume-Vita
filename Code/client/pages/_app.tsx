@@ -3,9 +3,11 @@ import type { AppProps } from 'next/app';
 import Layout from '../components/Layout';
 import Head from 'next/head'
 import { UserProvider } from '@auth0/nextjs-auth0';
-import Router from 'next/router';
+import Router, { useRouter } from 'next/router';
 import NProgress from 'nprogress'; //nprogress module
 import 'nprogress/nprogress.css'; //styles of nprogress
+import * as ga from '../helpers/gtag';
+import { useEffect } from 'react';
 
 //Binding events. 
 Router.events.on('routeChangeStart', () => NProgress.start());
@@ -14,7 +16,22 @@ Router.events.on('routeChangeError', () => NProgress.remove());
 
 function MyApp({ Component, pageProps }: AppProps) {
 
-  const { user } = pageProps;
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleRouteChange = (url: string) => {
+      ga.pageview(url)
+    }
+    //When the component is mounted, subscribe to router changes
+    //and log those page views
+    router.events.on('routeChangeComplete', handleRouteChange)
+
+    // If the component is unmounted, unsubscribe
+    // from the event with the `off` method
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange)
+    }
+  }, [router.events])
 
   return (
     <><UserProvider>
