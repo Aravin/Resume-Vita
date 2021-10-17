@@ -9,7 +9,10 @@ import { useUser } from '@auth0/nextjs-auth0';
 import Link from 'next/link';
 import Image from 'next/image';
 
-let navigation = [{ name: '🔐 Login', href: '/api/auth/login', current: true }];
+let navigation = [
+  { name: '🧑🏽‍💻 Features', href: '/features', current: true },
+  { name: '🔐 Login', href: '/api/auth/login', current: true },
+];
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
