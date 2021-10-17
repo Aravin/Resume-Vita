@@ -1,0 +1,10 @@
+# Block all auth pages
+User-agent: *
+Disallow: /account
+
+User-agent: *
+Disallow: /resume
+
+# Allow all crawlers
+User-agent: *
+Allow: /
