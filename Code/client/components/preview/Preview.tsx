@@ -42,7 +42,7 @@ export default function Preview() {
 
   return (
     <>
-      <div className="flex gap-4 justify-end pb-5">
+      <div className="flex gap-4 justify-end pb-5" >
         <div>
           <button className="btn btn-sm btn-outline btn-accent" onClick={handleClick}>
             <FaFilePdf /> &nbsp; GET PDF

@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react';
 import { FaFilePdf, FaEdit } from 'react-icons/fa';
-import { AiFillFileAdd } from 'react-icons/ai';
+import { AiFillFileAdd, AiFillEdit } from 'react-icons/ai';
 import Loader from '../../components/Loader';
 import useFetch from '../../hooks/useFetch';
 
@@ -13,8 +13,8 @@ const ResumePage: NextPage = () => {
   const { user, error, isLoading } = useUser();
   const userId = user?.sub?.split('|')[1];
 
-    // fetch hook
-    const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
+  // fetch hook
+  const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
 
   if (isLoading || loading) return <div><Loader /></div>;
   if (error) return <div>{error.message}</div>;
@@ -44,7 +44,7 @@ const ResumePage: NextPage = () => {
 
         {
           data === '' &&
-          <div className="flex-row my-5">
+          <div className="flex-row my-5 mx-2">
             <div className="mt-5">
               No Resume Added!, click on below image to create new Resume...
             </div>
@@ -58,13 +58,33 @@ const ResumePage: NextPage = () => {
 
         {
           data !== '' &&
-          <div className="grid grid-cols-3 my-5">
-            <div data-tip="Preview Resume" className="tooltip tooltip-bottom">
-              <Link href="/resume/preview" passHref>
-                <Image className="cursor-pointer hover:opacity-50 hover:tooltip" src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.webp`} width="240" height="300" alt="PDF Preview">
-                </Image>
-              </Link>
-            </div>
+          <div className="grid grid-cols-3 my-5 mx-2">
+            {
+              data.isPDFGenerated &&
+
+              <div data-tip="Preview Resume" className="tooltip tooltip-bottom">
+                <Link href="/resume/preview" passHref>
+                  <Image className="cursor-pointer hover:opacity-50 hover:tooltip" src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.webp`} width="240" height="300" alt="PDF Preview">
+                  </Image>
+                </Link>
+              </div>
+            }
+
+            {
+              !(data.isPDFGenerated) &&
+
+              <div className="flex-row my-5 mx-2">
+                <div className="mt-5">
+                  PDF not generated!, click on edit image and generate PDF...
+                </div>
+                <div data-tip="Create Resume" className="tooltip tooltip-bottom">
+                  <Link href="/resume/create" passHref>
+                    <AiFillEdit className="h-24 w-24 m-4 text-primary cursor-pointer hover:opacity-50 hover:tooltip" />
+                  </Link>
+                </div>
+              </div>
+            }
+
             <div>
               <h3 className="text-xl font-bold">Your Resume</h3>
               <div className="mt-4">
@@ -72,9 +92,14 @@ const ResumePage: NextPage = () => {
                   <button className="btn btn-outline btn-primary"><FaEdit /> &nbsp;Edit Resume</button>
                 </Link>
               </div>
-              <div className="mt-4">
-                <button className="btn btn-outline btn-accent" onClick={handleClick}><FaFilePdf /> &nbsp;Download Resume</button>
-              </div>
+              {
+                data.isPDFGenerated &&
+
+                <div className="mt-4">
+                  <button className="btn btn-outline btn-accent" onClick={handleClick}><FaFilePdf /> &nbsp;Download Resume</button>
+                </div>
+              }
+
             </div>
           </div>
         }

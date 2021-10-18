@@ -3,6 +3,7 @@ import puppeteer from 'puppeteer';
 import { s3Client } from "../../helpers/s3";
 import { appConfig } from '../../config';
 import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { MongoClient } from 'mongodb';
 
 export async function generatePDF(req: Request, res: Response) {
 
@@ -64,6 +65,14 @@ export async function generatePDF(req: Request, res: Response) {
         };
 
         saveToAWS(ImgParams);
+
+        // update to DB as PDF generated
+        const collection = (res.locals.db as MongoClient).db("resumeTree").collection("resumes");
+
+        const query = { user: user };
+        const update = { $set: { isPDFGenerated: true  } };
+
+        collection.findOneAndUpdate(query, update);
 
         res.sendStatus(200);
     }
