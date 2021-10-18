@@ -19,32 +19,32 @@ export default function ReferenceForm(prop: ReferenceType) {
         <div className="flex gap-6">
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Full Name</span>
+              <span className="label-text text-gray-500">Full Name</span>
             </label>
-            <input type="text" className="input input-bordered" defaultValue={prop.name} {...prop.register(`references.${prop.index}.name`)} />
+            <input type="text" className="input input-bordered font-medium" defaultValue={prop.name} {...prop.register(`references.${prop.index}.name`)} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Company Name</span>
+              <span className="label-text text-gray-500">Company Name</span>
             </label>
-            <input type="text" className="input input-bordered" defaultValue={prop.company} {...prop.register(`references.${prop.index}.company`)} />
+            <input type="text" className="input input-bordered font-medium" defaultValue={prop.company} {...prop.register(`references.${prop.index}.company`)} />
           </div>
         </div>
 
         <div className="flex gap-6">
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Email</span>
+              <span className="label-text text-gray-500">Email</span>
             </label>
-            <input type="email" className="input input-bordered" defaultValue={prop.email} {...prop.register(`references.${prop.index}.email`)} />
+            <input type="email" className="input input-bordered font-medium" defaultValue={prop.email} {...prop.register(`references.${prop.index}.email`)} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Phone</span>
+              <span className="label-text text-gray-500">Phone</span>
             </label>
-            <input type="tel" className="input input-bordered" defaultValue={prop.phone} {...prop.register(`references.${prop.index}.phone`)} />
+            <input type="tel" className="input input-bordered font-medium" defaultValue={prop.phone} {...prop.register(`references.${prop.index}.phone`)} />
           </div>
         </div>
       </div>

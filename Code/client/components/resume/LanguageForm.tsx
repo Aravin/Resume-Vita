@@ -18,14 +18,14 @@ export default function LanguageForm(prop: LanguageType) {
         <div className="flex gap-6">
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Language Name*</span>
+              <span className="label-text text-gray-500">Language Name*</span>
             </label>
-            <input type="text" className={`input input-bordered ${prop.errors?.[prop.index]?.name ? 'input-error' : ''}`} placeholder="e.g English" {...prop.register(`languages.${prop.index}.name`,)} />
+            <input type="text" className={`input input-bordered font-medium ${prop.errors?.[prop.index]?.name ? 'input-error' : ''}`} placeholder="e.g English" {...prop.register(`languages.${prop.index}.name`,)} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Level*</span>
+              <span className="label-text text-gray-500">Level*</span>
             </label>
             <select className={`select select-bordered ${prop.errors?.[prop.index]?.level ? 'input-error' : ''}`} {...prop.register(`languages.${prop.index}.level`,)}>
               <option value="" label="- Select Level -"></option>

@@ -276,25 +276,25 @@ export default function ResumeForm() {
           <div className="flex-1">
             <div className="form-control max-w-sm">
               <label className="label">
-                <span className="label-text">First Name*</span>
+                <span className="label-text text-gray-500">First Name*</span>
               </label>
-              <input type="text" className={`input input-bordered ${errors.personal?.firstName ? 'input-error' : ''}`} {...register("personal.firstName")} />
+              <input type="text" className={`input input-bordered font-medium ${errors.personal?.firstName ? 'input-error' : ''}`} {...register("personal.firstName")} />
               {
                 errors?.personal?.firstName &&
                 <label className="label">
-                  <span className="label-text-alt text-red-500">Please enter First Name</span>
+                  <span className="label-text text-gray-500-alt text-red-500">Please enter First Name</span>
                 </label>
               }
             </div>
             <div className="form-control max-w-sm">
               <label className="label">
-                <span className="label-text">Last Name*</span>
+                <span className="label-text text-gray-500">Last Name*</span>
               </label>
-              <input type="text" className={`input input-bordered ${errors.personal?.lastName ? 'input-error' : ''}`} {...register("personal.lastName")} />
+              <input type="text" className={`input input-bordered font-medium ${errors.personal?.lastName ? 'input-error' : ''}`} {...register("personal.lastName")} />
               {
                 errors?.personal?.lastName &&
                 <label className="label">
-                  <span className="label-text-alt text-red-500">Please enter Last Name</span>
+                  <span className="label-text text-gray-500-alt text-red-500">Please enter Last Name</span>
                 </label>
               }
             </div>
@@ -322,26 +322,26 @@ export default function ResumeForm() {
         <div className="flex gap-6">
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Email*</span>
+              <span className="label-text text-gray-500">Email*</span>
             </label>
-            <input type="text" className={`input input-bordered ${errors.personal?.email ? 'input-error' : ''}`} {...register("personal.email")} />
+            <input type="text" className={`input input-bordered font-medium ${errors.personal?.email ? 'input-error' : ''}`} {...register("personal.email")} />
             {
               errors?.personal?.email &&
               <label className="label">
-                <span className="label-text-alt text-red-500">Please enter Email Address</span>
+                <span className="label-text text-gray-500-alt text-red-500">Please enter Email Address</span>
               </label>
             }
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Phone*</span>
+              <span className="label-text text-gray-500">Phone*</span>
             </label>
-            <input type="tel" className={`input input-bordered ${errors.personal?.phone ? 'input-error' : ''}`} {...register("personal.phone")} />
+            <input type="tel" className={`input input-bordered font-medium ${errors.personal?.phone ? 'input-error' : ''}`} {...register("personal.phone")} />
             {
               errors?.personal?.phone &&
               <label className="label">
-                <span className="label-text-alt text-red-500">Please enter Phone Number</span>
+                <span className="label-text text-gray-500-alt text-red-500">Please enter Phone Number</span>
               </label>
             }
           </div>
@@ -353,9 +353,9 @@ export default function ResumeForm() {
       <div className="flex bg-white p-6 rounded shadow">
         <div className="flex-1 form-control">
           <label className="label">
-            <span className="label-text">Summary*</span>
+            <span className="label-text text-gray-500">Summary*</span>
           </label>
-          <textarea className={`textarea h-24 textarea-bordered ${errors.personal?.summary ? 'input-error' : ''}`}  {...register("personal.summary")} />
+          <textarea className={`textarea h-24 textarea-bordered font-medium ${errors.personal?.summary ? 'input-error' : ''}`}  {...register("personal.summary")} />
         </div>
       </div>
 

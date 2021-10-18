@@ -19,32 +19,32 @@ export default function CourseForm(prop: CourseType) {
         <div className="flex gap-6">
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Course Name</span>
+              <span className="label-text text-gray-500">Course Name</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="e.g. Node.js Foundation" defaultValue={prop.name} {...prop.register(`courses.${prop.index}.name`)} />
+            <input type="text" className="input input-bordered font-medium" placeholder="e.g. Node.js Foundation" defaultValue={prop.name} {...prop.register(`courses.${prop.index}.name`)} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Institution Name</span>
+              <span className="label-text text-gray-500">Institution Name</span>
             </label>
-            <input type="text" className="input input-bordered" placeholder="e.g. Udemy" defaultValue={prop.institution} {...prop.register(`courses.${prop.index}.institution`)} />
+            <input type="text" className="input input-bordered font-medium" placeholder="e.g. Udemy" defaultValue={prop.institution} {...prop.register(`courses.${prop.index}.institution`)} />
           </div>
         </div>
 
         <div className="flex gap-6">
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">Start Date</span>
+              <span className="label-text text-gray-500">Start Date</span>
             </label>
-            <input type="month" className="input input-bordered" placeholder="Start Date" defaultValue={prop.startDate} {...prop.register(`courses.${prop.index}.startDate`, )} />
+            <input type="month" className="input input-bordered font-medium" placeholder="Start Date" defaultValue={prop.startDate} {...prop.register(`courses.${prop.index}.startDate`, )} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text">End Date</span>
+              <span className="label-text text-gray-500">End Date</span>
             </label>
-            <input type="month" className="input input-bordered" placeholder="End Date" defaultValue={prop.endDate}  {...prop.register(`courses.${prop.index}.endDate`, {})} />
+            <input type="month" className="input input-bordered font-medium" placeholder="End Date" defaultValue={prop.endDate}  {...prop.register(`courses.${prop.index}.endDate`, {})} />
           </div>
 
         </div>
