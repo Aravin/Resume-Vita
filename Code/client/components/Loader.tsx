@@ -1,22 +1,27 @@
 export default function Loader() {
   return (
-    <div className="lds-roller">
-      <div>
-      </div>
-      <div>
-      </div>
-      <div>
-      </div>
-      <div>
-      </div>
-      <div>
-      </div>
-      <div>
-      </div>
-      <div>
-      </div>
-      <div>
+    <div className="flex h-96">
+      <div className="m-auto">
+        <div className="lds-roller">
+          <div>
+          </div>
+          <div>
+          </div>
+          <div>
+          </div>
+          <div>
+          </div>
+          <div>
+          </div>
+          <div>
+          </div>
+          <div>
+          </div>
+          <div>
+          </div>
+        </div>
       </div>
     </div>
+
   );
 }

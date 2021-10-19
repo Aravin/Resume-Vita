@@ -16,7 +16,7 @@ const ResumePage: NextPage = () => {
   // fetch hook
   const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
 
-  if (isLoading || loading) return <div><Loader /></div>;
+  if (isLoading || loading ) return <div><Loader /></div>;
   if (error) return <div>{error.message}</div>;
 
   if (loading) return <div><Loader /></div>;
