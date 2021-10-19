@@ -100,6 +100,15 @@ export default function ResumeForm() {
   const courseInit = { index: 0, name: '', institution: '', startDate: '', endDate: '' };
   const referenceInit = { index: 0, name: '', company: '', phone: '', email: '' };
 
+  const [employmentEle, updateEmployment] = useState([employmentInit]);
+  const [educationEle, updateEducation] = useState([educationInit]);
+  const [skillEle, updateSkill] = useState([skillInit]);
+  const [languageEle, updateLanguage] = useState([langInit]);
+  const [linkEle, updateLink] = useState([linkInit]);
+  const [courseEle, updateCourse] = useState([courseInit]);
+  const [referenceEle, updateReference] = useState([referenceInit]);
+
+  // resume data
   const [storedResume, setResume] = useState({} as any);
   // auth hook
   const { user, error, isLoading } = useUser();
@@ -108,43 +117,33 @@ export default function ResumeForm() {
   // local storage hook
   const [localResume, setLocalResume] = useLocalStorage('resumeData', {} as any);
 
+  // fetch hook
+  const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
+
   // form hook
   const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<any>({
     resolver: yupResolver(schema),
     defaultValues: storedResume || {},
   });
 
-  // fetch hook
-  const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
-
   // ref hook
-  const initialResumeData = data.resume;
-
-  const [employmentEle, updateEmployment] = useState(storedResume?.employments || [employmentInit]);
-  const [educationEle, updateEducation] = useState(storedResume?.educations || [educationInit]);
-  const [skillEle, updateSkill] = useState(storedResume?.skills || [skillInit]);
-  const [languageEle, updateLanguage] = useState(storedResume?.languages || [langInit]);
-  const [linkEle, updateLink] = useState(storedResume?.links || [linkInit]);
-  const [courseEle, updateCourse] = useState(storedResume?.courses || [courseInit]);
-  const [referenceEle, updateReference] = useState(storedResume?.references || [referenceInit]);
+  const initialResumeData = data?.resume;
 
   // onchange hook
   useEffect(() => {
     setResume(data?.resume);
-    reset(data.resume);
-    updateEmployment(data?.resume?.employment || [employmentInit]);
-    updateEducation(data?.resume?.education || [educationInit]);
+    reset(data?.resume);
+    updateEmployment(data?.resume?.employments || [employmentInit]);
+    updateEducation(data?.resume?.educations || [educationInit]);
     updateSkill(data?.resume?.skills || [skillInit]);
-    updateLanguage(data?.resume?.language || [langInit]);
+    updateLanguage(data?.resume?.languages || [langInit]);
     updateLink(data?.resume?.links || [linkInit]);
-    updateCourse(data?.resume?.course || [courseInit]);
-    updateReference(data?.resume?.reference || [referenceInit]);
-  },
-    [setResume, reset, data.resume]);
+    updateCourse(data?.resume?.courses || [courseInit]);
+    updateReference(data?.resume?.references || [referenceInit]);
+  }, [data?.resume]);
+
 
   if (isLoading || loading) return <div><Loader /></div>;
-  // if (fetchError) return <div>{fetchError}</div>;
-
 
   // resume submit
   const onSubmit: SubmitHandler<any> = data => {
