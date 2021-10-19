@@ -20,6 +20,9 @@ export default function Loader() {
           <div>
           </div>
         </div>
+        <div>
+          Loading...
+        </div>
       </div>
     </div>
 
