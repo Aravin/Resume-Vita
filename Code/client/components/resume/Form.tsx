@@ -100,16 +100,9 @@ export default function ResumeForm() {
   const courseInit = { index: 0, name: '', institution: '', startDate: '', endDate: '' };
   const referenceInit = { index: 0, name: '', company: '', phone: '', email: '' };
 
-  const [employmentEle, updateEmployment] = useState([employmentInit]);
-  const [educationEle, updateEducation] = useState([educationInit]);
-  const [skillEle, updateSkill] = useState([skillInit]);
-  const [languageEle, updateLanguage] = useState([langInit]);
-  const [linkEle, updateLink] = useState([linkInit]);
-  const [courseEle, updateCourse] = useState([courseInit]);
-  const [referenceEle, updateReference] = useState([referenceInit]);
-
   // resume data
   const [storedResume, setResume] = useState({} as any);
+
   // auth hook
   const { user, error, isLoading } = useUser();
   const userId = user?.sub?.split('|')[1];
@@ -119,6 +112,14 @@ export default function ResumeForm() {
 
   // fetch hook
   const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
+
+  const [employmentEle, updateEmployment] = useState([employmentInit]);
+  const [educationEle, updateEducation] = useState([educationInit]);
+  const [skillEle, updateSkill] = useState([skillInit]);
+  const [languageEle, updateLanguage] = useState([langInit]);
+  const [linkEle, updateLink] = useState([linkInit]);
+  const [courseEle, updateCourse] = useState([courseInit]);
+  const [referenceEle, updateReference] = useState([referenceInit]);
 
   // form hook
   const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<any>({
