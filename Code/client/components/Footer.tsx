@@ -29,7 +29,6 @@ export default function Footer() {
       </footer>
       <footer className="px-10 py-4 border-t footer bg-base-200 text-base-content border-base-300">
         <div className="items-center grid-flow-col">
-          <Image src="/logo.png" alt="Resume Vita Logo" width={160} height={30}  />
           <p>
             <span>A product by <a href="https://www.aravin.net/?ref=resumeVita" target="_blank" rel="noopener noreferrer">Aravin</a> with 💝</span>
             <br />Free & Open Source © {new Date().getFullYear()}
