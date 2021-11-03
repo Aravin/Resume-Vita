@@ -53,7 +53,7 @@ export default function Navbar() {
                   <div>
                     <a href="/" key="logo">
                       {/* <span className="text-white">📃 Resume</span><span className="">Vita</span> */}
-                      <Image src="/logo_white.png" width="200" height="35" alt="ResumeVita.com Logo"></Image>
+                      <Image src="/logo_white.png" width="180" height="35" alt="ResumeVita.com Logo"></Image>
                     </a>
                   </div>
                 </div>

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Router from 'next/router';
 import { useUser } from '@auth0/nextjs-auth0';
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -38,6 +38,8 @@ import "filepond/dist/filepond.min.css";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import useFetch from "../../hooks/useFetch";
 import Loader from "../Loader";
+import DeleteModal from "./DeleteModel";
+import { useToggle } from "../../hooks/useToggle";
 
 // Register the plugins
 registerPlugin(
@@ -90,22 +92,20 @@ const schema = yup.object({
   })),
 }).required();
 
+const employmentInit = { index: 0, title: '', company: '', startDate: '', endDate: '', isCurrent: '', location: '', summary: '' };
+const educationInit = { index: 0, institution: '', subject: '', startDate: '', endDate: '', location: '', score: '' };
+const skillInit = { index: 0, name: '', level: '' };
+const langInit = { index: 0, name: '', level: '' };
+const linkInit = { index: 0, name: '', url: '' };
+const courseInit = { index: 0, name: '', institution: '', startDate: '', endDate: '' };
+const referenceInit = { index: 0, name: '', company: '', phone: '', email: '' };
+
 export default function ResumeForm() {
 
-  const employmentInit = { index: 0, title: '', company: '', startDate: '', endDate: '', isCurrent: '', location: '', summary: '' };
-  const educationInit = { index: 0, institution: '', subject: '', startDate: '', endDate: '', location: '', score: '' };
-  const skillInit = { index: 0, name: '', level: '' };
-  const langInit = { index: 0, name: '', level: '' };
-  const linkInit = { index: 0, name: '', url: '' };
-  const courseInit = { index: 0, name: '', institution: '', startDate: '', endDate: '' };
-  const referenceInit = { index: 0, name: '', company: '', phone: '', email: '' };
-
-  // resume data
-  const [storedResume, setResume] = useState({} as any);
-
-  // auth hook
   const { user, error, isLoading } = useUser();
   const userId = user?.sub?.split('|')[1];
+
+  const [showDelete, setDelete] = useToggle(false);
 
   // local storage hook
   const [localResume, setLocalResume] = useLocalStorage('resumeData', {} as any);
@@ -113,38 +113,26 @@ export default function ResumeForm() {
   // fetch hook
   const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
 
-  const [employmentEle, updateEmployment] = useState([employmentInit]);
-  const [educationEle, updateEducation] = useState([educationInit]);
-  const [skillEle, updateSkill] = useState([skillInit]);
-  const [languageEle, updateLanguage] = useState([langInit]);
-  const [linkEle, updateLink] = useState([linkInit]);
-  const [courseEle, updateCourse] = useState([courseInit]);
-  const [referenceEle, updateReference] = useState([referenceInit]);
+  console.log({data});
+
+  const [resume, setResume] = useState(!loading && data?.resume);
+
+  // const [employmentEle, updateEmployment] = useState([employmentInit]);
+  // const [educationEle, updateEducation] = useState([educationInit]);
+  // const [skillEle, updateSkill] = useState([skillInit]);
+  // const [languageEle, updateLanguage] = useState([langInit]);
+  // const [linkEle, updateLink] = useState([linkInit]);
+  // const [courseEle, updateCourse] = useState([courseInit]);
+  // const [referenceEle, updateReference] = useState([referenceInit]);
 
   // form hook
   const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<any>({
     resolver: yupResolver(schema),
-    defaultValues: storedResume || {},
+    defaultValues: data?.resume || {},
   });
 
-  // ref hook
+  // init values
   const initialResumeData = data?.resume;
-
-  // onchange hook
-  useEffect(() => {
-    setResume(data?.resume);
-    reset(data?.resume);
-    updateEmployment(data?.resume?.employments || [employmentInit]);
-    updateEducation(data?.resume?.educations || [educationInit]);
-    updateSkill(data?.resume?.skills || [skillInit]);
-    updateLanguage(data?.resume?.languages || [langInit]);
-    updateLink(data?.resume?.links || [linkInit]);
-    updateCourse(data?.resume?.courses || [courseInit]);
-    updateReference(data?.resume?.references || [referenceInit]);
-  }, [data?.resume]);
-
-
-  if (isLoading || loading) return <div><Loader /></div>;
 
   // resume submit
   const onSubmit: SubmitHandler<any> = data => {
@@ -176,98 +164,123 @@ export default function ResumeForm() {
 
   // employee functions
   const handleEmployeeAdd = (e: any) => {
-    e.preventDefault();
-    updateEmployment([...employmentEle, employmentInit]);
+    // e.preventDefault();
+    // const employments = [...resume.employments, educationInit];
+    // console.log(employments)
+    // setResume(data.resume);
   }
 
   const handleEmployeeDelete = (index: number) => {
-    const list = [...employmentEle];
-    list.splice(index, 1);
-    updateEmployment(list);
+    // const list = [...data.resume.employments];
+    // list.splice(index, 1);
+    // updateEmployment(list);
   }
   // end of employee functions
 
   // education functions
   const handleEducationAdd = (e: any) => {
     e.preventDefault();
-    updateEducation([...educationEle, educationInit]);
+    resume.educations = [...resume.educations, educationInit];
+    console.log(resume);
+    setResume(resume);
   }
 
   const handleEducationDelete = (index: number) => {
-    const list = [...educationEle];
-    list.splice(index, 1);
-    updateEducation(list);
+    console.log(index);
+    console.log(resume.educations.filter((_: any) => _.index !== index))
+    resume.educations = resume.educations.filter((_: any) => _.index !== index);
+    setResume(resume)
+    setDelete();
   }
   // end of education functions
 
   // skill functions
   const handleSkillAdd = (e: any) => {
-    e.preventDefault();
-    updateSkill([...skillEle, skillInit]);
+    // e.preventDefault();
+    // updateSkill([...skillEle, skillInit]);
   }
 
   const handleSkillDelete = (index: number) => {
-    const list = [...skillEle];
-    list.splice(index, 1);
-    updateSkill(list);
+    // const list = [...skillEle];
+    // list.splice(index, 1);
+    // updateSkill(list);
   }
   // end of education functions
 
   // Lang functions
   const handleLangAdd = (e: any) => {
-    e.preventDefault();
-    updateLanguage([...languageEle, langInit]);
+    // e.preventDefault();
+    // updateLanguage([...languageEle, langInit]);
   }
 
   const handleLangDelete = (index: number) => {
-    const list = [...languageEle];
-    list.splice(index, 1);
-    updateLanguage(list);
+    // const list = [...languageEle];
+    // list.splice(index, 1);
+    // updateLanguage(list);
   }
   // end of Lang functions
 
   // Link functions
   const handleLinkAdd = (e: any) => {
-    e.preventDefault();
-    updateLink([...linkEle, linkInit]);
+    // e.preventDefault();
+    // updateLink([...linkEle, linkInit]);
   }
 
   const handleLinkDelete = (index: number) => {
-    const list = [...linkEle];
-    list.splice(index, 1);
-    updateLink(list);
+    // const list = [...linkEle];
+    // list.splice(index, 1);
+    // updateLink(list);
   }
   // end of Link functions
 
   // Course functions
   const handleCourseAdd = (e: any) => {
-    e.preventDefault();
-    updateCourse([...courseEle, courseInit]);
+    // e.preventDefault();
+    // updateCourse([...courseEle, courseInit]);
   }
 
   const handleCourseDelete = (index: number) => {
-    const list = [...courseEle];
-    list.splice(index, 1);
-    updateCourse(list);
+    // const list = [...courseEle];
+    // list.splice(index, 1);
+    // updateCourse(list);
   }
   // end of Course functions
 
   // Reference functions
   const handleReferenceAdd = (e: any) => {
-    e.preventDefault();
-    updateReference([...referenceEle, referenceInit]);
+    // e.preventDefault();
+    // updateReference([...referenceEle, referenceInit]);
   }
 
   const handleReferenceDelete = (index: number) => {
-    const list = [...referenceEle];
-    list.splice(index, 1);
-    updateReference(list);
+    // const list = [...referenceEle];
+    // list.splice(index, 1);
+    // updateReference(list);
   }
   // end of Reference functions
 
+  // onchange hook
+  /**
+  useEffect(() => {
+    console.log('use effect called...')
+    setResume(data?.resume);
+    reset(data?.resume);
+    // updateEmployment(data?.resume?.employments || [employmentInit]);
+    // updateEducation(data?.resume?.educations || [educationInit]);
+    // updateSkill(data?.resume?.skills || [skillInit]);
+    // updateLanguage(data?.resume?.languages || [langInit]);
+    // updateLink(data?.resume?.links || [linkInit]);
+    // updateCourse(data?.resume?.courses || [courseInit]);
+    // updateReference(data?.resume?.references || [referenceInit]);
+
+  }, [JSON.stringify(data?.resume)]);
+   */
+
+  if (isLoading || loading) return <div><Loader /></div>;
+
   return (
     // onSubmit={handleSubmit(onSubmit)}
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={(e) => e.preventDefault()}>
 
       <h3>Personal Details</h3>
 
@@ -364,9 +377,9 @@ export default function ResumeForm() {
       <div className="bg-white p-6 rounded shadow">
 
         {
-          educationEle.map((e: any, i: number) => {
+          resume?.educations?.map((e: any, i: number) => {
             e.index = i;
-            return EducationForm({ ...e, register, delete: handleEducationDelete, errors: errors.education });
+            return EducationForm({ ...e, register, delete: handleEducationDelete, errors: errors.education, setDelete, showDelete });
           })
         }
 
@@ -385,9 +398,9 @@ export default function ResumeForm() {
       <div className="bg-white p-6 rounded shadow">
 
         {
-          employmentEle.map((e: any, i: number) => {
+          resume?.employments?.map((e: any, i: number) => {
             e.index = i;
-            return EmploymentForm({ ...e, register, delete: handleEmployeeDelete, errors: errors.employee });
+            EmploymentForm({ ...e, register, delete: handleEmployeeDelete, errors: errors.employee });
           })
         }
 
@@ -405,12 +418,12 @@ export default function ResumeForm() {
 
       <div className="bg-white p-6 rounded shadow">
 
-        {
+        {/* {
           skillEle.map((e: any, i: number) => {
             e.index = i;
             return SkillForm({ ...e, register, delete: handleSkillDelete, errors: errors.skills });
           })
-        }
+        } */}
 
         <div className="pt-5">
           <button className="btn btn-outline" onClick={handleSkillAdd}>
@@ -426,12 +439,12 @@ export default function ResumeForm() {
 
       <div className="bg-white p-6 rounded shadow">
 
-        {
+        {/* {
           languageEle.map((e: any, i: number) => {
             e.index = i;
             return LanguageForm({ ...e, register, delete: handleLangDelete, errors: errors.language });
           })
-        }
+        } */}
 
         <div className="pt-5">
           <button className="btn btn-outline" onClick={handleLangAdd}>
@@ -447,12 +460,12 @@ export default function ResumeForm() {
 
       <div className="bg-white p-6 rounded shadow">
 
-        {
+        {/* {
           linkEle.map((e: any, i: number) => {
             e.index = i;
             return LinkForm({ ...e, register, delete: handleLinkDelete, errors: errors.links });
           })
-        }
+        } */}
 
         <div className="pt-5">
           <button className="btn btn-outline" onClick={handleLinkAdd}>
@@ -468,12 +481,12 @@ export default function ResumeForm() {
 
       <div className="bg-white p-6 rounded shadow">
 
-        {
+        {/* {
           courseEle.map((e: any, i: number) => {
             e.index = i;
             return CourseForm({ ...e, register, delete: handleCourseDelete, errors: errors.course });
           })
-        }
+        } */}
         <div className="pt-5">
           <button className="btn btn-outline" onClick={handleCourseAdd}>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -488,12 +501,12 @@ export default function ResumeForm() {
 
       <div className="bg-white p-6 rounded shadow">
 
-        {
+        {/* {
           referenceEle.map((e: any, i: number) => {
             e.index = i;
             return ReferenceForm({ ...e, register, delete: handleReferenceDelete, errors: errors.reference });
           })
-        }
+        } */}
 
         <div className="pt-5">
           <button className="btn btn-outline" onClick={handleReferenceAdd}>
@@ -506,8 +519,13 @@ export default function ResumeForm() {
       </div>
 
       <div className="flex pt-10">
-        <input className="btn btn-primary btn-block" type="submit" value="Save and Preview" />
+        <button className="btn btn-primary btn-block" value="Save and Preview" onClick={handleSubmit(onSubmit)} />
       </div>
+
+      {/* {
+        showDelete &&
+        <DeleteModal status={showDelete} close={setDelete} />
+      } */}
 
     </form>
   );

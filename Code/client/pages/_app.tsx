@@ -8,6 +8,7 @@ import NProgress from 'nprogress'; //nprogress module
 import 'nprogress/nprogress.css'; //styles of nprogress
 import * as ga from '../helpers/gtag';
 import { useEffect } from 'react';
+import React from 'react';
 
 //Binding events. 
 Router.events.on('routeChangeStart', () => NProgress.start());
@@ -34,7 +35,8 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, [router.events])
 
   return (
-    <><UserProvider>
+    <>
+    <UserProvider>
       <Head>
         <title>Resume Vita - Free and Open Source Resume Generator</title>
         <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
