@@ -91,13 +91,11 @@ export default function Preview() {
                   {
                     r?.links?.map((v: any, i: number) => {
 
-                      return <>
-                        <div className="mt-4" key={i}>
+                      return <div className="mt-4" key={i}>
                           <p className="mt-1 text-gray-500">
                             <a href={v?.link} target="_blank" rel="noopener noreferrer" className="underline">{v?.label}</a>
                           </p>
                         </div>
-                      </>
                     })
                   }
                 </section>
@@ -112,11 +110,9 @@ export default function Preview() {
 
                   {
                     r?.skills?.map((v: any, i: number) => {
-                      return <>
-                        <div className="mt-4" key={i}>
+                      return <div className="mt-4" key={i}>
                           <div className="badge"> {v?.name}</div>
                         </div>
-                      </>
                     })
                   }
                 </section>
@@ -150,8 +146,7 @@ export default function Preview() {
                   {/* employment 0  */}
                   {
                     r?.employments?.map((v: any, i: number) => {
-                      return <>
-                        <article className="" key={i}>
+                      return  <article className="" key={i}>
                           <div className="flex flex-row mt-8">
                             <div className="flex-auto"><h3 className="text-xl font-bold">{v?.title + ', ' + v?.company} </h3></div>
                             <div className="flex-2"><h3 className="">{v?.location}</h3></div>
@@ -161,7 +156,6 @@ export default function Preview() {
                             {v?.summary}
                           </p>
                         </article>
-                      </>
                     })
                   }
                 </section>
@@ -176,8 +170,7 @@ export default function Preview() {
                   {/* education 0  */}
                   {
                     r?.educations?.map((v: any, i: number) => {
-                      return <>
-                        <article className="" key={i}>
+                      return <article className="" key={i}>
                           <div className="flex flex-row mt-8">
                             <div className="flex-auto">
                               <h3 className="text-xl font-bold">{v?.subject}</h3>
@@ -189,7 +182,6 @@ export default function Preview() {
                             </div>
                           </div>
                         </article>
-                      </>
                     })
                   }
                 </section>
@@ -203,8 +195,7 @@ export default function Preview() {
                   {/* certificate 0  */}
                   {
                     r?.courses?.map((v: any, i: number) => {
-                      return <>
-                        <article className="mb-8" key={i}>
+                      return <article className="mb-8" key={i}>
                           <div className="flex flex-row mt-4">
                             <div className="flex-auto">
                               <h3 className="text-xl font-bold">{v?.name}</h3>
@@ -213,7 +204,6 @@ export default function Preview() {
                           </div>
                           <h4 className="mt-2">{v?.startDate} {v?.startDate ? 'to ' + v?.startDate : ''}</h4>
                         </article>
-                      </>
                     })
                   }
                 </section>
@@ -228,8 +218,7 @@ export default function Preview() {
                   {/* education 0  */}
                   {
                     r?.references?.map((v: any, i: number) => {
-                      return <>
-                        <article className="" key={i}>
+                      return <article className="" key={i}>
                           <div className="flex flex-row mt-8">
                             <div className="flex-auto">
                               <h3 className="text-xl font-bold">{v?.company}</h3>
@@ -241,7 +230,7 @@ export default function Preview() {
                             </div>
                           </div>
                         </article>
-                      </>
+                      
                     })
                   }
                 </section>

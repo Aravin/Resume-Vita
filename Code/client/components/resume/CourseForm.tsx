@@ -21,14 +21,14 @@ export default function CourseForm(prop: CourseType) {
             <label className="label">
               <span className="label-text text-gray-500">Course Name</span>
             </label>
-            <input type="text" className="input input-bordered font-medium" placeholder="e.g. Node.js Foundation" defaultValue={prop.name} {...prop.register(`courses.${prop.index}.name`)} />
+            <input type="text" className={`input input-bordered font-medium ${prop.errors?.name && 'input-error'}`} defaultValue={prop.name} {...prop.register(`courses.${prop.index}.name`)} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
               <span className="label-text text-gray-500">Institution Name</span>
             </label>
-            <input type="text" className="input input-bordered font-medium" placeholder="e.g. Udemy" defaultValue={prop.institution} {...prop.register(`courses.${prop.index}.institution`)} />
+            <input type="text" className={`input input-bordered font-medium ${prop.errors?.institution && 'input-error'}`} placeholder="e.g. Udemy" defaultValue={prop.institution} {...prop.register(`courses.${prop.index}.institution`)} />
           </div>
         </div>
 

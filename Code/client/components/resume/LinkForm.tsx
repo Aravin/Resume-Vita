@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { UseFormRegister } from "react-hook-form";
 
 interface LinkType {
@@ -10,8 +11,9 @@ interface LinkType {
 }
 
 export default function LinkForm(prop: LinkType) {
+
   return (
-    <div key={prop.index} className="flex justify-between mb-5">
+    <div key={nanoid()} className="flex justify-between mb-5">
 
       <div className="flex-1">
         <div className="flex gap-6">
@@ -19,14 +21,14 @@ export default function LinkForm(prop: LinkType) {
             <label className="label">
               <span className="label-text text-gray-500">Website Name</span>
             </label>
-            <input type="text" className="input input-bordered font-medium" placeholder="My personal site" defaultValue={prop.name} {...prop.register(`links.${prop.index}.label`, {})} />
+            <input type="text" className={`input input-bordered font-medium ${prop.errors?.name && 'input-error'}`}  placeholder="My personal site" defaultValue={prop.name} {...prop.register(`links.${prop.index}.name`, {})} />
           </div>
 
           <div className="flex-1 form-control">
             <label className="label">
               <span className="label-text text-gray-500">Link/URL</span>
             </label>
-            <input type="url" className="input input-bordered font-medium" placeholder="e.g yourname.com" defaultValue={prop.url} {...prop.register(`links.${prop.index}.link`, {})} />
+            <input type="text" className={`input input-bordered font-medium ${prop.errors?.url && 'input-error'}`} placeholder="e.g yourname.com" defaultValue={prop.url} {...prop.register(`links.${prop.index}.url`, {})} />
           </div>
         </div>
       </div>

@@ -23,6 +23,11 @@ body {
   background-color: #F3F4F6;
 }
 
+#app-nav > a {
+  display: inline-block;
+  width: 100%;
+}
+
 .filepond--credits{
   display: none;
 }
