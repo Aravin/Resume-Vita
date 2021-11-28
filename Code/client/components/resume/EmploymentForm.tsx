@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { UseFormRegister } from "react-hook-form";
 
 interface EmploymentType {
@@ -17,12 +18,12 @@ interface EmploymentType {
 export default function EmploymentForm(prop: EmploymentType) {
 
   return (
-    <div key={prop.index} className="flex justify-between mb-5">
+    <div key={nanoid()} className="flex justify-between mb-5">
 
       <div className="flex-1 collapse collapse-arrow rounded">
         <input type="checkbox" />
         <div className="collapse-title text-lg font-medium pr-12">
-          { `${prop.title} at ${prop.company}` || `Employment # ${prop.index}`}
+          { (prop.title && prop.company) ? `${prop.title} at ${prop.company}` : `Employment # ${prop.index + 1}`}
         </div>
         <div className="collapse-content">
           <div className="grid grid-cols-2 gap-12">
@@ -30,14 +31,14 @@ export default function EmploymentForm(prop: EmploymentType) {
               <label className="label">
                 <span className="label-text text-gray-500">Job Title*</span>
               </label>
-              <input type="text" className="input input-bordered font-medium" placeholder="e.g. Software Engineer" defaultValue={prop.title} {...prop.register(`employments.${prop.index}.title`)} />
+              <input type="text" className={`input input-bordered font-medium ${prop.errors?.title && 'input-error'}`} placeholder="e.g. Software Engineer" defaultValue={prop.title} {...prop.register(`employments.${prop.index}.title`)} />
             </div>
 
             <div className="form-control">
               <label className="label">
                 <span className="label-text text-gray-500">Company Name*</span>
               </label>
-              <input type="text" className="input input-bordered font-medium" defaultValue={prop.company} {...prop.register(`employments.${prop.index}.company`)} />
+              <input type="text" className={`input input-bordered font-medium ${prop.errors?.company && 'input-error'}`} defaultValue={prop.company} {...prop.register(`employments.${prop.index}.company`)} />
             </div>
           </div>
 
@@ -46,14 +47,14 @@ export default function EmploymentForm(prop: EmploymentType) {
               <label className="label">
                 <span className="label-text text-gray-500">Start Date*</span>
               </label>
-              <input type="month" className="input input-bordered font-medium" defaultValue={prop.startDate} {...prop.register(`employments.${prop.index}.startDate`)} />
+              <input type="month" className={`input input-bordered font-medium ${prop.errors?.startDate && 'input-error'}`} defaultValue={prop.startDate} {...prop.register(`employments.${prop.index}.startDate`)} />
             </div>
 
             <div className="form-control">
               <label className="label">
                 <span className="label-text text-gray-500">End Date*</span>
               </label>
-              <input type="month" className="input input-bordered font-medium" defaultValue={prop.endDate} {...prop.register(`employments.${prop.index}.endDate`, {})} />
+              <input type="month" className={`input input-bordered font-medium ${prop.errors?.endDate && 'input-error'}`} defaultValue={prop.endDate} {...prop.register(`employments.${prop.index}.endDate`, {})} />
             </div>
           </div>
 
@@ -62,7 +63,7 @@ export default function EmploymentForm(prop: EmploymentType) {
               <label className="label">
                 <span className="label-text text-gray-500">Location</span>
               </label>
-              <input type="text" className="input input-bordered font-medium" placeholder="eg. Chennai" defaultValue={prop.location} {...prop.register(`employments.${prop.index}.location`, {})} />
+              <input type="text" className={`input input-bordered font-medium ${prop.errors?.location && 'input-error'}`} placeholder="eg. Chennai" defaultValue={prop.location} {...prop.register(`employments.${prop.index}.location`, {})} />
             </div>
             <div className="form-control">
               <label className="cursor-pointer label">
@@ -78,7 +79,7 @@ export default function EmploymentForm(prop: EmploymentType) {
               <label className="label">
                 <span className="label-text text-gray-500">Summary*</span>
               </label>
-              <textarea className="textarea h-24 textarea-bordered font-medium" defaultValue={prop.summary} {...prop.register(`employments.${prop.index}.summary`, { required: true, maxLength: 4000, minLength: 50 })} />
+              <textarea className={`textarea h-24 textarea-bordered font-medium ${prop.errors?.summary && 'input-error'}`} defaultValue={prop.summary} {...prop.register(`employments.${prop.index}.summary`, { required: true, maxLength: 4000, minLength: 50 })} />
             </div>
           </div>
 

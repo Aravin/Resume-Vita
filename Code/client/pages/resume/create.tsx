@@ -6,12 +6,10 @@ import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 const CreateResume: NextPage = () => {
 
   return (
-    <div className="flex justify-center">
-      <div className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl">
-
+    <div className="flex flex-col items-center">
+      <div className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl w-full">
         <h2>Edit Resume</h2>
         <ResumeForm></ResumeForm>
-
       </div>
     </div>
   )
