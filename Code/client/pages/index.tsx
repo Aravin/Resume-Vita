@@ -16,7 +16,7 @@ const Home: NextPage = () => {
           </div>
           <div>
             <h1 className="mb-5 text-5xl font-bold">
-              Resume Vita (Alpha)
+              Resume Vita (Beta)
             </h1>
             <p className="mb-5">
               Generate a resume, download as PDF, download as Word and share directly to your friends or recruiter. This is free and open source service.

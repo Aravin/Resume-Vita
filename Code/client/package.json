@@ -1,6 +1,18 @@
 {
-  "name": "my-app",
-  "version": "0.1.0",
+  "name": "resume-vita",
+  "description": "Free and Open Source Resume Generator App",
+  "keywords": ["resume", "cv", "resume generator", "cv generator", "online resume tool"],
+  "homepage": "https://www.resumevita.com",
+  "version": "0.2.0-beta.1",
+  "author": {
+    "name" : "Aravind Appadurai",
+    "email" : "aravin.it@gmail.com",
+    "url" : "https://www.aravin.net/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Aravin/Resume-Vita.git"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",
