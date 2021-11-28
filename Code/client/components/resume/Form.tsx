@@ -157,7 +157,7 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempEdu = temp.educations;
-            const updatedEducations = tempEdu.filter((_) => _?.index !== index);
+            const updatedEducations = tempEdu.filter((_: any) => _?.index !== index);
             temp.educations = updatedEducations;
             setResume(temp);
             reset(temp);
@@ -191,7 +191,7 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.employments;
-            const updatedItems = tempItem.filter((_) => _?.index !== index);
+            const updatedItems = tempItem.filter((_: any) => _?.index !== index);
             temp.employments = updatedItems;
             setResume(temp);
             reset(temp);
@@ -225,7 +225,7 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.skills;
-            const updatedItems = tempItem.filter((_) => _?.index !== index);
+            const updatedItems = tempItem.filter((_: any) => _?.index !== index);
             temp.skills = updatedItems;
             setResume(temp);
             reset(temp);
@@ -259,7 +259,7 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.languages;
-            const updatedItems = tempItem.filter((_) => _?.index !== index);
+            const updatedItems = tempItem.filter((_: any) => _?.index !== index);
             temp.languages = updatedItems;
             setResume(temp);
             reset(temp);
@@ -293,7 +293,7 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.links;
-            const updatedItems = tempItem.filter((_) => _?.index !== index);
+            const updatedItems = tempItem.filter((_: any) => _?.index !== index);
             temp.links = updatedItems;
             setResume(temp);
             reset(temp);
@@ -327,7 +327,7 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.courses;
-            const updatedItems = tempItem.filter((_) => _?.index !== index);
+            const updatedItems = tempItem.filter((_: any) => _?.index !== index);
             temp.courses = updatedItems;
             setResume(temp);
             reset(temp);
@@ -361,7 +361,7 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.references;
-            const updatedItems = tempItem.filter((_) => _?.index !== index);
+            const updatedItems = tempItem.filter((_: any) => _?.index !== index);
             temp.references = updatedItems;
             setResume(temp);
             reset(temp);
