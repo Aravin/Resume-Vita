@@ -1,6 +1,6 @@
 import { useUser } from "@auth0/nextjs-auth0";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useReducer } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import * as yup from "yup";
 import EducationForm from "./EducationForm";
@@ -88,7 +88,7 @@ const schema = yup.object({
   }).required()),
   links: yup.array().of(yup.object({
     name: yup.string().required(),
-    url: yup.string().matches(/((https?):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/).required(),
+    url: yup.string().matches(/((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/).required(),
   })),
   courses: yup.array().of(yup.object({
     name: yup.string().min(3).required(),
@@ -105,6 +105,7 @@ const schema = yup.object({
 }).required();
 
 export default function ResumeForm() {
+  const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
 
   const { user, error, isLoading } = useUser();
   const userId = user?.sub?.split('|')[1];
@@ -135,7 +136,7 @@ export default function ResumeForm() {
     }
 
     fetchResume();
-  }, [userId]);
+  }, [userId, ignored]);
 
   const handleEducationAdd = (e: any) => {
     e.preventDefault();
@@ -148,6 +149,7 @@ export default function ResumeForm() {
   }
 
   const handleEducationDelete = (index: number) => {
+    console.log(index, getValues().educations)
     confirmAlert({
       title: 'Delete',
       message: 'Are you sure want to delete this record?',
@@ -161,6 +163,7 @@ export default function ResumeForm() {
             temp.educations = updatedEducations;
             setResume(temp);
             reset(temp);
+            forceUpdate();
           }
         },
         {
@@ -195,6 +198,7 @@ export default function ResumeForm() {
             temp.employments = updatedItems;
             setResume(temp);
             reset(temp);
+            forceUpdate();
           }
         },
         {
@@ -229,6 +233,7 @@ export default function ResumeForm() {
             temp.skills = updatedItems;
             setResume(temp);
             reset(temp);
+            forceUpdate();
           }
         },
         {
@@ -263,6 +268,7 @@ export default function ResumeForm() {
             temp.languages = updatedItems;
             setResume(temp);
             reset(temp);
+            forceUpdate();
           }
         },
         {
@@ -297,6 +303,7 @@ export default function ResumeForm() {
             temp.links = updatedItems;
             setResume(temp);
             reset(temp);
+            forceUpdate();
           }
         },
         {
@@ -331,6 +338,7 @@ export default function ResumeForm() {
             temp.courses = updatedItems;
             setResume(temp);
             reset(temp);
+            forceUpdate();
           }
         },
         {
@@ -365,6 +373,7 @@ export default function ResumeForm() {
             temp.references = updatedItems;
             setResume(temp);
             reset(temp);
+            forceUpdate();
           }
         },
         {

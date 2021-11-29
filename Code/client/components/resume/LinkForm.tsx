@@ -26,7 +26,7 @@ export default function LinkForm(prop: LinkType) {
 
           <div className="flex-1 form-control">
             <label className="label">
-              <span className="label-text text-gray-500">Link/URL</span>
+              <span className="label-text text-gray-500">Link/URL (starts with http* or www.*)</span>
             </label>
             <input type="text" className={`input input-bordered font-medium ${prop.errors?.url && 'input-error'}`} placeholder="e.g yourname.com" defaultValue={prop.url} {...prop.register(`links.${prop.index}.url`, {})} />
           </div>
