@@ -1,13 +1,19 @@
 {
   "name": "resume-vita",
   "description": "Free and Open Source Resume Generator App",
-  "keywords": ["resume", "cv", "resume generator", "cv generator", "online resume tool"],
+  "keywords": [
+    "resume",
+    "cv",
+    "resume generator",
+    "cv generator",
+    "online resume tool"
+  ],
   "homepage": "https://www.resumevita.com",
   "version": "0.2.0-beta.1",
   "author": {
-    "name" : "Aravind Appadurai",
-    "email" : "aravin.it@gmail.com",
-    "url" : "https://www.aravin.net/"
+    "name": "Aravind Appadurai",
+    "email": "aravin.it@gmail.com",
+    "url": "https://www.aravin.net/"
   },
   "repository": {
     "type": "git",
@@ -25,11 +31,11 @@
     "@headlessui/react": "^1.4.1",
     "@heroicons/react": "^1.0.4",
     "@hookform/resolvers": "^2.8.1",
-    "@tailwindcss/forms": "^0.3.3",
-    "@tailwindcss/line-clamp": "^0.2.1",
-    "@tailwindcss/typography": "^0.4.1",
+    "@tailwindcss/forms": "^0.4.0",
+    "@tailwindcss/line-clamp": "^0.3.0",
+    "@tailwindcss/typography": "^0.5.0",
     "autoprefixer": "^10.3.4",
-    "axios": "^0.21.4",
+    "axios": "^0.24.0",
     "daisyui": "^1.14.0",
     "filepond": "^4.29.1",
     "filepond-plugin-file-validate-size": "^2.2.4",
@@ -41,27 +47,27 @@
     "filepond-plugin-image-resize": "^2.0.10",
     "filepond-plugin-image-transform": "^3.8.7",
     "nanoid": "^3.1.30",
-    "next": "11.1.2",
+    "next": "12",
     "nprogress": "^0.2.0",
     "pdfobject": "^2.2.7",
     "postcss": "^8.3.6",
-    "react": "17.0.2",
+    "react": "^17.0.2",
     "react-confirm-alert": "^2.7.0",
-    "react-dom": "17.0.2",
+    "react-dom": "^17.0.2",
     "react-draggable": "^4.4.4",
     "react-filepond": "^7.1.1",
     "react-hook-form": "^7.14.2",
     "react-icons": "^4.2.0",
-    "tailwindcss": "^2.2.9",
+    "tailwindcss": "^3.0.1",
     "yup": "^0.32.9"
   },
   "devDependencies": {
     "@types/nprogress": "^0.2.0",
-    "@types/react": "17.0.19",
+    "@types/react": "17.0.37",
     "@types/react-dom": "^17.0.9",
-    "eslint": "7.32.0",
-    "eslint-config-next": "11.1.2",
+    "eslint": "8.4.1",
+    "eslint-config-next": "12.0.7",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "typescript": "4.4.2"
+    "typescript": "4.5.3"
   }
 }
