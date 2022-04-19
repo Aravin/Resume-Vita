@@ -9,8 +9,9 @@ export default function Preview() {
   const { user, error, isLoading } = useUser();
   const userId = user?.sub?.split('|')[1];
 
-  // local storage hook
-  const [storedResume, storeResume] = useLocalStorage('resumeData', {} as any);
+ // fetching data from service 
+  const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`); 
+  const storedResume =data; 
 
   const r = (storedResume?.user === userId) ? storedResume?.resume : {};
 
