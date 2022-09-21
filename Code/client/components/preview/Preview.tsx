@@ -1,15 +1,15 @@
-import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { useUser } from '@auth0/nextjs-auth0';
 import Link from 'next/link'
 import { FaFilePdf, FaEdit } from 'react-icons/fa';
 import axios from 'axios';
+import useFetch from "../../hooks/useFetch";
 
 export default function Preview() {
 
   const { user, error, isLoading } = useUser();
   const userId = user?.sub?.split('|')[1];
 
- // fetching data from service 
+  // fetching data from service 
   const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`); 
   const storedResume =data; 
 
