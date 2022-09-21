@@ -105,6 +105,7 @@ const header = `
     <link rel="stylesheet" media="all" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.16/base.min.css" />
     <link rel="stylesheet" media="all" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.16/components.min.css" />
     <link rel="stylesheet" media="all" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.16/utilities.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/daisyui/1.19.0/full.min.css" integrity="sha512-0SSPZdVmpLVS26YTwbGc1ShY1yaip9ftVZWKu8zqKMQ8p4QHjKOg4Y7JoytzuliH4kfMHHYyCu4J/SgGIL+tsg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
 
     </style>
