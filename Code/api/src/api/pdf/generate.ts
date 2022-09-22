@@ -34,15 +34,16 @@ export async function generatePDF(req: Request, res: Response) {
 
         // create a new page
         const page = await browser.newPage();
-        await page.setViewport({ width: 800, height: 1000 })
+        await page.setViewport({ width: 800, height: 1000 });
 
         await page.setContent(fullPdf, {
-            waitUntil: 'networkidle2'
+            waitUntil: 'networkidle2',
         });
 
         // save PDF
         const pdfBuffer = await page.pdf({
             format: 'A4' as any,
+            printBackground: true,
         });
 
         const PdfParams = {
@@ -98,14 +99,12 @@ const saveToAWS = async (params: any) => {
 
 // generate styles
 const header = `
-    <html>
+    <html data-theme="emerald">
     <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" media="all" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.16/base.min.css" />
-    <link rel="stylesheet" media="all" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.16/components.min.css" />
-    <link rel="stylesheet" media="all" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.16/utilities.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/daisyui/1.19.0/full.min.css" integrity="sha512-0SSPZdVmpLVS26YTwbGc1ShY1yaip9ftVZWKu8zqKMQ8p4QHjKOg4Y7JoytzuliH4kfMHHYyCu4J/SgGIL+tsg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@2.31.0/dist/full.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
 
     </style>
