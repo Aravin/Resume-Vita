@@ -79,7 +79,7 @@ export default function Navbar() {
               {user &&
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                   <div className="text-md font-bold capitalize pr-5">
-                    👋🏻 Welcome, {user.name || user.given_name || user.nickname}!
+                    👋🏻 Welcome, { user.nickname || user.preferred_username || user.name || user.given_name}!
                   </div>
 
                   <div className="avatar">
