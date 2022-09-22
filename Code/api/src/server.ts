@@ -13,7 +13,7 @@ const app = express();
 // add middleware
 app
     .use(cors())
-    .use(express.static(path.join(__dirname, 'public')))
+    .use('/public', express.static(__dirname + '/public'))
     .use(async (req, res, next) => {
         // initialize the db
         res.locals.db = db;
