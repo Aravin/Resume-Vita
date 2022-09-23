@@ -21,9 +21,9 @@ export default function EmploymentForm(prop: EmploymentType) {
     <div key={nanoid()} className="flex justify-between mb-5">
 
       <div className="flex-1 collapse collapse-arrow rounded">
-        <input type="checkbox" />
+        <input type="checkbox" className="peer" />
         <div className="collapse-title text-lg font-medium pr-12">
-          { (prop.title && prop.company) ? `${prop.title} at ${prop.company}` : `Employment # ${prop.index + 1}`}
+          {(prop.title && prop.company) ? `${prop.title} at ${prop.company}` : `Employment # ${prop.index + 1}`}
         </div>
         <div className="collapse-content">
           <div className="grid grid-cols-2 gap-12">

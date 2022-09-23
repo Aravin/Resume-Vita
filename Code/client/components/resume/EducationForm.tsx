@@ -23,7 +23,7 @@ export default function EducationForm(prop: EducationType) {
     <div key={nanoid()} className="flex justify-between mb-5">
 
       <div className="flex-1 collapse collapse-arrow rounded">
-        <input type="checkbox" />
+        <input type="checkbox" className="peer" />
         <div className="collapse-title text-lg font-medium pr-12">
           {(prop.subject && prop.institution) ? `${prop.subject} at ${prop.institution}` : `Education # ${prop.index + 1}`}
         </div>
@@ -79,7 +79,7 @@ export default function EducationForm(prop: EducationType) {
       </div>
 
       <div className="flex-shrink-0 ml-5 my-5">
-        <button className="btn btn-outline btn-square tooltip" data-tip="Delete" onClick={()=> prop.delete(prop.index)}>
+        <button className="btn btn-outline btn-square tooltip" data-tip="Delete" onClick={() => prop.delete(prop.index)}>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-6 h-6 stroke-current">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
