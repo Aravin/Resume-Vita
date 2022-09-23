@@ -16,7 +16,7 @@ const ResumePage: NextPage = () => {
   // fetch hook
   const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
 
-  if (isLoading || loading ) return <div><Loader /></div>;
+  if (isLoading || loading) return <div><Loader /></div>;
   if (error) return <div>{error.message}</div>;
 
   if (loading) return <div><Loader /></div>;
@@ -49,7 +49,9 @@ const ResumePage: NextPage = () => {
             </div>
             <div data-tip="Create Resume" className="tooltip tooltip-bottom">
               <Link href="/resume/create" passHref>
-                <AiFillFileAdd className="h-24 w-24 m-4 text-primary cursor-pointer hover:opacity-50 hover:tooltip" />
+                <a>
+                  <AiFillFileAdd className="h-24 w-24 m-4 text-primary cursor-pointer hover:opacity-50 hover:tooltip" />
+                </a>
               </Link>
             </div>
           </div>
@@ -63,8 +65,9 @@ const ResumePage: NextPage = () => {
 
               <div data-tip="Preview Resume" className="tooltip tooltip-bottom">
                 <Link href="/resume/preview" passHref>
-                  <Image className="cursor-pointer hover:opacity-50 hover:tooltip" src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.webp`} width="240" height="300" alt="PDF Preview">
-                  </Image>
+                  <a>
+                    <Image className="cursor-pointer hover:opacity-50 hover:tooltip" src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.webp`} width="240" height="300" alt="PDF Preview" />
+                  </a>
                 </Link>
               </div>
             }
@@ -78,7 +81,9 @@ const ResumePage: NextPage = () => {
                 </div>
                 <div data-tip="Create Resume" className="tooltip tooltip-bottom">
                   <Link href="/resume/create" passHref>
-                    <AiFillEdit className="h-24 w-24 m-4 text-primary cursor-pointer hover:opacity-50 hover:tooltip" />
+                    <a>
+                      <AiFillEdit className="h-24 w-24 m-4 text-primary cursor-pointer hover:opacity-50 hover:tooltip" />
+                    </a>
                   </Link>
                 </div>
               </div>
