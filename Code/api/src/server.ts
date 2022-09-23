@@ -12,7 +12,7 @@ const app = express();
 
 // add middleware
 app
-    .use(cors())
+    .use(cors({ origin: 'resumevita.com' }))
     .use('/public', express.static(__dirname + '/public'))
     .use(async (req, res, next) => {
         // initialize the db
