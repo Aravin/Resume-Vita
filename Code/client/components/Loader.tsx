@@ -1,4 +1,4 @@
-export default function Loader() {
+export default function Loader(props: any) {
   return (
     <div className="flex h-96">
       <div className="m-auto">
@@ -21,7 +21,7 @@ export default function Loader() {
           </div>
         </div>
         <div>
-          Loading...
+          { props.message || 'Loading...' }
         </div>
       </div>
     </div>

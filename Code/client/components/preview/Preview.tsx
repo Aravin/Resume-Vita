@@ -3,43 +3,52 @@ import Link from 'next/link'
 import { FaFilePdf, FaEdit } from 'react-icons/fa';
 import axios from 'axios';
 import useFetch from "../../hooks/useFetch";
+import { useState } from 'react';
+import Loader from '../Loader';
 
 export default function Preview() {
 
+  const [loading, setLoader] = useState(false);
   const { user, error, isLoading } = useUser();
   const userId = user?.sub?.split('|')[1];
 
   // fetching data from service 
-  const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`); 
-  const storedResume =data; 
-
+  const { data, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
+  const storedResume = data;
   const r = (storedResume?.user === userId) ? storedResume?.resume : {};
 
   const handleClick = (e: any) => {
     e.preventDefault();
 
-    if (document) {
-      const html = document.querySelector('#preview')?.cloneNode(true);
+    if (!document) return;
 
-      const body = {
-        html: (new XMLSerializer()).serializeToString(html as Node),
-        user: userId,
-      }
+    const html = document.querySelector('#preview')?.cloneNode(true);
 
-      // save to database - permanent
-      axios.post(process.env.NEXT_PUBLIC_API + '/pdf', body)
-        .then(function (response) {
-
-          var link = document.createElement('a');
-          link.href = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
-          // link.download = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
-          link.target = '_blank';
-          link.dispatchEvent(new MouseEvent('click'));
-        })
-        .catch(function (error) {
-        });
+    const body = {
+      html: (new XMLSerializer()).serializeToString(html as Node),
+      user: userId,
     }
+
+    setLoader(true);
+
+    // save to database - permanent
+    axios.post(process.env.NEXT_PUBLIC_API + '/pdf', body)
+      .then(function (response) {
+        var a = document.createElement('a');
+        a.href = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
+        // link.download = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
+        a.download = 'ResumeVita';
+        a.dispatchEvent(new MouseEvent('click'));
+        setLoader(false);
+      })
+      .catch(function (error) {
+        setLoader(true)
+      });
   }
+
+  if (isLoading) return <div><Loader /></div>;
+
+  if (loading) return <div><Loader message='Downloading your PDF!' /></div>;
 
   return (
     <>
@@ -71,7 +80,7 @@ export default function Preview() {
               {/* Size Content */}
               <section className="py-4">
                 <h2 className="text-2xl font-bold uppercase">Details</h2>
-                <hr className="mt-2 border-2 border-solid border-gray-700 w-1/3"></hr>
+                <hr className="mt-2 border-t-2 border-gray-700 w-1/3"></hr>
                 <div className="mt-4">
                   <h3 className="text-lg uppercase">Phone</h3>
                   <p className="mt-1 text-gray-500"> {r?.personal?.phone} </p>
@@ -87,16 +96,16 @@ export default function Preview() {
 
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">LINKS</h2>
-                  <hr className="mt-2 border-2 border-solid border-gray-700 w-1/3"></hr>
+                  <hr className="mt-2 border-t-2 border-gray-700 w-1/3"></hr>
 
                   {
                     r?.links?.map((v: any, i: number) => {
 
                       return <div className="mt-4" key={i}>
-                          <p className="mt-1 text-gray-500">
-                            <a href={v?.link} target="_blank" rel="noopener noreferrer" className="underline">{v?.label}</a>
-                          </p>
-                        </div>
+                        <p className="mt-1 text-gray-500">
+                          <a href={v?.link} target="_blank" rel="noopener noreferrer" className="underline">{v?.label}</a>
+                        </p>
+                      </div>
                     })
                   }
                 </section>
@@ -107,13 +116,13 @@ export default function Preview() {
 
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">SKILLS</h2>
-                  <hr className="mt-2 border-2 border-solid border-gray-700 w-1/3"></hr>
+                  <hr className="mt-2 border-t-2 border-gray-700 w-1/3"></hr>
 
                   {
                     r?.skills?.map((v: any, i: number) => {
                       return <div className="mt-4" key={i}>
-                          <div className="badge"> {v?.name}</div>
-                        </div>
+                        <div className="badge"> {v?.name}</div>
+                      </div>
                     })
                   }
                 </section>
@@ -131,7 +140,7 @@ export default function Preview() {
               {/* Main Content */}
               <section className="py-4">
                 <h2 className="text-2xl font-bold uppercase ">Profile</h2>
-                <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
+                <hr className="mt-2 border-t-2 border-gray-700 w-1/12"></hr>
                 <p className="mt-4 text-gray-500">
                   {r?.personal?.summary}
                 </p>
@@ -142,21 +151,21 @@ export default function Preview() {
 
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">Employment History </h2>
-                  <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
+                  <hr className="mt-2 border-t-2 border-gray-700 w-1/12"></hr>
 
                   {/* employment 0  */}
                   {
                     r?.employments?.map((v: any, i: number) => {
-                      return  <article className="" key={i}>
-                          <div className="flex flex-row mt-8">
-                            <div className="flex-auto"><h3 className="text-xl font-bold">{v?.title + ', ' + v?.company} </h3></div>
-                            <div className="flex-2"><h3 className="">{v?.location}</h3></div>
-                          </div>
-                          <h4 className="mt-2">{v?.startDate} to {v?.isCurrent ? 'Present' : v?.endDate}</h4>
-                          <p className="mt-4 text-gray-500">
-                            {v?.summary}
-                          </p>
-                        </article>
+                      return <article className="" key={i}>
+                        <div className="flex flex-row mt-8">
+                          <div className="flex-auto"><h3 className="text-xl font-bold">{v?.title + ', ' + v?.company} </h3></div>
+                          <div className="flex-2"><h3 className="">{v?.location}</h3></div>
+                        </div>
+                        <h4 className="mt-2">{v?.startDate} to {v?.isCurrent ? 'Present' : v?.endDate}</h4>
+                        <p className="mt-4 text-gray-500">
+                          {v?.summary}
+                        </p>
+                      </article>
                     })
                   }
                 </section>
@@ -166,23 +175,23 @@ export default function Preview() {
 
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">Education</h2>
-                  <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
+                  <hr className="mt-2 border-t-2 border-gray-700 w-1/12"></hr>
 
                   {/* education 0  */}
                   {
                     r?.educations?.map((v: any, i: number) => {
                       return <article className="" key={i}>
-                          <div className="flex flex-row mt-8">
-                            <div className="flex-auto">
-                              <h3 className="text-xl font-bold">{v?.subject}</h3>
-                              <h4 className="text-lg">{v?.institution}</h4>
-                            </div>
-                            <div className="flex-2">
-                              <h3 className="">{v?.startDate} to {v?.endDate}</h3>
-                              {/* <h4 className="text-lg">{ r?.educations?.[0]?.score }</h4> */}
-                            </div>
+                        <div className="flex flex-row mt-8">
+                          <div className="flex-auto">
+                            <h3 className="text-xl font-bold">{v?.subject}</h3>
+                            <h4 className="text-lg">{v?.institution}</h4>
                           </div>
-                        </article>
+                          <div className="flex-2">
+                            <h3 className="">{v?.startDate} to {v?.endDate}</h3>
+                            {/* <h4 className="text-lg">{ r?.educations?.[0]?.score }</h4> */}
+                          </div>
+                        </div>
+                      </article>
                     })
                   }
                 </section>
@@ -191,20 +200,20 @@ export default function Preview() {
               {r?.courses?.[0]?.name &&
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">Certification</h2>
-                  <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
+                  <hr className="mt-2 border-t-2 border-gray-700 w-1/12"></hr>
 
                   {/* certificate 0  */}
                   {
                     r?.courses?.map((v: any, i: number) => {
                       return <article className="mb-8" key={i}>
-                          <div className="flex flex-row mt-4">
-                            <div className="flex-auto">
-                              <h3 className="text-xl font-bold">{v?.name}</h3>
-                            </div>
-                            <div className="flex-2"><h3 className="">{v?.institution}</h3></div>
+                        <div className="flex flex-row mt-4">
+                          <div className="flex-auto">
+                            <h3 className="text-xl font-bold">{v?.name}</h3>
                           </div>
-                          <h4 className="mt-2">{v?.startDate} {v?.startDate ? 'to ' + v?.startDate : ''}</h4>
-                        </article>
+                          <div className="flex-2"><h3 className="">{v?.institution}</h3></div>
+                        </div>
+                        <h4 className="mt-2">{v?.startDate} {v?.startDate ? 'to ' + v?.startDate : ''}</h4>
+                      </article>
                     })
                   }
                 </section>
@@ -214,24 +223,24 @@ export default function Preview() {
 
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">References</h2>
-                  <hr className="mt-2 border-2 border-solid border-gray-700 w-1/12"></hr>
+                  <hr className="mt-2 border-t-2 border-gray-700 w-1/12"></hr>
 
                   {/* education 0  */}
                   {
                     r?.references?.map((v: any, i: number) => {
                       return <article className="" key={i}>
-                          <div className="flex flex-row mt-8">
-                            <div className="flex-auto">
-                              <h3 className="text-xl font-bold">{v?.company}</h3>
-                              <h4 className="text-lg">Phone: {v?.phone}, Email: {v?.email}</h4>
-                            </div>
-                            <div className="flex-2">
-                              <h3 className="">{v?.name} </h3>
-                              {/* <h4 className="text-lg">{ r?.educations?.[0]?.score }</h4> */}
-                            </div>
+                        <div className="flex flex-row mt-8">
+                          <div className="flex-auto">
+                            <h3 className="text-xl font-bold">{v?.company}</h3>
+                            <h4 className="text-lg">Phone: {v?.phone}, Email: {v?.email}</h4>
                           </div>
-                        </article>
-                      
+                          <div className="flex-2">
+                            <h3 className="">{v?.name} </h3>
+                            {/* <h4 className="text-lg">{ r?.educations?.[0]?.score }</h4> */}
+                          </div>
+                        </div>
+                      </article>
+
                     })
                   }
                 </section>

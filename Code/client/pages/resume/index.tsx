@@ -25,11 +25,10 @@ const ResumePage: NextPage = () => {
   const handleClick = (e: any) => {
     e.preventDefault();
 
-    var link = document.createElement('a');
-    link.href = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
+    var a = document.createElement('a');
+    a.href = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
     // link.download = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
-    link.target = '_blank';
-    link.dispatchEvent(new MouseEvent('click'));
+    a.dispatchEvent(new MouseEvent('click'));
   }
 
   return (
