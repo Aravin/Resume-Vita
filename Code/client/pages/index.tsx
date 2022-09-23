@@ -9,7 +9,7 @@ import FeaturesList from '../components/feature/FeatureList'
 const Home: NextPage = () => {
   return (
     <>
-      <div className="hero min-h-screen bg-base-200">
+      <div className="hero min-h-screen bg-white">
         <div className="flex-col hero-content lg:flex-row">
           <div className="sm:hidden lg:block max-w-md">
             <Image src="/resume_undraw.svg" alt="Resume Vita Hero Image" width={600} height={600} />
