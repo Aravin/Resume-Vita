@@ -47,8 +47,8 @@ export default function Preview() {
   }
 
   if (isLoading) return <div><Loader /></div>;
-
   if (loading) return <div><Loader message='Downloading your PDF!' /></div>;
+  if (fetchError) return <div>Failed to load the PDF, please retry!</div>
 
   return (
     <>
