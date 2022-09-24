@@ -29,9 +29,6 @@ export async function generatePDF(req: Request, res: Response) {
             Body: fullPdf,
         };
 
-        // save HTML
-        saveToAWS(HTMLparams);
-
         // create a new page
         const page = await browser.newPage();
         await page.setViewport({ width: 800, height: 1000 });
@@ -42,17 +39,15 @@ export async function generatePDF(req: Request, res: Response) {
 
         // save PDF
         const pdfBuffer = await page.pdf({
-            format: 'A4' as any,
+            format: 'a4',
             printBackground: true,
         });
 
         const PdfParams = {
             Bucket: appConfig.aws.storageBucket,
-            Key: `${user}/${user}.pdf`, // The name of the object. For example, 'sample_upload.txt'.
+            Key: `${user}/${user}.pdf`,
             Body: pdfBuffer,
-        }; 
-
-        saveToAWS(PdfParams);
+        };
 
         // save PNG
         const imgBuffer = await page.screenshot(
@@ -65,15 +60,15 @@ export async function generatePDF(req: Request, res: Response) {
             Body: imgBuffer,
         };
 
-        saveToAWS(ImgParams);
+        await Promise.all([saveToAWS(PdfParams), saveToAWS(HTMLparams), saveToAWS(ImgParams)]);
 
         // update to DB as PDF generated
-        const collection = (res.locals.db as MongoClient).db("resumeTree").collection("resumes");
+        const collection = await (res.locals.db as MongoClient).db("resumeTree").collection("resumes");
 
         const query = { user: user };
         const update = { $set: { isPDFGenerated: true  } };
 
-        collection.findOneAndUpdate(query, update);
+        await collection.findOneAndUpdate(query, update);
 
         res.sendStatus(200);
     }
