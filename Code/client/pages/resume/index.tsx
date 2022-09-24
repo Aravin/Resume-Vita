@@ -19,7 +19,7 @@ const ResumePage: NextPage = () => {
   if (isLoading || loading) return <div><Loader /></div>;
   if (error) return <div>{error.message}</div>;
   if (loading) return <div><Loader /></div>;
-  if (fetchError) return <div>Failed to load the PDF, please retry!</div>
+  // if (fetchError) return <div>Failed to load the PDF, please retry!</div>
 
   const handleClick = (e: any) => {
     e.preventDefault();

@@ -105,7 +105,6 @@ const schema = yup.object({
 }).required();
 
 export default function ResumeForm() {
-  const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
 
   const { user, error, isLoading } = useUser();
   const userId = user?.sub?.split('|')[1];
@@ -136,7 +135,7 @@ export default function ResumeForm() {
     }
 
     fetchResume();
-  }, [userId, ignored]);
+  }, [userId]);
 
   const handleEducationAdd = (e: any) => {
     e.preventDefault();
@@ -145,11 +144,10 @@ export default function ResumeForm() {
     const updatedItems = tempItem ? [...tempItem, {} as any] : [{} as any];
     temp.educations = updatedItems;
     setResume(temp);
-    // reset(resume);
+    // reset();
   }
 
   const handleEducationDelete = (index: number) => {
-    console.log(index, getValues().educations)
     confirmAlert({
       title: 'Delete',
       message: 'Are you sure want to delete this record?',
@@ -158,12 +156,11 @@ export default function ResumeForm() {
           label: 'Yes',
           onClick: () => {
             let temp = getValues();
-            const tempEdu = temp.educations;
-            const updatedEducations = tempEdu.filter((_: any) => _?.index !== index);
+            const tempItem = temp.educations;
+            const updatedEducations = tempItem.filter((_: any, i: number) => i !== index);
             temp.educations = updatedEducations;
             setResume(temp);
             reset(temp);
-            forceUpdate();
           }
         },
         {
@@ -194,11 +191,10 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.employments;
-            const updatedItems = tempItem.filter((_: any) => _?.index !== index);
+            const updatedItems = tempItem.filter((_: any, i: number) => i !== index);
             temp.employments = updatedItems;
             setResume(temp);
             reset(temp);
-            forceUpdate();
           }
         },
         {
@@ -216,7 +212,7 @@ export default function ResumeForm() {
     const updatedItems = tempItem ? [...tempItem, {} as any] : [{} as any];
     temp.skills = updatedItems;
     setResume(temp);
-    // reset(temp);
+    // reset();
   }
 
   const handleSkillDelete = (index: number) => {
@@ -229,11 +225,10 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.skills;
-            const updatedItems = tempItem.filter((_: any) => _?.index !== index);
+            const updatedItems = tempItem.filter((_: any, i: number) => i !== index);
             temp.skills = updatedItems;
             setResume(temp);
             reset(temp);
-            forceUpdate();
           }
         },
         {
@@ -264,11 +259,10 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.languages;
-            const updatedItems = tempItem.filter((_: any) => _?.index !== index);
+            const updatedItems = tempItem.filter((_: any, i: number) => i !== index);
             temp.languages = updatedItems;
             setResume(temp);
             reset(temp);
-            forceUpdate();
           }
         },
         {
@@ -299,11 +293,10 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.links;
-            const updatedItems = tempItem.filter((_: any) => _?.index !== index);
+            const updatedItems = tempItem.filter((_: any, i: number) => i !== index);
             temp.links = updatedItems;
             setResume(temp);
             reset(temp);
-            forceUpdate();
           }
         },
         {
@@ -334,11 +327,10 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.courses;
-            const updatedItems = tempItem.filter((_: any) => _?.index !== index);
+            const updatedItems = tempItem.filter((_: any, i: number) => i !== index);
             temp.courses = updatedItems;
             setResume(temp);
             reset(temp);
-            forceUpdate();
           }
         },
         {
@@ -369,11 +361,10 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.references;
-            const updatedItems = tempItem.filter((_: any) => _?.index !== index);
+            const updatedItems = tempItem.filter((_: any, i: number) => i !== index);
             temp.references = updatedItems;
             setResume(temp);
             reset(temp);
-            forceUpdate();
           }
         },
         {
