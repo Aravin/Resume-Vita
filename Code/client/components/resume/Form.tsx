@@ -593,7 +593,7 @@ export default function ResumeForm() {
         </div>
       </div>
 
-      <h3>Courses</h3>
+      <h3>Certifications / Courses</h3>
 
       <div className="bg-white p-6 rounded shadow">
 
