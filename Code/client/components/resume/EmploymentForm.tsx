@@ -18,14 +18,14 @@ interface EmploymentType {
 export default function EmploymentForm(prop: EmploymentType) {
 
   return (
-    <div key={nanoid()} className="flex justify-between mb-5">
+    <div key={nanoid()} className="flex justify-between mb-5 mt-3">
 
-      <div className="flex-1 collapse collapse-arrow rounded">
-        <input type="checkbox" className="peer" />
-        <div className="collapse-title text-lg font-medium pr-12">
+      <div className="flex-1 xcollapse xcollapse-arrow rounded">
+        {/* <input type="checkbox" className="peer" /> */}
+        <div className="xcollapse-title text-lg font-medium pr-12">
           {(prop.title && prop.company) ? `${prop.title} at ${prop.company}` : `Employment # ${prop.index + 1}`}
         </div>
-        <div className="collapse-content">
+        <div className="xcollapse-content">
           <div className="grid grid-cols-2 gap-12">
             <div className="form-control">
               <label className="label">
