@@ -92,7 +92,7 @@ export default function Preview() {
               </section>
 
               {
-                r?.links?.[0]?.label &&
+                r?.links?.[0]?.name &&
 
                 <section className="py-4">
                   <h2 className="text-2xl font-bold uppercase">LINKS</h2>
@@ -103,7 +103,7 @@ export default function Preview() {
 
                       return <div className="mt-4" key={i}>
                         <p className="mt-1 text-gray-500">
-                          <a href={v?.link} target="_blank" rel="noopener noreferrer" className="underline">{v?.label}</a>
+                          <a href={v?.url} target="_blank" rel="noopener noreferrer">{v?.name}</a>
                         </p>
                       </div>
                     })
@@ -145,6 +145,31 @@ export default function Preview() {
                   {r?.personal?.summary}
                 </p>
               </section>
+
+              {
+                r?.internships?.[0]?.title &&
+
+                <section className="py-4">
+                  <h2 className="text-2xl font-bold uppercase">Internships </h2>
+                  <hr className="mt-2 border-t-2 border-gray-700 w-1/12"></hr>
+
+                  {/* employment 0  */}
+                  {
+                    r?.internships?.map((v: any, i: number) => {
+                      return <article className="" key={i}>
+                        <div className="flex flex-row mt-8">
+                          <div className="flex-auto"><h3 className="text-xl font-bold">{v?.title + ', ' + v?.company} </h3></div>
+                          <div className="flex-2"><h3 className="">{v?.location}</h3></div>
+                        </div>
+                        <h4 className="mt-2">{v?.startDate} to {v?.endDate}</h4>
+                        <p className="mt-4 text-gray-500">
+                          {v?.summary}
+                        </p>
+                      </article>
+                    })
+                  }
+                </section>
+              }
 
               {
                 r?.employments?.[0]?.title &&

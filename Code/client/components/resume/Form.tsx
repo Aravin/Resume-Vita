@@ -16,6 +16,7 @@ import router from "next/router";
 import axios from "axios";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import Loader from "../Loader";
+import InternshipForm from "./InternshipForm";
 
 const defaultValues = {
   personal: {
@@ -33,6 +34,7 @@ const defaultValues = {
     endDate: '',
     score: '',
   }],
+  internships: [],
   employments: [
     // { index: 0, title: '', company: '', startDate: '', endDate: '', location: '', isCurrent: '', summary: '', }
   ],
@@ -69,6 +71,14 @@ const schema = yup.object({
     score: yup.number().positive().required(),
     location: yup.string(),
   }).required()),
+  internships: yup.array().of(yup.object({
+    title: yup.string().min(5).required(),
+    company: yup.string().min(3).required(),
+    startDate: yup.string().required(),
+    endDate: yup.string(),
+    location: yup.string(),
+    summary: yup.string().min(100).required(),
+  })),
   employments: yup.array().of(yup.object({
     title: yup.string().min(5).required(),
     company: yup.string().min(3).required(),
@@ -116,7 +126,7 @@ export default function ResumeForm() {
   // const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
 
   const { register, handleSubmit, watch, formState: { errors }, getValues, reset } = useForm<any>({
-    mode: "onBlur",
+    mode: "onChange",
     resolver: yupResolver(schema),
     defaultValues: defaultValues,
   });
@@ -159,6 +169,40 @@ export default function ResumeForm() {
             const tempItem = temp.educations;
             const updatedEducations = tempItem.filter((_: any, i: number) => i !== index);
             temp.educations = updatedEducations;
+            setResume(temp);
+            reset(temp);
+          }
+        },
+        {
+          label: 'No',
+          onClick: () => { }
+        }
+      ]
+    });
+  }
+
+  const handleInternshipAdd = (e: any) => {
+    e.preventDefault();
+    let temp = getValues();
+    const tempItem = temp.internships;
+    const updatedItems = tempItem ? [...tempItem, {} as any] : [{} as any];
+    temp.internships = updatedItems;
+    setResume(temp);
+    // reset(resume);
+  }
+
+  const handleInternshipDelete = (index: number) => {
+    confirmAlert({
+      title: 'Delete',
+      message: 'Are you sure want to delete this record?',
+      buttons: [
+        {
+          label: 'Yes',
+          onClick: () => {
+            let temp = getValues();
+            const tempItem = temp.internships;
+            const updatedItems = tempItem.filter((_: any, i: number) => i !== index);
+            temp.internships = updatedItems;
             setResume(temp);
             reset(temp);
           }
@@ -503,6 +547,27 @@ export default function ResumeForm() {
               <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
             </svg>
             Add Education
+          </button>
+        </div>
+      </div>
+
+      <h3>Internships</h3>
+
+      <div className="bg-white p-6 rounded shadow">
+
+        {
+          resume?.internships?.map((e: any, i: number) => {
+            e.index = i;
+            return InternshipForm({ ...e, register, delete: handleInternshipDelete, errors: errors.internships && errors.internships[i] });
+          })
+        }
+
+        <div className="pt-5">
+          <button className="btn btn-outline" onClick={handleInternshipAdd}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+            Add Internship
           </button>
         </div>
       </div>
