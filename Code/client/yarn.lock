@@ -2184,11 +2184,6 @@ react-draggable@^4.4.4:
     clsx "^1.1.1"
     prop-types "^15.6.0"
 
-react-filepond@^7.1.1:
-  version "7.1.1"
-  resolved "https://registry.yarnpkg.com/react-filepond/-/react-filepond-7.1.1.tgz#467aa45051da5dbbca03a2ce58d2aacbbcfbb0e9"
-  integrity sha512-6Szyi3zY4AEiSlE5rztJov/xIDB107Sv31MctDoSutdLinMqmbMej6kJ2MtSGzAhsP2+h8cDDr51mdHNXt97Yw==
-
 react-hook-form@^7.14.2:
   version "7.21.2"
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.21.2.tgz#3faf1292b66b97f6897ba46138aeaf5a1f6031c6"
