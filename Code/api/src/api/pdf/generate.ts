@@ -27,6 +27,7 @@ export async function generatePDF(req: Request, res: Response) {
             Bucket: appConfig.aws.storageBucket,
             Key: `${user}/${user}.html`, // The name of the object. For example, 'sample_upload.txt'.
             Body: fullPdf,
+            ContentType: 'application/xhtml+xml',
         };
 
         // create a new page
@@ -47,6 +48,7 @@ export async function generatePDF(req: Request, res: Response) {
             Bucket: appConfig.aws.storageBucket,
             Key: `${user}/${user}.pdf`,
             Body: pdfBuffer,
+            ContentType: 'application/pdf',
         };
 
         // save PNG
@@ -58,6 +60,7 @@ export async function generatePDF(req: Request, res: Response) {
             Bucket: appConfig.aws.storageBucket,
             Key: `${user}/${user}.webp`, // The name of the object. For example, 'sample_upload.txt'.
             Body: imgBuffer,
+            ContentType: 'image/webp',
         };
 
         await Promise.all([saveToAWS(PdfParams), saveToAWS(HTMLparams), saveToAWS(ImgParams)]);
