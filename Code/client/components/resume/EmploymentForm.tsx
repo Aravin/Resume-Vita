@@ -69,8 +69,7 @@ export default function EmploymentForm(prop: EmploymentType) {
               <label className="cursor-pointer label">
                 <span className="label-text text-gray-500">Is Present Company?</span>
               </label>
-              <input type="checkbox" className={`${prop.isCurrent ? 'bg-blue-600' : 'bg-gray-200'
-                } relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`} {...prop.register(`employments.${prop.index}.isCurrent`)} />
+              <input type="checkbox" className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`} {...prop.register(`employments.${prop.index}.isCurrent`)} />
             </div>
           </div>
 

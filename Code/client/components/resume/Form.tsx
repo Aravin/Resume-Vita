@@ -83,7 +83,7 @@ const schema = yup.object({
     title: yup.string().min(5).required(),
     company: yup.string().min(3).required(),
     startDate: yup.string().required(),
-    endDate: yup.string(),
+    endDate: yup.string().when('isCurrent', { is: false, then: yup.string().required() }),
     location: yup.string(),
     isCurrent: yup.bool(),
     summary: yup.string().min(100).required(),
