@@ -117,7 +117,7 @@ export default function ResumeForm() {
   // const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
 
   const { register, handleSubmit, watch, formState: { errors }, getValues, reset } = useForm<any>({
-    mode: "onChange",
+    mode: "onBlur",
     resolver: yupResolver(schema),
     defaultValues: defaultValues,
   });
