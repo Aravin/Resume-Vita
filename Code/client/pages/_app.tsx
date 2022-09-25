@@ -15,7 +15,10 @@ Router.events.on('routeChangeStart', () => NProgress.start());
 Router.events.on('routeChangeComplete', () => NProgress.done());
 Router.events.on('routeChangeError', () => NProgress.remove());
 
-function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps, ...appProps }: AppProps) {
+
+  const ignoreLayout = [`/public/[id]`].includes(appProps.router.pathname);
+  const LayoutComponent = ignoreLayout ? React.Fragment : Layout; 
 
   const router = useRouter();
 
@@ -45,11 +48,11 @@ function MyApp({ Component, pageProps }: AppProps) {
         <link rel="manifest" href="/favicon/site.webmanifest" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" key="viewport" />
       </Head>
-      <Layout>
+      <LayoutComponent>
 
         <Component {...pageProps} />
 
-      </Layout>
+      </LayoutComponent>
     </UserProvider>
     </>
   )

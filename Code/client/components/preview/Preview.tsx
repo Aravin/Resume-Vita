@@ -38,6 +38,7 @@ export default function Preview() {
         a.href = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
         // link.download = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
         a.download = 'ResumeVita';
+        a.target = '_blank';
         a.dispatchEvent(new MouseEvent('click'));
         setLoader(false);
       })

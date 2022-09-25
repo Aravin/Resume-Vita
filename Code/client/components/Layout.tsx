@@ -5,8 +5,8 @@ export default function Layout({ children }: any) {
   return (
     <>
       <Navbar />
-
-      <main className="p-4">{children}</main>
+{/* todo optimize */}
+      <main className="p-4 min-h-[60vh]">{children}</main>
       
       <Footer />
     </>
