@@ -7,8 +7,7 @@ import { MongoClient } from 'mongodb';
 
 export async function generatePDF(req: Request, res: Response) {
 
-    let pdfBody = req.body?.html;
-    let user = req.body?.user;
+    let { html: pdfBody, user, color } = req.body;
 
     // basic validation
     if (!pdfBody || !user) {
@@ -69,7 +68,7 @@ export async function generatePDF(req: Request, res: Response) {
         const collection = await (res.locals.db as MongoClient).db("resumeTree").collection("resumes");
 
         const query = { user: user };
-        const update = { $set: { isPDFGenerated: true  } };
+        const update = { $set: { isPDFGenerated: true, color, } };
 
         await collection.findOneAndUpdate(query, update);
 
@@ -90,7 +89,7 @@ const saveToAWS = async (params: any) => {
         await s3Client.send(new PutObjectCommand(params));
         console.log(params.Key + " uploaded it to " + params.Bucket);
     } catch (err) {
-        console.log({err});
+        console.log({ err });
     }
 };
 

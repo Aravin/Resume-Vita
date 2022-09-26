@@ -3,20 +3,25 @@ import Link from 'next/link'
 import { FaFilePdf, FaEdit } from 'react-icons/fa';
 import axios from 'axios';
 import useFetch from "../../hooks/useFetch";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Loader from '../Loader';
 
 export default function Preview() {
 
-  const [loading, setLoader] = useState(false);
+  const [loading, setLoader] = useState(true);
   const [color, setColor] = useState('grey')
   const { user, error, isLoading } = useUser();
   const userId = user?.sub?.split('|')[1];
 
   // fetching data from service 
-  const { data, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
-  const storedResume = data;
+  const { data, fetching, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
+  const storedResume = data as any;
   const r = (storedResume?.user === userId) ? storedResume?.resume : {};
+
+  useEffect(() => {
+    setColor(data.color || 'grey');
+    setLoader(false);
+  }, [data])
 
   const handleClick = (e: any) => {
     e.preventDefault();
@@ -28,27 +33,27 @@ export default function Preview() {
     const body = {
       html: (new XMLSerializer()).serializeToString(html as Node),
       user: userId,
+      color,
     }
 
     setLoader(true);
 
     // save to database - permanent
     axios.post(process.env.NEXT_PUBLIC_API + '/pdf', body)
-      .then(function (response) {
+      .then((response) => {
         var a = document.createElement('a');
         a.href = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
-        // link.download = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
         a.download = 'ResumeVita';
         a.target = '_blank';
         a.dispatchEvent(new MouseEvent('click'));
         setLoader(false);
       })
-      .catch(function (error) {
+      .catch((error) => {
         setLoader(true)
       });
   }
 
-  if (isLoading) return <div><Loader /></div>;
+  if (isLoading || fetching) return <div><Loader /></div>;
   if (loading) return <div><Loader message='Downloading your PDF!' /></div>;
   if (fetchError) return <div>Failed to load the PDF, please retry!</div>
 
@@ -60,8 +65,7 @@ export default function Preview() {
           <button><div className={`w-5 h-5 bg-gradient-to-r from-black border-2 ${color === 'grey' && 'border-gray-500'}`} onClick={() => setColor('grey')}></div></button>
           <button><div className={`w-5 h-5 bg-green-400 border-2 ${color === 'green' && 'border-gray-500'}`} onClick={() => setColor('green')}></div></button>
           <button><div className={`w-5 h-5 bg-red-400 border-2 ${color === 'red' && 'border-gray-500'}`} onClick={() => setColor('red')}></div></button>
-          <button><div className={`w-5 h-5 bg-orange-400 border-2 ${color === 'orange' && 'border-gray-500'}`} onClick={() => setColor('orange')}></div></button>
-          <button><div className={`w-5 h-5 bg-blue-400 border-2 ${color === 'blue' && 'border-gray-500'}`} onClick={() => setColor('blue')}></div></button>
+          <button><div className={`w-5 h-5 bg-blue-500 border-2 ${color === 'blue' && 'border-gray-500'}`} onClick={() => setColor('blue')}></div></button>
         </div>
         <div>
           <button className="btn btn-sm btn-outline btn-accent" onClick={handleClick}>
