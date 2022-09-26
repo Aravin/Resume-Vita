@@ -9,6 +9,7 @@ import Loader from '../Loader';
 export default function Preview() {
 
   const [loading, setLoader] = useState(false);
+  const [color, setColor] = useState('grey')
   const { user, error, isLoading } = useUser();
   const userId = user?.sub?.split('|')[1];
 
@@ -54,6 +55,14 @@ export default function Preview() {
   return (
     <>
       <div className="flex gap-4 justify-end pb-5" >
+        <h3>Choose Color</h3>
+        <div className='grid grid-cols-4 gap-4'>
+          <button><div className={`w-5 h-5 bg-gradient-to-r from-black border-2 ${color === 'grey' && 'border-gray-500'}`} onClick={() => setColor('grey')}></div></button>
+          <button><div className={`w-5 h-5 bg-green-400 border-2 ${color === 'green' && 'border-gray-500'}`} onClick={() => setColor('green')}></div></button>
+          <button><div className={`w-5 h-5 bg-red-400 border-2 ${color === 'red' && 'border-gray-500'}`} onClick={() => setColor('red')}></div></button>
+          <button><div className={`w-5 h-5 bg-orange-400 border-2 ${color === 'orange' && 'border-gray-500'}`} onClick={() => setColor('orange')}></div></button>
+          <button><div className={`w-5 h-5 bg-blue-400 border-2 ${color === 'blue' && 'border-gray-500'}`} onClick={() => setColor('blue')}></div></button>
+        </div>
         <div>
           <button className="btn btn-sm btn-outline btn-accent" onClick={handleClick}>
             <FaFilePdf /> &nbsp; GET PDF
@@ -70,8 +79,8 @@ export default function Preview() {
       <div id="preview">
         <div className="px-5 py-5 bg-base-100 rounded shadow">
           <header className="py-4">
-            <h1 className="text-5xl uppercase">{r?.personal?.firstName + ' ' + r?.personal?.lastName}</h1>
-            <span className="text-xl text-gray-500">{r?.employment?.[0]?.title}</span>
+            <h1 className={`text-5xl uppercase text-${color}-500`}>{r?.personal?.firstName + ' ' + r?.personal?.lastName}</h1>
+            <span className="text-xl text-gray-500">{r?.employments?.[0]?.title}</span>
           </header>
 
           <hr></hr>
@@ -80,7 +89,7 @@ export default function Preview() {
             <div className="flex-none mr-5 border-left">
               {/* Size Content */}
               <section className="py-4">
-                <h2 className="text-2xl font-bold uppercase">Details</h2>
+                <h2 className={`text-2xl font-bold uppercase text-${color}-500`}>Details</h2>
                 <hr className="mt-2 border-t-2 border-gray-700 w-1/3"></hr>
                 <div className="mt-4">
                   <h3 className="text-lg uppercase">Phone</h3>
@@ -96,7 +105,7 @@ export default function Preview() {
                 r?.links?.[0]?.name &&
 
                 <section className="py-4">
-                  <h2 className="text-2xl font-bold uppercase">LINKS</h2>
+                  <h2 className={`text-2xl font-bold uppercase text-${color}-500`}>LINKS</h2>
                   <hr className="mt-2 border-t-2 border-gray-700 w-1/3"></hr>
 
                   {
@@ -116,13 +125,13 @@ export default function Preview() {
                 r?.skills?.[0]?.name &&
 
                 <section className="py-4">
-                  <h2 className="text-2xl font-bold uppercase">SKILLS</h2>
+                  <h2 className={`text-2xl font-bold uppercase text-${color}-500`}>SKILLS</h2>
                   <hr className="mt-2 border-t-2 border-gray-700 w-1/3"></hr>
 
                   {
                     r?.skills?.map((v: any, i: number) => {
                       return <div className="mt-4" key={i}>
-                        <div className="badge"> {v?.name}</div>
+                        <div className={`badge bg-${color}-500`}> {v?.name}</div>
                       </div>
                     })
                   }
@@ -140,7 +149,7 @@ export default function Preview() {
             <div className="flex-auto ml-5">
               {/* Main Content */}
               <section className="py-4">
-                <h2 className="text-2xl font-bold uppercase ">Profile</h2>
+                <h2 className={`text-2xl font-bold uppercase text-${color}-500`}>Profile</h2>
                 <hr className="mt-2 border-t-2 border-gray-700 w-1/12"></hr>
                 <p className="mt-4 text-gray-500">
                   {r?.personal?.summary}
@@ -151,7 +160,7 @@ export default function Preview() {
                 r?.internships?.[0]?.title &&
 
                 <section className="py-4">
-                  <h2 className="text-2xl font-bold uppercase">Internships </h2>
+                  <h2 className={`text-2xl font-bold uppercase text-${color}-500`}>Internships </h2>
                   <hr className="mt-2 border-t-2 border-gray-700 w-1/12"></hr>
 
                   {/* employment 0  */}
@@ -159,7 +168,7 @@ export default function Preview() {
                     r?.internships?.map((v: any, i: number) => {
                       return <article className="" key={i}>
                         <div className="flex flex-row mt-8">
-                          <div className="flex-auto"><h3 className="text-xl font-bold">{v?.title + ', ' + v?.company} </h3></div>
+                          <div className="flex-auto"><h3 className="text-xl font-bold text-gray-600">{v?.title + ', ' + v?.company} </h3></div>
                           <div className="flex-2"><h3 className="">{v?.location}</h3></div>
                         </div>
                         <h4 className="mt-2">{v?.startDate} to {v?.endDate}</h4>
@@ -176,7 +185,7 @@ export default function Preview() {
                 r?.employments?.[0]?.title &&
 
                 <section className="py-4">
-                  <h2 className="text-2xl font-bold uppercase">Employment History </h2>
+                  <h2 className={`text-2xl font-bold uppercase text-${color}-500`}>Employment History </h2>
                   <hr className="mt-2 border-t-2 border-gray-700 w-1/12"></hr>
 
                   {/* employment 0  */}
@@ -184,7 +193,7 @@ export default function Preview() {
                     r?.employments?.map((v: any, i: number) => {
                       return <article className="" key={i}>
                         <div className="flex flex-row mt-8">
-                          <div className="flex-auto"><h3 className="text-xl font-bold">{v?.title + ', ' + v?.company} </h3></div>
+                          <div className="flex-auto"><h3 className="text-xl font-bold text-gray-600">{v?.title + ', ' + v?.company} </h3></div>
                           <div className="flex-2"><h3 className="">{v?.location}</h3></div>
                         </div>
                         <h4 className="mt-2">{v?.startDate} to {v?.isCurrent ? 'Present' : v?.endDate}</h4>
@@ -200,7 +209,7 @@ export default function Preview() {
               {r?.educations?.[0]?.institution &&
 
                 <section className="py-4">
-                  <h2 className="text-2xl font-bold uppercase">Education</h2>
+                  <h2 className={`text-2xl font-bold uppercase text-${color}-500`}>Education</h2>
                   <hr className="mt-2 border-t-2 border-gray-700 w-1/12"></hr>
 
                   {/* education 0  */}
@@ -209,7 +218,7 @@ export default function Preview() {
                       return <article className="" key={i}>
                         <div className="flex flex-row mt-8">
                           <div className="flex-auto">
-                            <h3 className="text-xl font-bold">{v?.subject}</h3>
+                            <h3 className="text-xl font-bold text-gray-600">{v?.subject}</h3>
                             <h4 className="text-lg">{v?.institution}</h4>
                           </div>
                           <div className="flex-2">
@@ -225,7 +234,7 @@ export default function Preview() {
 
               {r?.courses?.[0]?.name &&
                 <section className="py-4">
-                  <h2 className="text-2xl font-bold uppercase">Certification</h2>
+                  <h2 className={`text-2xl font-bold uppercase text-${color}-500`}>Certification</h2>
                   <hr className="mt-2 border-t-2 border-gray-700 w-1/12"></hr>
 
                   {/* certificate 0  */}
@@ -234,7 +243,7 @@ export default function Preview() {
                       return <article className="mb-8" key={i}>
                         <div className="flex flex-row mt-4">
                           <div className="flex-auto">
-                            <h3 className="text-xl font-bold">{v?.name}</h3>
+                            <h3 className="text-xl font-bold text-gray-600">{v?.name}</h3>
                           </div>
                           <div className="flex-2"><h3 className="">{v?.institution}</h3></div>
                         </div>
@@ -248,7 +257,7 @@ export default function Preview() {
               {r?.references?.[0]?.name &&
 
                 <section className="py-4">
-                  <h2 className="text-2xl font-bold uppercase">References</h2>
+                  <h2 className={`text-2xl font-bold uppercase text-${color}-500`}>References</h2>
                   <hr className="mt-2 border-t-2 border-gray-700 w-1/12"></hr>
 
                   {/* education 0  */}
@@ -257,8 +266,9 @@ export default function Preview() {
                       return <article className="" key={i}>
                         <div className="flex flex-row mt-8">
                           <div className="flex-auto">
-                            <h3 className="text-xl font-bold">{v?.company}</h3>
-                            <h4 className="text-lg">Phone: {v?.phone}, Email: {v?.email}</h4>
+                            <h3 className="text-xl font-bold text-gray-600">{v?.company}</h3>
+                            {v?.phone && <p className="text-lg">Phone: {v.phone}</p>}
+                            {v?.email && <p className="text-lg">Email: {v.email}</p>}
                           </div>
                           <div className="flex-2">
                             <h3 className="">{v?.name} </h3>
