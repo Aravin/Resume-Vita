@@ -1,8 +1,7 @@
 import type { NextPage } from 'next'
-import Link from 'next/link';
 import React from 'react';
 import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
-import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/solid';
+import { AiOutlineCheckCircle, AiOutlineCloseCircle } from 'react-icons/ai';
 import Loader from '../../components/Loader';
 
 const AccountPage: NextPage = () => {
@@ -42,8 +41,8 @@ const AccountPage: NextPage = () => {
                     {user?.email}
                     {
                       user?.email_verified ? 
-                      <CheckCircleIcon className="ml-2 inline h-6 w-6 text-success" aria-hidden="true" />
-                      : <XCircleIcon className="ml-2 inline h-6 w-6 text-warning" aria-hidden="true" />
+                      <AiOutlineCheckCircle className="ml-2 inline h-6 w-6 text-success" aria-hidden="true" />
+                      : <AiOutlineCloseCircle className="ml-2 inline h-6 w-6 text-warning" aria-hidden="true" />
                     }
                     </dd>
                 </div>
@@ -53,8 +52,8 @@ const AccountPage: NextPage = () => {
                     {user?.phone_number as string || ''}
                     {
                       user?.phone_number_verified ? 
-                      <CheckCircleIcon className="ml-2 inline h-6 w-6 text-success" aria-hidden="true" />
-                      : <XCircleIcon className="ml-2 inline h-6 w-6 text-warning" aria-hidden="true" />
+                      <AiOutlineCheckCircle className="ml-2 inline h-6 w-6 text-success" aria-hidden="true" />
+                      : <AiOutlineCloseCircle className="ml-2 inline h-6 w-6 text-warning" aria-hidden="true" />
                     }
                     </dd>
                 </div>
