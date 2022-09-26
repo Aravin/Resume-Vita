@@ -3,7 +3,7 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { MenuIcon, XIcon, ChevronDownIcon } from '@heroicons/react/outline'
+import { AiOutlineMenu, AiOutlineClose, AiFillCaretDown } from 'react-icons/ai'
 
 import { useUser } from '@auth0/nextjs-auth0';
 import Link from 'next/link';
@@ -42,9 +42,9 @@ export default function Navbar() {
                 <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
                   <span className="sr-only">Open main menu</span>
                   {open ? (
-                    <XIcon className="block h-6 w-6" aria-hidden="true" />
+                    <AiOutlineClose className="block h-6 w-6" aria-hidden="true" />
                   ) : (
-                    <MenuIcon className="block h-6 w-6" aria-hidden="true" />
+                    <AiOutlineMenu className="block h-6 w-6" aria-hidden="true" />
                   )}
                 </Disclosure.Button>
               </div>
@@ -79,7 +79,7 @@ export default function Navbar() {
               {user &&
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                   <div className="text-md font-bold capitalize pr-5">
-                    👋🏻 Welcome, { user.nickname || user.preferred_username || user.name || user.given_name}!
+                    <>👋🏻 Welcome, {user.nickname || user.preferred_username || user.name || user.given_name}!</>
                   </div>
 
                   <div className="avatar">
@@ -94,7 +94,7 @@ export default function Navbar() {
                       <Menu.Button className="bg-primary flex text-sm">
                         <span className="sr-only">Open user menu</span>
                         <div>
-                          <ChevronDownIcon className="block h-6 w-6" aria-hidden="true" />
+                          <AiFillCaretDown className="block h-6 w-6" aria-hidden="true" />
                         </div>
                       </Menu.Button>
                     </div>
