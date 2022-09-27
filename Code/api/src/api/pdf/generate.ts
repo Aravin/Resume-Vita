@@ -68,9 +68,9 @@ export async function generatePDF(req: Request, res: Response) {
         const collection = await (res.locals.db as MongoClient).db("resumeTree").collection("resumes");
 
         const query = { user: user };
-        const update = { $set: { isPDFGenerated: true, color, } };
+        const update = { $set: { isPDFGenerated: true, color, pdf_generated_date: new Date() } };
 
-        await collection.findOneAndUpdate(query, update);
+        await collection.updateOne(query, update);
 
         res.sendStatus(200);
     }

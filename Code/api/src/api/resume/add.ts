@@ -20,10 +20,11 @@ export async function addResume(req: Request, res: Response) {
         const collection = (res.locals.db as MongoClient).db("resumeTree").collection("resumes");
 
         const query = { user: body.user };
-        const update = { $set: body };
+        const date = new Date();
+        const update = { $set: { ...body, modified_date: date}, $setOnInsert: { created_date: date } };
         const options = { upsert: true };
 
-        const response = await collection.updateOne(query, update, options);
+        const response = await collection.findOneAndUpdate(query, update, options);
 
         res.send(response);
     }
