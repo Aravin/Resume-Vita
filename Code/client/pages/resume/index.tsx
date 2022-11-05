@@ -105,13 +105,6 @@ const ResumePage: NextPage = () => {
                   <div className="mt-4">
                     <a className="btn btn-outline btn-secondary" href={`/public/${userId}`} target={'_blank'} rel={'noreferrer'} ><FaFilePdf /> &nbsp;Open Public Resume</a>
                   </div>
-
-                  <br />
-                  <div>
-                    Public Link:
-                  </div>
-                  <div className="badge badge-primary">https://www.resumevita.com/public/{userId}</div>
-
                 </>
               }
 

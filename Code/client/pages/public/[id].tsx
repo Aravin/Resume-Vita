@@ -1,7 +1,5 @@
 import type { NextPage } from 'next'
-import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
-import React, { useRef, useState } from 'react';
-import Loader from '../../components/Loader';
+import React from 'react';
 import { useRouter } from 'next/router';
 
 const PreviewPage: NextPage = () => {
