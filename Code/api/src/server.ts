@@ -26,3 +26,18 @@ app.listen(
     appConfig.port,
     () => console.log(`Resume API is running on PORT ${appConfig.port}`),
     );
+
+
+// handle errors
+
+process.on('uncaughtException', error => {
+  console.log(error);
+});
+
+process.on('unhandledRejection', error => {
+  console.log(error);
+});
+
+process.on('exit', stream => {
+  console.log(stream);
+});
