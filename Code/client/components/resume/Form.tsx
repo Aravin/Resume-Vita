@@ -1,6 +1,6 @@
 import { useUser } from "@auth0/nextjs-auth0";
-import {yupResolver} from '@hookform/resolvers/yup/dist/yup';
-import { useEffect, useState, useReducer } from "react";
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import * as yup from "yup";
 import EducationForm from "./EducationForm";
@@ -125,7 +125,7 @@ export default function ResumeForm() {
   // fetch hook
   // const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
 
-  const { register, handleSubmit, watch, formState: { errors }, getValues, reset } = useForm<any>({
+  const { register, handleSubmit, watch, formState: { errors }, getValues, reset }: any = useForm<any>({
     mode: "onChange",
     resolver: yupResolver(schema),
     defaultValues: defaultValues,

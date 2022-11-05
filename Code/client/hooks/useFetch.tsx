@@ -6,7 +6,7 @@ import axios from 'axios';
 function useFetch(url: string) {
     
     const [data, setData] = useState({} as any);
-    const [loading, setLoading] = useState(false);
+    const [fetching, setLoading] = useState(false);
     const [fetchError, setError] = useState('');
 
     useEffect(() => {
@@ -29,12 +29,12 @@ function useFetch(url: string) {
             });
 
         return () => {
-            source.cancel();
+            // source.cancel();
         };
 
     }, [url])
 
-    return { data, loading, fetchError }
+    return { data, fetching, fetchError }
 }
 
 export default useFetch;

@@ -14,11 +14,10 @@ const ResumePage: NextPage = () => {
   const userId = user?.sub?.split('|')[1];
 
   // fetch hook
-  const { data, loading, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
+  const { data, fetching, fetchError } = useFetch(process.env.NEXT_PUBLIC_API + `/resume/${userId}`);
 
-  if (isLoading || loading) return <div><Loader /></div>;
+  if (isLoading || fetching) return <div><Loader /></div>;
   if (error) return <div>{error.message}</div>;
-  if (loading) return <div><Loader /></div>;
   // if (fetchError) return <div>Failed to load the PDF, please retry!</div>
 
   const handleClick = (e: any) => {
