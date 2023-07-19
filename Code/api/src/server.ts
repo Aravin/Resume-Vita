@@ -1,5 +1,4 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import cors from 'cors';
 import { appConfig } from './config';
 import { router } from './router';
@@ -17,7 +16,7 @@ app
         res.locals.db = db;
         next()
       })
-    .use(bodyParser.json())
+    .use(express.json())
     .use('/v1', router);
 
 
