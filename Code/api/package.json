@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/server.js",
     "build": "tsc",
-    "postinstall": "npm run build",
+    "postinstall": "echo 'No postinstall script'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
