@@ -2,7 +2,7 @@ import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import Layout from '../components/Layout';
 import Head from 'next/head'
-import { UserProvider } from '@auth0/nextjs-auth0';
+import { UserProvider } from '@auth0/nextjs-auth0/client';
 import Router, { useRouter } from 'next/router';
 import NProgress from 'nprogress'; //nprogress module
 import 'nprogress/nprogress.css'; //styles of nprogress

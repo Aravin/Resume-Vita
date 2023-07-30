@@ -1,6 +1,7 @@
 import type { NextPage } from 'next'
 import Preview from '../../components/preview/Preview';
-import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { useUser } from '@auth0/nextjs-auth0/client';
 import React from 'react';
 import Loader from '../../components/Loader';
 

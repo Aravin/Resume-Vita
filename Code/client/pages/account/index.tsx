@@ -1,6 +1,7 @@
 import type { NextPage } from 'next'
 import React from 'react';
-import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { useUser } from '@auth0/nextjs-auth0/client';
+import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from 'react-icons/ai';
 import Loader from '../../components/Loader';
 

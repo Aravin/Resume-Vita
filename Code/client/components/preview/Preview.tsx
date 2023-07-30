@@ -1,4 +1,4 @@
-import { useUser } from '@auth0/nextjs-auth0';
+import { useUser } from '@auth0/nextjs-auth0/client';
 import Link from 'next/link'
 import { FaFilePdf, FaEdit } from 'react-icons/fa';
 import axios from 'axios';

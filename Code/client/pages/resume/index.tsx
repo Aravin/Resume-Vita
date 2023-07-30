@@ -1,5 +1,6 @@
 import type { NextPage } from 'next'
-import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { useUser } from '@auth0/nextjs-auth0/client';
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react';
@@ -47,9 +48,7 @@ const ResumePage: NextPage = () => {
             </div>
             <div data-tip="Create Resume" className="tooltip tooltip-bottom">
               <Link href="/resume/create" passHref>
-                <a>
                   <AiFillFileAdd className="h-24 w-24 m-4 text-primary cursor-pointer hover:opacity-50 hover:tooltip" />
-                </a>
               </Link>
             </div>
           </div>
@@ -63,9 +62,7 @@ const ResumePage: NextPage = () => {
 
               <div data-tip="Preview Resume" className="tooltip tooltip-bottom">
                 <Link href="/resume/preview" passHref>
-                  <a>
                     <Image className="cursor-pointer hover:opacity-50 hover:tooltip" src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.webp`} width="240" height="300" alt="PDF Preview" />
-                  </a>
                 </Link>
               </div>
             }
@@ -79,9 +76,7 @@ const ResumePage: NextPage = () => {
                 </div>
                 <div data-tip="Create Resume" className="tooltip tooltip-bottom">
                   <Link href="/resume/create" passHref>
-                    <a>
                       <AiFillEdit className="h-24 w-24 m-4 text-primary cursor-pointer hover:opacity-50 hover:tooltip" />
-                    </a>
                   </Link>
                 </div>
               </div>

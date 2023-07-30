@@ -1,4 +1,4 @@
-import { useUser } from "@auth0/nextjs-auth0";
+import { useUser } from "@auth0/nextjs-auth0/client";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
