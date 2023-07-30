@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Footer() {
 
@@ -8,23 +9,23 @@ export default function Footer() {
       <footer className="p-10 footer bg-neutral text-neutral-content">
         <div>
           <span className="footer-title">Services</span>
-          <a href="https://github.com/Aravin/Resume-Vita" target="_blank" className="link link-hover" rel="noreferrer">Branding</a>
-          <a href="https://github.com/Aravin/Resume-Vita" target="_blank" className="link link-hover" rel="noreferrer">Design</a>
-          <a href="https://github.com/Aravin/Resume-Vita" target="_blank" className="link link-hover" rel="noreferrer">Marketing</a>
-          <a href="https://github.com/Aravin/Resume-Vita" target="_blank" className="link link-hover" rel="noreferrer">Advertisement</a>
+          <Link href="/api/auth/login" className="link link-hover" rel="noreferrer">Invoice Generation</Link>
+          <Link href="/api/auth/login" target="_blank" className="link link-hover" rel="noreferrer">Public Invoice</Link>
+          <Link href="/api/auth/login" target="_blank" className="link link-hover" rel="noreferrer">Cover Letter</Link>
+          <Link href="/api/auth/login" target="_blank" className="link link-hover" rel="noreferrer">E-Resume</Link>
         </div>
         <div>
           <span className="footer-title">Company</span>
           <a href="https://github.com/Aravin/Resume-Vita" target="_blank" className="link link-hover" rel="noreferrer">About us</a>
           <a href="https://github.com/Aravin/Resume-Vita" target="_blank" className="link link-hover" rel="noreferrer">Contact</a>
-          <a href="https://github.com/Aravin/Resume-Vita" target="_blank" className="link link-hover" rel="noreferrer">Jobs</a>
+          <a href="https://github.com/Aravin/Resume-Vita" target="_blank" className="link link-hover" rel="noreferrer">Support Us</a>
           <a href="https://github.com/Aravin/Resume-Vita" target="_blank" className="link link-hover" rel="noreferrer">Report Issue</a>
         </div>
         <div>
           <span className="footer-title">Legal</span>
-          <a href="https://github.com/Aravin/Resume-Vita" target="_blank" className="link link-hover" rel="noreferrer">Terms of use</a>
-          <a href="https://github.com/Aravin/Resume-Vita" target="_blank" className="link link-hover" rel="noreferrer">Privacy policy</a>
-          <a href="https://github.com/Aravin/Resume-Vita" target="_blank" className="link link-hover" rel="noreferrer">Cookie policy</a>
+          <a href="https://tnc.aravin.net/terms-privacy" target="_blank" className="link link-hover" rel="noreferrer">Terms of use</a>
+          <a href="https://tnc.aravin.net/terms-privacy" target="_blank" className="link link-hover" rel="noreferrer">Privacy policy</a>
+          <a href="https://tnc.aravin.net/terms-privacy" target="_blank" className="link link-hover" rel="noreferrer">Cookie policy</a>
         </div>
       </footer>
       <footer className="px-10 py-4 border-t footer bg-base-200 text-base-content border-base-300">
