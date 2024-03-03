@@ -81,8 +81,10 @@ export default function Page() {
     <>
       <Breadcrumbs currentPage="Resume Preview" />
 
-      <div className="flex gap-4 justify-end pb-5">
-        <h3>Choose Color</h3>
+      <div className="flex gap-4 justify-end pb-4 m-4">
+        <div>
+          <h3>Choose Color:</h3>
+        </div>
         <div className="grid grid-cols-4 gap-4">
           <button>
             <div
@@ -122,21 +124,21 @@ export default function Page() {
             className="btn btn-sm btn-outline btn-accent"
             onClick={handleClick}
           >
-            <FaFilePdf /> &nbsp; GET PDF
+            <FaFilePdf /> <span className="hidden md:block">GET PDF</span>
           </button>
         </div>
         {/* <div className="flex-1"><button className="btn btn-outline btn-secondary"><FaFileWord /> GET Word</button> </div> */}
         <div>
           <Link href="/resume/create" passHref>
             <button className="btn btn-sm btn-outline btn-primary">
-              <FaEdit /> &nbsp; Edit
+              <FaEdit /> <span className="hidden md:block">Edit PDF</span>
             </button>
           </Link>
         </div>
       </div>
 
       <div id="preview">
-        <div className="px-5 py-5 bg-base-100 rounded shadow">
+        <div className="px-5 py-5 bg-base-100 rounded shadow sm:text-sm md:text-md overflow-x-scroll resize">
           <header className="py-4">
             <h1 className={`text-5xl uppercase text-${color}-500`}>
               {r?.personal?.firstName + " " + r?.personal?.lastName}
