@@ -533,7 +533,7 @@ export default function ResumeForm() {
 
       {/* Section 1 */}
       <div className="bg-white p-6 rounded shadow">
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
           <div className="form-control">
             <label className="label">
               <span className="label-text text-gray-500">First Name*</span>
@@ -574,7 +574,7 @@ export default function ResumeForm() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
           <div className="form-control">
             <label className="label">
               <span className="label-text text-gray-500">Email*</span>
@@ -627,7 +627,8 @@ export default function ResumeForm() {
               <span className="label-text text-gray-500">Summary*</span>
             </label>
             <textarea
-              className={`textarea h-24 textarea-bordered font-medium ${
+              rows={8}
+              className={`textarea h-60 md:h-40 lg:h20 textarea-bordered font-medium ${
                 errors.personal?.summary ? "input-error" : ""
               }`}
               {...register("personal.summary")}

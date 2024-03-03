@@ -8,6 +8,7 @@ import axios from "axios";
 import useFetch from "../../../hooks/useFetch";
 import { useEffect, useState } from "react";
 import Loader from "../../../components/Loader";
+import { Breadcrumbs } from "../../../components/Breadcrumbs";
 
 // export const metadata: Metadata = {
 //   title: "Preview Resume",
@@ -78,6 +79,8 @@ export default function Page() {
 
   return (
     <>
+      <Breadcrumbs currentPage="Resume Preview" />
+
       <div className="flex gap-4 justify-end pb-5">
         <h3>Choose Color</h3>
         <div className="grid grid-cols-4 gap-4">

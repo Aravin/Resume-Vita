@@ -1,33 +1,43 @@
 import { UseFormRegister } from "react-hook-form";
 
 interface SkillType {
-  register: UseFormRegister<any>,
-  name: string,
-  level: string,
-  index: number,
-  errors: any,
-  delete: Function,
-};
+  register: UseFormRegister<any>;
+  name: string;
+  level: string;
+  index: number;
+  errors: any;
+  delete: Function;
+}
 
 export default function SkillForm(prop: SkillType) {
-
   return (
-    <div key={prop.index} className="flex justify-between mb-5">
-
+    <div key={prop.index} className="flex justify-between mb-12 mt-6">
       <div className="flex-1">
-        <div className="flex gap-6">
-          <div className="flex-1 form-control">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
+          <div className="form-control">
             <label className="label">
               <span className="label-text text-gray-500">Skill Name*</span>
             </label>
-            <input type="text" className={`input input-bordered font-medium ${prop.errors?.name && 'input-error'}`} placeholder="e.g. Java" {...prop.register(`skills.${prop.index}.name`,)} />
+            <input
+              type="text"
+              className={`input input-bordered font-medium ${
+                prop.errors?.name && "input-error"
+              }`}
+              placeholder="e.g. Java"
+              {...prop.register(`skills.${prop.index}.name`)}
+            />
           </div>
 
-          <div className="flex-1 form-control">
+          <div className="form-control">
             <label className="label">
               <span className="label-text text-gray-500">Level*</span>
             </label>
-            <select className={`select select-bordered ${prop.errors?.level && 'input-error'}`}  {...prop.register(`skills.${prop.index}.level`,)}>
+            <select
+              className={`select select-bordered ${
+                prop.errors?.level && "input-error"
+              }`}
+              {...prop.register(`skills.${prop.index}.level`)}
+            >
               <option value="" label="- Select Level -"></option>
               <option value="1" label="Novice"></option>
               <option value="2" label="Beginner"></option>
@@ -35,15 +45,28 @@ export default function SkillForm(prop: SkillType) {
               <option value="4" label="Experienced"></option>
               <option value="5" label="Expert"></option>
             </select>
-
           </div>
         </div>
       </div>
 
       <div className="flex-shrink-0 ml-5 my-5">
-        <button className="btn btn-outline btn-square tooltip" data-tip="Delete" onClick={() => prop.delete(prop.index)} >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-6 h-6 stroke-current">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+        <button
+          className="btn btn-outline btn-square tooltip"
+          data-tip="Delete"
+          onClick={() => prop.delete(prop.index)}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="inline-block w-6 h-6 stroke-current"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
           </svg>
         </button>
       </div>
