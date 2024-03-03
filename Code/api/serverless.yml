@@ -1,0 +1,30 @@
+service: resumevita-api
+
+useDotenv: true
+
+provider:
+  runtime: nodejs16.x
+  name: aws
+  stage: prod
+  region: ap-south-1
+  profile: production
+  stackName: resumevita-app-stack
+  stackTags:
+    app: resumevita
+    env: prod
+
+plugins:
+  - serverless-offline
+  - serverless-plugin-chrome
+  - serverless-plugin-typescript
+package:
+  exclude:
+    - node_modules/puppeteer/.local-chromium/**
+
+functions:
+  app:
+    handler: server/app.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
+

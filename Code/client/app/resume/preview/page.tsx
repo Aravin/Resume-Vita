@@ -1,12 +1,19 @@
+"use client";
+
+// import { Metadata } from "next";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Link from "next/link";
 import { FaFilePdf, FaEdit } from "react-icons/fa";
 import axios from "axios";
-import useFetch from "../../hooks/useFetch";
+import useFetch from "../../../hooks/useFetch";
 import { useEffect, useState } from "react";
-import Loader from "../Loader";
+import Loader from "../../../components/Loader";
 
-export default function Preview() {
+// export const metadata: Metadata = {
+//   title: "Preview Resume",
+// };
+
+export default function Page() {
   const [loading, setLoader] = useState(true);
   const [color, setColor] = useState("grey");
   const { user, error, isLoading } = useUser();
