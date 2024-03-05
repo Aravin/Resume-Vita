@@ -112,10 +112,26 @@ export default function Page() {
           </button>
           <button>
             <div
-              className={`w-5 h-5 bg-blue-500 border-2 ${
-                color === "blue" && "border-gray-500"
+              className={`w-5 h-5 bg-sky-500 border-2 ${
+                color === "sky" && "border-gray-500"
               }`}
-              onClick={() => setColor("blue")}
+              onClick={() => setColor("sky")}
+            ></div>
+          </button>
+          <button>
+            <div
+              className={`w-5 h-5 bg-pink-500 border-2 ${
+                color === "pink" && "border-gray-500"
+              }`}
+              onClick={() => setColor("pink")}
+            ></div>
+          </button>
+          <button>
+            <div
+              className={`w-5 h-5 bg-yellow-500 border-2 ${
+                color === "yellow" && "border-gray-500"
+              }`}
+              onClick={() => setColor("yellow")}
             ></div>
           </button>
         </div>
@@ -209,10 +225,7 @@ export default function Page() {
                   {r?.skills?.map((v: any, i: number) => {
                     return (
                       <div className="mt-4" key={i}>
-                        <div className={`badge bg-${color}-500`}>
-                          {" "}
-                          {v?.name}
-                        </div>
+                        <div className={`badge bg-gray-200`}> {v?.name}</div>
                       </div>
                     );
                   })}
