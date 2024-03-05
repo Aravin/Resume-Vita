@@ -91,15 +91,16 @@ export default function Page() {
           )}
         </div>
         <div>
-          <div className="mt-4">
-            <Link href="/resume/create" passHref>
-              <button className="btn btn-outline btn-primary">
-                <FaEdit /> &nbsp;Edit Resume
-              </button>
-            </Link>
-          </div>
           {data.isPDFGenerated && (
             <>
+              <div className="mt-4">
+                <Link href="/resume/create" passHref>
+                  <button className="btn btn-outline btn-primary">
+                    <FaEdit /> &nbsp;Edit Resume
+                  </button>
+                </Link>
+              </div>
+
               <div className="mt-4">
                 <button
                   className="btn btn-outline btn-accent"
