@@ -46,7 +46,7 @@ export default function Page() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 m-4 md:p-8 md:m-8">
         <div>
-          {/* if pdf not generated */}
+          {/* resume not generated */}
           {data === "" && (
             <div className="flex-row my-5 mx-2">
               <div className="mt-5">
@@ -60,21 +60,22 @@ export default function Page() {
             </div>
           )}
 
-          {/* resume not added  */}
+          {/* PDF  generated */}
 
-          {data === "" && (
+          {data !== "" && !data.isPDFGenerated && (
             <div className="flex-row my-5 mx-2">
               <div className="mt-5">
-                No Resume Added!, click on below image to create new Resume...
+                PDF not generated!, click on edit image and generate PDF...
               </div>
               <div data-tip="Create Resume" className="tooltip tooltip-bottom">
                 <Link href="/resume/create" passHref>
-                  <AiFillFileAdd className="h-24 w-24 m-4 text-primary cursor-pointer hover:opacity-50 hover:tooltip" />
+                  <AiFillEdit className="h-24 w-24 m-4 text-primary cursor-pointer hover:opacity-50 hover:tooltip" />
                 </Link>
               </div>
             </div>
           )}
 
+          {/* PDF generated */}
           {data.isPDFGenerated && (
             <div data-tip="Preview Resume" className="tooltip tooltip-bottom">
               <Link href="/resume/preview" passHref>
@@ -86,19 +87,6 @@ export default function Page() {
                   alt="PDF Preview"
                 />
               </Link>
-            </div>
-          )}
-
-          {!data.isPDFGenerated && (
-            <div className="flex-row my-5 mx-2">
-              <div className="mt-5">
-                PDF not generated!, click on edit image and generate PDF...
-              </div>
-              <div data-tip="Create Resume" className="tooltip tooltip-bottom">
-                <Link href="/resume/create" passHref>
-                  <AiFillEdit className="h-24 w-24 m-4 text-primary cursor-pointer hover:opacity-50 hover:tooltip" />
-                </Link>
-              </div>
             </div>
           )}
         </div>
