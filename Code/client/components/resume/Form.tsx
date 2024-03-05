@@ -14,7 +14,7 @@ import SkillForm from "./SkillForm";
 import LanguageForm from "./LanguageForm";
 import { confirmAlert } from "react-confirm-alert"; // Import
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
-import router from "next/router";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import Loader from "../Loader";
@@ -161,6 +161,7 @@ const schema = yup
   .required();
 
 export default function ResumeForm() {
+  const router = useRouter();
   const { user, error, isLoading } = useUser();
   const userId = user?.sub?.split("|")[1];
   const [resume, setResume] = useState(defaultValues);
