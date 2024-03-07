@@ -116,7 +116,7 @@ export default function EmploymentForm(prop: EmploymentType) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
+          <div className="grid grid-cols-1 gap-2 sm:gap-6">
             <div className="form-control">
               <label className="label">
                 <span className="label-text text-gray-500">Summary*</span>
