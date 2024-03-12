@@ -19,6 +19,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             content="width=device-width, initial-scale=1.0"
             key="viewport"
           />
+          <meta charSet="utf-8" />
         </Head>
         <body>
           <Layout>{children}</Layout>

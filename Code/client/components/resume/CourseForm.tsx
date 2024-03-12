@@ -15,7 +15,7 @@ export default function CourseForm(prop: CourseType) {
   return (
     <div key={prop.index} className="flex justify-between mb-12 mt-6">
       <div className="flex-1">
-        <div className="grid grid-cols-1 md:grid-cols-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
           <div className="form-control">
             <label className="label">
               <span className="label-text text-gray-500">Course Name</span>
@@ -46,7 +46,7 @@ export default function CourseForm(prop: CourseType) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
           <div className="form-control">
             <label className="label">
               <span className="label-text text-gray-500">Start Date</span>
