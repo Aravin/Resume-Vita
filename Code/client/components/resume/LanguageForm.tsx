@@ -34,11 +34,15 @@ export default function LanguageForm(prop: LanguageType) {
             </label>
             <select
               className={`select select-bordered ${
-                prop.errors?.level && "input-error"
+                prop.errors?.level && "select-error"
               }`}
               {...prop.register(`languages.${prop.index}.level`)}
             >
-              <option value="" label="- Select Level -"></option>
+              <option
+                className="select-error"
+                value=""
+                label="- Select Level -"
+              ></option>
               <option value="1" label="Novice"></option>
               <option value="2" label="Beginner"></option>
               <option value="3" label="Skillful"></option>
