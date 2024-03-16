@@ -19,152 +19,14 @@ import axios from "axios";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import Loader from "../Loader";
 import InternshipForm from "./InternshipForm";
-
-const defaultValues = {
-  personal: {
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    summary: "",
-  },
-  educations: [
-    {
-      index: 0,
-      institution: "",
-      subject: "",
-      startDate: "",
-      endDate: "",
-      score: "",
-    },
-  ],
-  internships: [],
-  employments: [
-    // { index: 0, title: '', company: '', startDate: '', endDate: '', location: '', isCurrent: '', summary: '', }
-  ],
-  skills: [
-    {
-      index: 0,
-      name: "",
-      level: "",
-    },
-  ],
-  languages: [
-    {
-      index: 0,
-      name: "",
-      level: "",
-    },
-  ],
-  links: [
-    // { index: 0, name: '', url: '' }
-  ],
-  courses: [
-    // { index: 0, name: '', institution: '', startDate: '', endDate: ''}
-  ],
-  references: [
-    // { index: 0, name: '', company: '', phone: '', email: '' }
-  ],
-};
-
-const schema = yup
-  .object({
-    personal: yup.object({
-      firstName: yup.string().min(4).required(),
-      lastName: yup.string().min(2).required(),
-      email: yup.string().email().required(),
-      phone: yup.string().required(),
-      summary: yup.string().min(100).required(),
-    }),
-    educations: yup.array().of(
-      yup
-        .object({
-          institution: yup.string().min(3).required(),
-          subject: yup.string().min(2).required(),
-          startDate: yup.string().required(),
-          endDate: yup.string().required(),
-          score: yup.number().positive().required(),
-          location: yup.string(),
-        })
-        .required()
-    ),
-    internships: yup.array().of(
-      yup.object({
-        title: yup.string().min(5).required(),
-        company: yup.string().min(3).required(),
-        startDate: yup.string().required(),
-        endDate: yup.string(),
-        location: yup.string(),
-        summary: yup.string().min(100).required(),
-      })
-    ),
-    employments: yup.array().of(
-      yup.object({
-        title: yup.string().min(5).required(),
-        company: yup.string().min(3).required(),
-        startDate: yup.string().required(),
-        endDate: yup
-          .string()
-          .when("isCurrent", { is: false, then: yup.string().required() }),
-        location: yup.string(),
-        isCurrent: yup.bool(),
-        summary: yup.string().min(100).required(),
-      })
-    ),
-    skills: yup.array().of(
-      yup
-        .object({
-          name: yup.string().min(3).required(),
-          level: yup.number().positive().required(),
-        })
-        .required()
-    ),
-    languages: yup.array().of(
-      yup
-        .object({
-          name: yup.string().min(3).required(),
-          level: yup.number().positive().required(),
-        })
-        .required()
-    ),
-    links: yup.array().of(
-      yup.object({
-        name: yup.string().required(),
-        url: yup
-          .string()
-          .matches(
-            /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/
-          )
-          .required(),
-      })
-    ),
-    courses: yup
-      .array()
-      .of(
-        yup.object({
-          name: yup.string().min(3).required(),
-          institution: yup.string().min(3).required(),
-          endDate: yup.string(),
-          score: yup.number().positive(),
-        })
-      )
-      .optional(),
-    references: yup.array().of(
-      yup.object({
-        name: yup.string().min(3).required(),
-        company: yup.string().min(3).required(),
-        phone: yup.string(),
-        email: yup.string().email(),
-      })
-    ),
-  })
-  .required();
+import { resumeDefaultValues } from "./ResumeDefaultValue";
+import { ResumeSchema } from "./ResumeSchema";
 
 export default function ResumeForm() {
   const router = useRouter();
   const { user, error, isLoading } = useUser();
   const userId = user?.sub?.split("|")[1];
-  const [resume, setResume] = useState(defaultValues);
+  const [resume, setResume] = useState(resumeDefaultValues);
   // local storage hook
   const [localResume, setLocalResume] = useLocalStorage(
     "resumeData",
@@ -183,8 +45,8 @@ export default function ResumeForm() {
     reset,
   }: any = useForm<any>({
     mode: "onChange",
-    resolver: yupResolver(schema),
-    defaultValues: defaultValues,
+    resolver: yupResolver(ResumeSchema),
+    defaultValues: resumeDefaultValues,
   });
 
   useEffect(() => {
