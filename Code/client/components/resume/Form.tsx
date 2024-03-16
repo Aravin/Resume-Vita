@@ -4,7 +4,6 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import * as yup from "yup";
 import EducationForm from "./EducationForm";
 import EmploymentForm from "./EmploymentForm";
 import ReferenceForm from "./ReferenceForm";
@@ -43,7 +42,7 @@ export default function ResumeForm() {
     formState: { errors },
     getValues,
     reset,
-  }: any = useForm<any>({
+  }: any = useForm({
     mode: "onChange",
     resolver: yupResolver(ResumeSchema),
     defaultValues: resumeDefaultValues,
@@ -65,7 +64,7 @@ export default function ResumeForm() {
     }
 
     fetchResume();
-  }, [userId]);
+  });
 
   const handleEducationAdd = (e: any) => {
     e.preventDefault();
@@ -87,7 +86,7 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.educations;
-            const updatedEducations = tempItem.filter(
+            const updatedEducations = tempItem?.filter(
               (_: any, i: number) => i !== index
             );
             temp.educations = updatedEducations;
@@ -159,7 +158,7 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.employments;
-            const updatedItems = tempItem.filter(
+            const updatedItems = tempItem?.filter(
               (_: any, i: number) => i !== index
             );
             temp.employments = updatedItems;
@@ -195,7 +194,7 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.skills;
-            const updatedItems = tempItem.filter(
+            const updatedItems = tempItem?.filter(
               (_: any, i: number) => i !== index
             );
             temp.skills = updatedItems;
@@ -267,7 +266,7 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.links;
-            const updatedItems = tempItem.filter(
+            const updatedItems = tempItem?.filter(
               (_: any, i: number) => i !== index
             );
             temp.links = updatedItems;
@@ -339,7 +338,7 @@ export default function ResumeForm() {
           onClick: () => {
             let temp = getValues();
             const tempItem = temp.references;
-            const updatedItems = tempItem.filter(
+            const updatedItems = tempItem?.filter(
               (_: any, i: number) => i !== index
             );
             temp.references = updatedItems;

@@ -3,7 +3,7 @@ export const resumeDefaultValues = {
     firstName: "",
     lastName: "",
     email: "",
-    phone: "",
+    phone: 0,
     summary: "",
   },
   educations: [
@@ -13,7 +13,8 @@ export const resumeDefaultValues = {
       subject: "",
       startDate: "",
       endDate: "",
-      score: "",
+      score: 0,
+      location: "",
     },
   ],
   internships: [],
@@ -24,14 +25,14 @@ export const resumeDefaultValues = {
     {
       index: 0,
       name: "",
-      level: "",
+      level: 0,
     },
   ],
   languages: [
     {
       index: 0,
       name: "",
-      level: "",
+      level: 0,
     },
   ],
   links: [
