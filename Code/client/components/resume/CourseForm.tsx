@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { UseFormRegister } from "react-hook-form";
 
 interface CourseType {
@@ -13,7 +14,7 @@ interface CourseType {
 
 export default function CourseForm(prop: CourseType) {
   return (
-    <div key={prop.index} className="flex justify-between mb-12 mt-6">
+    <div key={nanoid()} className="flex justify-between mb-12 mt-6">
       <div className="flex-1">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
           <div className="form-control">
