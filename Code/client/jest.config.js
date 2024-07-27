@@ -13,8 +13,7 @@ const config = {
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   transform: {
     "^.+/__tests__/.+\\.test\\.tsx$": "babel-jest",
-  },
-  extensionsToTreatAsEsm: [".ts", ".tsx"]
+  }
 };
 
 module.exports = createJestConfig(config)
