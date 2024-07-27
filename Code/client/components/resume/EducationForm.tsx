@@ -129,6 +129,7 @@ export default function EducationForm(prop: EducationType) {
         <button
           className="btn btn-outline btn-square tooltip"
           data-tip="Delete"
+          aria-label="Delete"
           onClick={() => prop.delete(prop.index)}
         >
           <svg
