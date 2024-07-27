@@ -80,6 +80,7 @@ export default function CourseForm(prop: CourseType) {
         <button
           className="btn btn-outline btn-square tooltip"
           data-tip="Delete"
+          aria-label="Delete"
           onClick={() => prop.delete(prop.index)}
         >
           <svg
