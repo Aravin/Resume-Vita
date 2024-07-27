@@ -43,7 +43,7 @@ export default function ResumeForm() {
     getValues,
     reset,
   }: any = useForm({
-    mode: "onChange",
+    mode: "onBlur",
     resolver: yupResolver(ResumeSchema),
     defaultValues: resumeDefaultValues,
   });
