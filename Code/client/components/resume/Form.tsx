@@ -49,6 +49,8 @@ export default function ResumeForm() {
   });
 
   useEffect(() => {
+    let isMounted = true; // Flag to track component mount status
+
     async function fetchResume() {
       if (!userId) return;
 
@@ -57,14 +59,20 @@ export default function ResumeForm() {
       );
       const data = await res.json();
 
-      if (data?.resume) {
+      // Only update state if the component is still mounted
+      if (isMounted && data?.resume) {
         setResume(data.resume);
         reset(data.resume);
       }
     }
 
     fetchResume();
-  });
+
+    // Cleanup function to handle unmounting
+    return () => {
+      isMounted = false;
+    };
+  }, [userId]); // Only run the effect when userId changes
 
   const handleEducationAdd = (e: any) => {
     e.preventDefault();
