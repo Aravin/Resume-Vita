@@ -117,7 +117,7 @@ export default function Page() {
               <Link href="/resume/preview" aria-label="Preview resume">
                 <Image
                   className="cursor-pointer hover:opacity-50 transition-opacity"
-                  src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.webp`}
+                  src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.webp?t=${Date.now()}`}
                   width={240}
                   height={300}
                   alt="PDF Preview"
