@@ -8,6 +8,8 @@ import useFetch from "../../../hooks/useFetch";
 import { useEffect, useState, useMemo, memo, useCallback } from "react";
 import Loader from "../../../components/Loader";
 import { Breadcrumbs } from "../../../components/Breadcrumbs";
+import DefaultTemplate from "@/components/preview/DefaultTemplate";
+import ModernTemplate from "@/components/preview/ModernTemplate";
 
 const colorClasses = {
   black: "text-black",
@@ -61,6 +63,7 @@ CompanyHeader.displayName = 'CompanyHeader';
 export default function Page() {
   const [loading, setLoader] = useState(true);
   const [color, setColor] = useState<keyof typeof colorClasses>("black");
+  const [template, setTemplate] = useState<'default' | 'modern'>('default');
   const { user, error: authError, isLoading: authLoading } = useUser();
   
   const userId = useMemo(() => {
@@ -82,7 +85,12 @@ export default function Page() {
     if (data?.color) {
       setColor(data.color);
     }
-  }, [data?.color]);
+    if (data?.theme) {
+      setTemplate(data.theme);
+    } else {
+      setTemplate('default'); // Fallback to default theme
+    }
+  }, [data?.color, data?.theme]);
 
   useEffect(() => {
     if (!fetching) {
@@ -132,6 +140,25 @@ export default function Page() {
     }
   }, [userId, color]);
 
+  const handlePreferenceUpdate = useCallback(async (updates: { color?: string; theme?: 'default' | 'modern' }) => {
+    if (!userId) return;
+    try {
+      await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT}/resume/${userId}`, updates);
+    } catch (error) {
+      console.error('Failed to update preferences:', error);
+    }
+  }, [userId]);
+
+  const handleColorChange = useCallback((newColor: keyof typeof colorClasses) => {
+    setColor(newColor);
+    handlePreferenceUpdate({ color: newColor });
+  }, [handlePreferenceUpdate]);
+
+  const handleTemplateChange = useCallback((newTemplate: 'default' | 'modern') => {
+    setTemplate(newTemplate);
+    handlePreferenceUpdate({ theme: newTemplate });
+  }, [handlePreferenceUpdate]);
+
   if (authLoading || fetching)
     return (
       <>
@@ -180,55 +207,71 @@ export default function Page() {
           <h3 className="text-sm font-medium text-gray-700">Theme:</h3>
           <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
             <button 
-              onClick={() => setColor("black")}
+              onClick={() => handleColorChange("black")}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
               title="Black"
             >
               <div className={`w-6 h-6 bg-black rounded-full ring-2 ring-offset-2 ${color === "black" ? "ring-gray-500" : "ring-transparent"}`} />
             </button>
             <button 
-              onClick={() => setColor("gray")}
+              onClick={() => handleColorChange("gray")}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
               title="Gray"
             >
               <div className={`w-6 h-6 bg-gray-500 rounded-full ring-2 ring-offset-2 ${color === "gray" ? "ring-gray-500" : "ring-transparent"}`} />
             </button>
             <button 
-              onClick={() => setColor("blue")}
+              onClick={() => handleColorChange("blue")}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
               title="Blue"
             >
               <div className={`w-6 h-6 bg-blue-500 rounded-full ring-2 ring-offset-2 ${color === "blue" ? "ring-gray-500" : "ring-transparent"}`} />
             </button>
             <button 
-              onClick={() => setColor("red")}
+              onClick={() => handleColorChange("red")}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
               title="Red"
             >
               <div className={`w-6 h-6 bg-red-500 rounded-full ring-2 ring-offset-2 ${color === "red" ? "ring-gray-500" : "ring-transparent"}`} />
             </button>
             <button 
-              onClick={() => setColor("green")}
+              onClick={() => handleColorChange("green")}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
               title="Green"
             >
               <div className={`w-6 h-6 bg-green-500 rounded-full ring-2 ring-offset-2 ${color === "green" ? "ring-gray-500" : "ring-transparent"}`} />
             </button>
             <button 
-              onClick={() => setColor("yellow")}
+              onClick={() => handleColorChange("yellow")}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
               title="Yellow"
             >
               <div className={`w-6 h-6 bg-yellow-500 rounded-full ring-2 ring-offset-2 ${color === "yellow" ? "ring-gray-500" : "ring-transparent"}`} />
             </button>
             <button 
-              onClick={() => setColor("pink")}
+              onClick={() => handleColorChange("pink")}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
               title="Pink"
             >
               <div className={`w-6 h-6 bg-pink-500 rounded-full ring-2 ring-offset-2 ${color === "pink" ? "ring-gray-500" : "ring-transparent"}`} />
             </button>
           </div>
+        </div>
+
+        {/* Template Picker Section */}
+        <div className="flex justify-center gap-4 mb-4">
+          <button
+            className={`px-4 py-2 rounded ${template === 'default' ? bgColorClasses[color] + ' text-white' : 'border border-gray-300'}`}
+            onClick={() => handleTemplateChange('default')}
+          >
+            Default Template
+          </button>
+          <button
+            className={`px-4 py-2 rounded ${template === 'modern' ? bgColorClasses[color] + ' text-white' : 'border border-gray-300'}`}
+            onClick={() => handleTemplateChange('modern')}
+          >
+            Modern Template
+          </button>
         </div>
 
         {/* Action Buttons */}
@@ -250,200 +293,21 @@ export default function Page() {
       </div>
 
       <div id="preview" className="flex justify-center items-center w-full overflow-auto">
-        <div className="p-4 rounded shadow sm:text-sm md:text-md border border-gray-300 print:border-0" style={{ width: '210mm', flex: '0 0 210mm', margin: '0 auto', minHeight: '297mm' }}>
-          <div className="flex flex-col h-full">
-            <header className="py-2">
-              <h1 className={`text-4xl uppercase truncate ${colorClasses[color]}`}>
-                {r?.personal?.firstName + " " + r?.personal?.lastName}
-              </h1>
-              <span className="text-lg text-gray-500 truncate">
-                {r?.employments?.[0]?.title}
-              </span>
-            </header>
-
-            <hr className="my-2"></hr>
-
-            <div className="flex flex-1 gap-4">
-              <div className="w-1/4 shrink-0 [&_p]:break-all [&_span]:break-all">
-                {/* Size Content */}
-                <section className="py-4">
-                  <SectionTitle color={color}>Details</SectionTitle>
-                  <div className="mt-4">
-                    <h3 className="text-lg uppercase">Phone</h3>
-                    <p className="mt-1 text-gray-500"> {r?.personal?.phone} </p>
-                  </div>
-                  <div className="mt-4">
-                    <h3 className="text-lg uppercase">Email</h3>
-                    <p className="mt-1 text-gray-500"> {r?.personal?.email} </p>
-                  </div>
-                </section>
-
-                {r?.links?.[0]?.name && (
-                  <section className="py-4">
-                    <SectionTitle color={color}>LINKS</SectionTitle>
-
-                    {r?.links?.map((v: any, i: number) => {
-                      return (
-                        <div className="mt-4" key={i}>
-                          <p className="mt-1 text-gray-500">
-                            <a
-                              href={v?.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {v?.name}
-                            </a>
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </section>
-                )}
-
-                {r?.skills?.[0]?.name && (
-                  <section className="py-4">
-                    <SectionTitle color={color}>SKILLS</SectionTitle>
-
-                    {r?.skills?.map((v: any, i: number) => {
-                      return (
-                        <div className="mt-4" key={i}>
-                          <div className={`badge ${bgColorClasses[color]} text-white`}>
-                            {v?.name}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </section>
-                )}
-              </div>
-
-              {/* Divider */}
-              <div className="grid grid-cols-2 divide-x divide-gray-200">
-                <div></div>
-                <div></div>
-              </div>
-
-              <div className="flex-1 min-w-0 [&_p]:break-all [&_span]:break-all">
-                {/* Main Content */}
-                <section className="py-4">
-                  <SectionTitle color={color}>Profile</SectionTitle>
-                  <p className="mt-4 text-gray-500">{r?.personal?.summary}</p>
-                </section>
-
-                {r?.internships?.[0]?.title && (
-                  <section className="py-4">
-                    <SectionTitle color={color}>Internships</SectionTitle>
-
-                    {/* employment 0  */}
-                    {r?.internships?.map((v: any, i: number) => (
-                      <article className="" key={i}>
-                        <CompanyHeader title={v.title} company={v.company} location={v.location} />
-                        <DateRange startDate={v.startDate} endDate={v.endDate} />
-                        <p className="mt-4 text-gray-500">{v?.summary}</p>
-                      </article>
-                    ))}
-                  </section>
-                )}
-
-                {r?.employments?.[0]?.title && (
-                  <section className="py-4">
-                    <SectionTitle color={color}>Employment History</SectionTitle>
-
-                    {/* employment 0  */}
-                    {r?.employments?.map((v: any, i: number) => (
-                      <article className="" key={i}>
-                        <CompanyHeader title={v.title} company={v.company} location={v.location} />
-                        <DateRange startDate={v.startDate} endDate={v.endDate} isCurrent={v.isCurrent} />
-                        <p className="mt-4 text-gray-500">{v?.summary}</p>
-                      </article>
-                    ))}
-                  </section>
-                )}
-
-                {r?.educations?.[0]?.institution && (
-                  <section className="py-4">
-                    <SectionTitle color={color}>Education</SectionTitle>
-
-                    {/* education 0  */}
-                    {r?.educations?.map((v: any, i: number) => (
-                      <article className="" key={i}>
-                        <div className="flex flex-row mt-8">
-                          <div className="flex-auto">
-                            <h3 className="text-xl font-bold text-gray-600">
-                              {v?.subject}
-                            </h3>
-                            <h4 className="text-lg">{v?.institution}</h4>
-                          </div>
-                          <div className="flex-2">
-                            <h3 className="">
-                              {v?.startDate} to {v?.endDate}
-                            </h3>
-                            {/* <h4 className="text-lg">{ r?.educations?.[0]?.score }</h4> */}
-                          </div>
-                        </div>
-                      </article>
-                    ))}
-                  </section>
-                )}
-
-                {r?.courses?.[0]?.name && (
-                  <section className="py-4">
-                    <SectionTitle color={color}>Certification</SectionTitle>
-
-                    {/* certificate 0  */}
-                    {r?.courses?.map((v: any, i: number) => (
-                      <article className="mb-8" key={i}>
-                        <div className="flex flex-row mt-4">
-                          <div className="flex-auto">
-                            <h3 className="text-xl font-bold text-gray-600">
-                              {v?.name}
-                            </h3>
-                          </div>
-                          <div className="flex-2">
-                            <h3 className="">{v?.institution}</h3>
-                          </div>
-                        </div>
-                        <h4 className="mt-2">
-                          {v?.startDate}{" "}
-                          {v?.startDate ? "to " + v?.startDate : ""}
-                        </h4>
-                      </article>
-                    ))}
-                  </section>
-                )}
-
-                {r?.references?.[0]?.name && (
-                  <section className="py-4">
-                    <SectionTitle color={color}>References</SectionTitle>
-
-                    {/* education 0  */}
-                    {r?.references?.map((v: any, i: number) => (
-                      <article className="" key={i}>
-                        <div className="flex flex-row mt-8">
-                          <div className="flex-auto">
-                            <h3 className="text-xl font-bold text-gray-600">
-                              {v?.company}
-                            </h3>
-                            {v?.phone && (
-                              <p className="text-lg">Phone: {v.phone}</p>
-                            )}
-                            {v?.email && (
-                              <p className="text-lg">Email: {v.email}</p>
-                            )}
-                          </div>
-                          <div className="flex-2">
-                            <h3 className="">{v?.name} </h3>
-                            {/* <h4 className="text-lg">{ r?.educations?.[0]?.score }</h4> */}
-                          </div>
-                        </div>
-                      </article>
-                    ))}
-                  </section>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        {template === 'default' ? (
+          <DefaultTemplate 
+            data={r} 
+            color={color} 
+            colorClasses={colorClasses} 
+            bgColorClasses={bgColorClasses} 
+          />
+        ) : (
+          <ModernTemplate 
+            data={r} 
+            color={color} 
+            colorClasses={colorClasses} 
+            bgColorClasses={bgColorClasses} 
+          />
+        )}
       </div>
     </>
   );
