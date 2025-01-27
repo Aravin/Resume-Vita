@@ -1,62 +1,35 @@
 "use client";
 
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { ResumeSchema } from "./ResumeSchema";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
+import { resumeDefaultValues } from "./ResumeDefaultValue";
 import EducationForm from "./EducationForm";
 import EmploymentForm from "./EmploymentForm";
-import ReferenceForm from "./ReferenceForm";
-import CourseForm from "./CourseForm";
-import LinkForm from "./LinkForm";
+import InternshipForm from "./InternshipForm";
 import SkillForm from "./SkillForm";
 import LanguageForm from "./LanguageForm";
-import { confirmAlert } from "react-confirm-alert"; // Import
-import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import { useLocalStorage } from "../../hooks/useLocalStorage";
+import LinkForm from "./LinkForm";
+import CourseForm from "./CourseForm";
+import ReferenceForm from "./ReferenceForm";
+import { FaGripVertical, FaArrowUp, FaArrowDown, FaAngleDoubleUp, FaAngleDoubleDown } from "react-icons/fa";
+import Draggable from 'react-draggable';
 import Loader from "../Loader";
-import InternshipForm from "./InternshipForm";
-import { resumeDefaultValues } from "./ResumeDefaultValue";
-import { ResumeSchema } from "./ResumeSchema";
+import axios from "axios";
 
-// Utility function for handling section items
-const createSectionHandlers = (sectionName: string, getValues: any, setResume: any, reset: any) => {
-  const handleAdd = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    const values = getValues();
-    const items = values[sectionName];
-    const updatedItems = items ? [...items, {} as any] : [{} as any];
-    setResume({ ...values, [sectionName]: updatedItems });
-  };
-
-  const handleDelete = (index: number) => {
-    confirmAlert({
-      title: "Delete",
-      message: "Are you sure want to delete this record?",
-      buttons: [
-        {
-          label: "Yes",
-          onClick: () => {
-            const values = getValues();
-            const items = values[sectionName];
-            const updatedItems = items?.filter((_: any, i: number) => i !== index);
-            const updatedValues = { ...values, [sectionName]: updatedItems };
-            setResume(updatedValues);
-            reset(updatedValues);
-          },
-        },
-        {
-          label: "No",
-          onClick: () => {},
-        },
-      ],
-    });
-  };
-
-  return { handleAdd, handleDelete };
-};
+// Add button component
+const AddButton = ({ onClick, label }: { onClick: (e: any) => void; label: string }) => (
+  <button
+    className="btn btn-outline mt-4"
+    onClick={onClick}
+  >
+    {label}
+  </button>
+);
 
 // Reusable form section component
 const FormSection = ({ 
@@ -68,33 +41,231 @@ const FormSection = ({
   subtitle?: string; 
   children: React.ReactNode 
 }) => (
-  <>
-    <h3>{title}</h3>
-    {subtitle && <p className="font-light text-sm">{subtitle}</p>}
-    <div className="bg-white p-6 rounded shadow">
+  <div className="card bg-base-100 shadow-xl mb-8">
+    <div className="card-body">
+      <h2 className="card-title">{title}</h2>
+      {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
       {children}
     </div>
-  </>
+  </div>
 );
 
-// Add button component
-const AddButton = ({ onClick, label }: { onClick: (e: any) => void; label: string }) => (
-  <div className="pt-5">
-    <button className="btn btn-outline" onClick={onClick}>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5"
-        viewBox="0 0 20 20"
-        fill="currentColor"
+const DraggableFormItem = ({ children, index, onDragStop, totalItems, onMove }: any) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
+  const handleDragStop = (e: any, data: any) => {
+    setIsDragging(false);
+    const newIndex = Math.round(data.y / 100); // Approximate height of each item
+    
+    if (newIndex !== index) {
+      onDragStop(index, newIndex);
+    }
+    
+    setPosition({ x: 0, y: 0 }); // Reset position
+  };
+
+  return (
+    <Draggable
+      axis="y"
+      position={position}
+      onStart={handleDragStart}
+      onStop={handleDragStop}
+      bounds="parent"
+      handle=".drag-handle"
+    >
+      <div
+        className={`
+          group relative
+          p-4 rounded-lg border-2 
+          ${isDragging 
+            ? 'border-blue-300 shadow-xl bg-white scale-[1.02] z-50' 
+            : 'border-gray-100 hover:border-gray-300 hover:shadow-md'
+          }
+          transition-all duration-200 ease-in-out
+        `}
       >
-        <path
-          fillRule="evenodd"
-          d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-          clipRule="evenodd"
-        />
-      </svg>
-      {label}
-    </button>
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 flex flex-col gap-1">
+          <button 
+            type="button"
+            className="drag-handle flex items-center justify-center w-8 h-8 
+              rounded-md bg-gray-100 hover:bg-gray-200 
+              cursor-grab active:cursor-grabbing
+              transition-colors duration-200"
+            style={{ touchAction: 'none' }}
+          >
+            <FaGripVertical className="text-gray-500 group-hover:text-gray-700" size={16} />
+          </button>
+          
+          <button 
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onMove(index, 'top');
+            }}
+            disabled={index === 0}
+            className={`w-8 h-8 rounded-md flex items-center justify-center
+              ${index === 0 
+                ? 'bg-gray-50 text-gray-300' 
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700'
+              } transition-colors duration-200`}
+          >
+            <FaAngleDoubleUp size={16} />
+          </button>
+          
+          <button 
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onMove(index, 'up');
+            }}
+            disabled={index === 0}
+            className={`w-8 h-8 rounded-md flex items-center justify-center
+              ${index === 0 
+                ? 'bg-gray-50 text-gray-300' 
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700'
+              } transition-colors duration-200`}
+          >
+            <FaArrowUp size={16} />
+          </button>
+          
+          <button 
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onMove(index, 'down');
+            }}
+            disabled={index === totalItems - 1}
+            className={`w-8 h-8 rounded-md flex items-center justify-center
+              ${index === totalItems - 1 
+                ? 'bg-gray-50 text-gray-300' 
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700'
+              } transition-colors duration-200`}
+          >
+            <FaArrowDown size={16} />
+          </button>
+          
+          <button 
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onMove(index, 'bottom');
+            }}
+            disabled={index === totalItems - 1}
+            className={`w-8 h-8 rounded-md flex items-center justify-center
+              ${index === totalItems - 1 
+                ? 'bg-gray-50 text-gray-300' 
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700'
+              } transition-colors duration-200`}
+          >
+            <FaAngleDoubleDown size={16} />
+          </button>
+        </div>
+        
+        <div className="pl-2">
+          {children}
+        </div>
+      </div>
+    </Draggable>
+  );
+};
+
+// Utility function for handling section items
+const createSectionHandlers = (sectionName: string, getValues: any, setResume: any, reset: any) => {
+  const handleAdd = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const values = getValues();
+    const items = values[sectionName] || [];
+    items.push({});
+    setResume((prev: any) => ({ ...prev, [sectionName]: items }));
+    reset({ ...values, [sectionName]: items });
+  };
+
+  const handleDelete = (index: number) => {
+    const values = getValues();
+    const items = values[sectionName] || [];
+    items.splice(index, 1);
+    setResume((prev: any) => ({ ...prev, [sectionName]: items }));
+    reset({ ...values, [sectionName]: items });
+  };
+
+  const handleMove = (index: number, direction: 'up' | 'down' | 'top' | 'bottom') => {
+    const values = getValues();
+    const items = [...(values[sectionName] || [])];
+    const item = items[index];
+    
+    items.splice(index, 1);
+    
+    switch (direction) {
+      case 'up':
+        items.splice(index - 1, 0, item);
+        break;
+      case 'down':
+        items.splice(index + 1, 0, item);
+        break;
+      case 'top':
+        items.unshift(item);
+        break;
+      case 'bottom':
+        items.push(item);
+        break;
+    }
+    
+    setResume((prev: any) => ({ ...prev, [sectionName]: items }));
+    reset({ ...values, [sectionName]: items });
+  };
+
+  const handleReorder = (oldIndex: number, newIndex: number) => {
+    const values = getValues();
+    const items = values[sectionName] || [];
+    const [movedItem] = items.splice(oldIndex, 1);
+    items.splice(newIndex, 0, movedItem);
+    setResume((prev: any) => ({ ...prev, [sectionName]: items }));
+    reset({ ...values, [sectionName]: items });
+  };
+
+  return { handleAdd, handleDelete, handleReorder, handleMove };
+};
+
+const renderFormSection = (
+  Component: any,
+  items: any[],
+  handlers: { handleAdd: any; handleDelete: any; handleReorder: any; handleMove: any },
+  sectionErrors: any,
+  addButtonLabel: string,
+  register: any
+) => (
+  <div className="relative">
+    <div className="space-y-4">
+      {items?.map((item: any, index: number) => {
+        item.index = index;
+        return (
+          <DraggableFormItem 
+            key={index} 
+            index={index}
+            totalItems={items.length}
+            onDragStop={handlers.handleReorder}
+            onMove={handlers.handleMove}
+          >
+            <Component 
+              {...item} 
+              register={register} 
+              delete={handlers.handleDelete} 
+              errors={sectionErrors && sectionErrors[index]} 
+            />
+          </DraggableFormItem>
+        );
+      })}
+    </div>
+    <AddButton onClick={handlers.handleAdd} label={addButtonLabel} />
   </div>
 );
 
@@ -178,7 +349,7 @@ export default function ResumeForm() {
     return () => { isMounted = false; };
   }, [userId, reset]);
 
-  const onSubmit: SubmitHandler<any> = async (data) => {
+  const onSubmit: any = async (data: any) => {
     const resumeData = {
       user: userId,
       resume: data,
@@ -199,22 +370,6 @@ export default function ResumeForm() {
   };
 
   if (isLoading) return <div><Loader /></div>;
-
-  const renderFormSection = (
-    Component: any,
-    items: any[],
-    handlers: { handleAdd: any; handleDelete: any },
-    sectionErrors: any,
-    addButtonLabel: string
-  ) => (
-    <>
-      {items?.map((item: any, index: number) => {
-        item.index = index;
-        return <Component key={index} {...item} register={register} delete={handlers.handleDelete} errors={sectionErrors && sectionErrors[index]} />;
-      })}
-      <AddButton onClick={handlers.handleAdd} label={addButtonLabel} />
-    </>
-  );
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -329,7 +484,8 @@ export default function ResumeForm() {
           resume?.educations,
           sections.educations,
           errors.educations,
-          "Add Education"
+          "Add Education",
+          register
         )}
       </FormSection>
 
@@ -339,7 +495,8 @@ export default function ResumeForm() {
           resume?.internships,
           sections.internships,
           errors.internships,
-          "Add Internship"
+          "Add Internship",
+          register
         )}
       </FormSection>
 
@@ -349,7 +506,8 @@ export default function ResumeForm() {
           resume?.employments,
           sections.employments,
           errors.employments,
-          "Add Employment"
+          "Add Employment",
+          register
         )}
       </FormSection>
 
@@ -362,7 +520,8 @@ export default function ResumeForm() {
           resume?.skills,
           sections.skills,
           errors.skills,
-          "Add More Skill"
+          "Add More Skill",
+          register
         )}
       </FormSection>
 
@@ -372,7 +531,8 @@ export default function ResumeForm() {
           resume?.languages,
           sections.languages,
           errors.languages,
-          "Add More Language"
+          "Add More Language",
+          register
         )}
       </FormSection>
 
@@ -385,7 +545,8 @@ export default function ResumeForm() {
           resume?.links,
           sections.links,
           errors.links,
-          "Add More Links"
+          "Add More Links",
+          register
         )}
       </FormSection>
 
@@ -395,7 +556,8 @@ export default function ResumeForm() {
           resume?.courses,
           sections.courses,
           errors.courses,
-          "Add Course"
+          "Add Course",
+          register
         )}
       </FormSection>
 
@@ -405,7 +567,8 @@ export default function ResumeForm() {
           resume?.references,
           sections.references,
           errors.references,
-          "Add Reference"
+          "Add Reference",
+          register
         )}
       </FormSection>
 
