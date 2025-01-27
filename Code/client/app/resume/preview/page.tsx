@@ -85,12 +85,12 @@ export default function Page() {
     if (data?.color) {
       setColor(data.color);
     }
-    if (data?.theme) {
-      setTemplate(data.theme);
+    if (data?.template) {
+      setTemplate(data.template);
     } else {
       setTemplate('default'); // Fallback to default theme
     }
-  }, [data?.color, data?.theme]);
+  }, [data?.color, data?.template]);
 
   useEffect(() => {
     if (!fetching) {
@@ -121,6 +121,7 @@ export default function Page() {
         html: new XMLSerializer().serializeToString(previewElement.cloneNode(true) as Node),
         user: userId,
         color,
+        template,
       };
 
       // Make API request
@@ -138,7 +139,7 @@ export default function Page() {
     } finally {
       setLoader(false);
     }
-  }, [userId, color]);
+  }, [userId, color, template]);
 
 
   const handleColorChange = useCallback((newColor: keyof typeof colorClasses) => {

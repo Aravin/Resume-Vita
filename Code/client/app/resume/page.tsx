@@ -3,7 +3,7 @@
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { FaFilePdf, FaEdit } from "react-icons/fa";
 import { AiFillFileAdd, AiFillEdit } from "react-icons/ai";
 import Loader from "../../components/Loader";
@@ -16,6 +16,7 @@ interface ResumeData {
 
 export default function Page() {
   const { user, error: authError, isLoading: authLoading } = useUser();
+  const [isImageLoading, setIsImageLoading] = useState(true);
   
   const userId = useMemo(() => {
     if (!user?.sub) return null;
@@ -115,15 +116,38 @@ export default function Page() {
           {showPDFOptions && (
             <div data-tip="Preview Resume" className="tooltip tooltip-bottom">
               <Link href="/resume/preview" aria-label="Preview resume">
-                <Image
-                  className="cursor-pointer hover:opacity-50 transition-opacity"
-                  src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.webp?t=${Date.now()}`}
-                  width={240}
-                  height={300}
-                  alt="PDF Preview"
-                  priority
-                  loading="eager"
-                />
+                <div className="relative w-[240px] h-[300px]">
+                  {isImageLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+                      <Loader />
+                    </div>
+                  )}
+                  <Image
+                    className="cursor-pointer hover:opacity-50 transition-opacity"
+                    src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.webp?t=${Date.now()}`}
+                    width={240}
+                    height={300}
+                    alt="PDF Preview"
+                    priority
+                    loading="eager"
+                    onLoadingComplete={() => setIsImageLoading(false)}
+                    onError={(e) => {
+                      setIsImageLoading(false);
+                      // Hide the errored image
+                      const img = e.target as HTMLImageElement;
+                      img.style.display = 'none';
+                      // Show fallback
+                      const fallback = img.parentElement?.querySelector('.image-fallback');
+                      if (fallback) fallback.classList.remove('hidden');
+                    }}
+                  />
+                  <div className="image-fallback hidden absolute inset-0 flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg">
+                    <div className="text-center p-4">
+                      <div className="text-gray-500 mb-2">Preview not available</div>
+                      <div className="text-sm text-gray-400">Click to generate preview</div>
+                    </div>
+                  </div>
+                </div>
               </Link>
             </div>
           )}
