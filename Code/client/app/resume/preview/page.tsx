@@ -90,27 +90,46 @@ export default function Page() {
     }
   }, [fetching]);
 
-  const handleDownload = useCallback(async () => {
+  const handleDownload = useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    
+    // Early return if no document or userId
+    if (!document || !userId) {
+      console.error('Document or userId not available');
+      return;
+    }
+
     setLoader(true);
+
     try {
-      const html = document.querySelector("#preview")?.cloneNode(true);
+      // Get and validate preview element
+      const previewElement = document.querySelector("#preview");
+      if (!previewElement) {
+        throw new Error('Preview element not found');
+      }
+
+      // Prepare request body
       const body = {
-        html: new XMLSerializer().serializeToString(html as Node),
+        html: new XMLSerializer().serializeToString(previewElement.cloneNode(true) as Node),
         user: userId,
         color,
       };
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT}/pdf`, body);
-      const blob = await response.data;
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "ResumeVita";
-      a.target = "_blank";
-      a.dispatchEvent(new MouseEvent("click"));
+
+      // Make API request
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT}/pdf`, body);
+
+      // Create and trigger download link
+      const downloadUrl = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
+      const downloadLink = document.createElement("a");
+      downloadLink.href = downloadUrl;
+      downloadLink.download = "ResumeVita";
+      downloadLink.target = "_blank";
+      downloadLink.dispatchEvent(new MouseEvent("click"));
     } catch (error) {
-      console.error("Error downloading PDF:", error);
+      console.error('Failed to generate PDF:', error);
+    } finally {
+      setLoader(false);
     }
-    setLoader(false);
   }, [userId, color]);
 
   if (authLoading || fetching)
