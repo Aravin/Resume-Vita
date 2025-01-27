@@ -140,24 +140,14 @@ export default function Page() {
     }
   }, [userId, color]);
 
-  const handlePreferenceUpdate = useCallback(async (updates: { color?: string; theme?: 'default' | 'modern' }) => {
-    if (!userId) return;
-    try {
-      await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT}/resume/${userId}`, updates);
-    } catch (error) {
-      console.error('Failed to update preferences:', error);
-    }
-  }, [userId]);
 
   const handleColorChange = useCallback((newColor: keyof typeof colorClasses) => {
     setColor(newColor);
-    handlePreferenceUpdate({ color: newColor });
-  }, [handlePreferenceUpdate]);
+  }, []);
 
   const handleTemplateChange = useCallback((newTemplate: 'default' | 'modern') => {
     setTemplate(newTemplate);
-    handlePreferenceUpdate({ theme: newTemplate });
-  }, [handlePreferenceUpdate]);
+  }, []);
 
   if (authLoading || fetching)
     return (
@@ -201,90 +191,74 @@ export default function Page() {
     <>
       <Breadcrumbs currentPage="Resume Preview" />
 
-      <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-gray-50 rounded-lg shadow-sm">
+      <div className="flex flex-col md:flex-row items-stretch gap-6 p-4 bg-gray-50 rounded-lg shadow-sm">
         {/* Color Picker Section */}
-        <div className="flex flex-col sm:flex-row items-center gap-3 flex-1">
-          <h3 className="text-sm font-medium text-gray-700">Theme:</h3>
-          <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
-            <button 
-              onClick={() => handleColorChange("black")}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-              title="Black"
-            >
-              <div className={`w-6 h-6 bg-black rounded-full ring-2 ring-offset-2 ${color === "black" ? "ring-gray-500" : "ring-transparent"}`} />
-            </button>
-            <button 
-              onClick={() => handleColorChange("gray")}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-              title="Gray"
-            >
-              <div className={`w-6 h-6 bg-gray-500 rounded-full ring-2 ring-offset-2 ${color === "gray" ? "ring-gray-500" : "ring-transparent"}`} />
-            </button>
-            <button 
-              onClick={() => handleColorChange("blue")}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-              title="Blue"
-            >
-              <div className={`w-6 h-6 bg-blue-500 rounded-full ring-2 ring-offset-2 ${color === "blue" ? "ring-gray-500" : "ring-transparent"}`} />
-            </button>
-            <button 
-              onClick={() => handleColorChange("red")}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-              title="Red"
-            >
-              <div className={`w-6 h-6 bg-red-500 rounded-full ring-2 ring-offset-2 ${color === "red" ? "ring-gray-500" : "ring-transparent"}`} />
-            </button>
-            <button 
-              onClick={() => handleColorChange("green")}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-              title="Green"
-            >
-              <div className={`w-6 h-6 bg-green-500 rounded-full ring-2 ring-offset-2 ${color === "green" ? "ring-gray-500" : "ring-transparent"}`} />
-            </button>
-            <button 
-              onClick={() => handleColorChange("yellow")}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-              title="Yellow"
-            >
-              <div className={`w-6 h-6 bg-yellow-500 rounded-full ring-2 ring-offset-2 ${color === "yellow" ? "ring-gray-500" : "ring-transparent"}`} />
-            </button>
-            <button 
-              onClick={() => handleColorChange("pink")}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-              title="Pink"
-            >
-              <div className={`w-6 h-6 bg-pink-500 rounded-full ring-2 ring-offset-2 ${color === "pink" ? "ring-gray-500" : "ring-transparent"}`} />
-            </button>
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <h3 className="text-sm font-medium text-gray-700 whitespace-nowrap">Color:</h3>
+          <div className="grid grid-cols-4 sm:grid-cols-7 gap-3">
+            {[
+              { name: "Black", value: "black", bg: "bg-black" },
+              { name: "Gray", value: "gray", bg: "bg-gray-500" },
+              { name: "Blue", value: "blue", bg: "bg-blue-500" },
+              { name: "Red", value: "red", bg: "bg-red-500" },
+              { name: "Green", value: "green", bg: "bg-green-500" },
+              { name: "Yellow", value: "yellow", bg: "bg-yellow-500" },
+              { name: "Pink", value: "pink", bg: "bg-pink-500" }
+            ].map((colorOption) => (
+              <div key={colorOption.value} className="group relative">
+                <button
+                  onClick={() => handleColorChange(colorOption.value as keyof typeof colorClasses)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+                  aria-label={`Select ${colorOption.name} color`}
+                >
+                  <div className={`w-6 h-6 ${colorOption.bg} rounded-full ring-2 ring-offset-2 ${
+                    color === colorOption.value ? "ring-gray-500" : "ring-transparent"
+                  }`} />
+                </button>
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs rounded 
+                             opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                  {colorOption.name}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Template Picker Section */}
-        <div className="flex justify-center gap-4 mb-4">
-          <button
-            className={`px-4 py-2 rounded ${template === 'default' ? bgColorClasses[color] + ' text-white' : 'border border-gray-300'}`}
-            onClick={() => handleTemplateChange('default')}
-          >
-            Default Template
-          </button>
-          <button
-            className={`px-4 py-2 rounded ${template === 'modern' ? bgColorClasses[color] + ' text-white' : 'border border-gray-300'}`}
-            onClick={() => handleTemplateChange('modern')}
-          >
-            Modern Template
-          </button>
+        <div className="flex flex-wrap justify-center gap-3">
+          {[
+            { name: "Default Template", value: "default" },
+            { name: "Modern Template", value: "modern" }
+          ].map((templateOption) => (
+            <button
+              key={templateOption.value}
+              className={`px-4 py-2 rounded transition-colors ${
+                template === templateOption.value 
+                  ? bgColorClasses[color] + ' text-white' 
+                  : 'border border-gray-300 hover:bg-gray-50'
+              }`}
+              onClick={() => handleTemplateChange(templateOption.value as 'default' | 'modern')}
+            >
+              {templateOption.name}
+            </button>
+          ))}
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-row gap-2 items-center">
+        <div className="flex flex-wrap justify-center gap-3 ml-auto">
           <button
-            className="btn btn-sm btn-outline btn-accent gap-2"
+            className="btn btn-sm btn-outline btn-accent gap-2 min-w-[40px]"
             onClick={handleDownload}
+            title="Download PDF"
           >
             <FaFilePdf className="text-lg" />
             <span className="hidden sm:inline">Download PDF</span>
           </button>
           <Link href="/resume/create" passHref>
-            <button className="btn btn-sm btn-outline btn-primary gap-2">
+            <button 
+              className="btn btn-sm btn-outline btn-primary gap-2 min-w-[40px]"
+              title="Edit Resume"
+            >
               <FaEdit className="text-lg" />
               <span className="hidden sm:inline">Edit Resume</span>
             </button>
