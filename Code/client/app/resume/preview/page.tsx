@@ -1,36 +1,45 @@
 "use client";
 
-// import { Metadata } from "next";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Link from "next/link";
 import { FaFilePdf, FaEdit } from "react-icons/fa";
 import axios from "axios";
 import useFetch from "../../../hooks/useFetch";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Loader from "../../../components/Loader";
 import { Breadcrumbs } from "../../../components/Breadcrumbs";
-
-// export const metadata: Metadata = {
-//   title: "Preview Resume",
-// };
 
 export default function Page() {
   const [loading, setLoader] = useState(true);
   const [color, setColor] = useState("grey");
-  const { user, error, isLoading } = useUser();
-  const userId = user?.sub?.split("|")[1];
+  const { user, error: authError, isLoading: authLoading } = useUser();
+  
+  const userId = useMemo(() => {
+    if (!user?.sub) return null;
+    return user.sub.split("|")[1];
+  }, [user?.sub]);
 
   // fetching data from service
-  const { data, fetching, fetchError } = useFetch(
-    process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + `/resume/${userId}`
+  const { data, fetching, fetchError } = useFetch<any>(
+    !authLoading && userId
+      ? `${process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT}/resume/${userId}`
+      : null
   );
-  const storedResume = data as any;
+
+  const storedResume = data;
   const r = storedResume?.user === userId ? storedResume?.resume : {};
 
   useEffect(() => {
-    setColor(data.color || "grey");
-    setLoader(false);
-  }, [data]);
+    if (data?.color) {
+      setColor(data.color);
+    }
+  }, [data?.color]);
+
+  useEffect(() => {
+    if (!fetching) {
+      setLoader(false);
+    }
+  }, [fetching]);
 
   const handleClick = (e: any) => {
     e.preventDefault();
@@ -63,19 +72,43 @@ export default function Page() {
       });
   };
 
-  if (isLoading || fetching)
+  if (authLoading || fetching)
     return (
-      <div>
-        <Loader />
-      </div>
+      <>
+        <Breadcrumbs currentPage="Preview Resume" />
+        <div className="flex justify-center items-center min-h-[60vh]">
+          <Loader />
+        </div>
+      </>
     );
+  if (authError || fetchError) {
+    return (
+      <>
+        <Breadcrumbs currentPage="Preview Resume" />
+        <div role="alert" className="text-error p-4">
+          {authError?.message || fetchError?.message || 'An error occurred while loading the preview'}
+        </div>
+      </>
+    );
+  }
+
+  if (!userId) {
+    return (
+      <>
+        <Breadcrumbs currentPage="Preview Resume" />
+        <div role="alert" className="text-error p-4">
+          Please log in to view your resume preview
+        </div>
+      </>
+    );
+  }
+
   if (loading)
     return (
       <div>
         <Loader message="Downloading your PDF!" />
       </div>
     );
-  if (fetchError) return <div>Failed to load the PDF, please retry!</div>;
 
   return (
     <>

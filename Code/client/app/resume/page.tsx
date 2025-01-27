@@ -3,7 +3,7 @@
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useMemo } from "react";
 import { FaFilePdf, FaEdit } from "react-icons/fa";
 import { AiFillFileAdd, AiFillEdit } from "react-icons/ai";
 import Loader from "../../components/Loader";
@@ -15,22 +15,28 @@ interface ResumeData {
 }
 
 export default function Page() {
-  const { user, error, isLoading } = useUser();
-  const userId = user?.sub?.split("|")[1];
+  const { user, error: authError, isLoading: authLoading } = useUser();
+  
+  const userId = useMemo(() => {
+    if (!user?.sub) return null;
+    return user.sub.split("|")[1];
+  }, [user?.sub]);
 
-  // fetch hook with proper typing
   const { data, fetching, fetchError } = useFetch<ResumeData>(
-    process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + `/resume/${userId}`
+    !authLoading && userId 
+      ? `${process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT}/resume/${userId}`
+      : null
   );
 
   // Memoized handler to prevent recreating on each render
   const handleDownload = React.useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (!userId) return;
     const downloadUrl = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
     window.open(downloadUrl, '_blank');
   }, [userId]);
 
-  if (isLoading || fetching) {
+  if (authLoading) {
     return (
       <div role="status" aria-label="Loading">
         <Loader />
@@ -38,10 +44,34 @@ export default function Page() {
     );
   }
 
-  if (error || fetchError) {
+  if (authError) {
     return (
       <div role="alert" className="text-error p-4">
-        {error?.message || 'Failed to load the PDF, please retry!'}
+        {authError.message || 'Authentication error occurred'}
+      </div>
+    );
+  }
+
+  if (!userId) {
+    return (
+      <div role="alert" className="text-error p-4">
+        Please log in to view your resume
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div role="alert" className="text-error p-4">
+        {fetchError.message || 'Failed to load the PDF, please retry!'}
+      </div>
+    );
+  }
+
+  if (fetching) {
+    return (
+      <div role="status" aria-label="Loading">
+        <Loader />
       </div>
     );
   }

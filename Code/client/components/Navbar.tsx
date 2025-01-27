@@ -4,11 +4,18 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 
-let navigation = [
+const defaultNavigation = [
   { name: "Home", href: "/" },
   { name: "Features", href: "/features" },
   { name: "🔑 Login", href: "/api/auth/login" },
+];
+
+const authenticatedNavigation = [
+  { name: "📄 Your Resume", href: "/resume" },
+  { name: "⚙️ Account & Settings", href: "/account" },
+  { name: "🔓 Sign out", href: "/api/auth/logout" },
 ];
 
 function classNames(...classes: string[]) {
@@ -19,12 +26,12 @@ export default function Navbar() {
   const { user, error, isLoading } = useUser();
   const path = usePathname();
 
-  if (user) {
-    navigation = [
-      { name: "📄 Your Resume", href: "/resume" },
-      { name: "⚙️ Account & Settings", href: "/account" },
-      { name: "🔓 Sign out", href: "/api/auth/logout" },
-    ];
+  const navigation = useMemo(() => {
+    return user ? authenticatedNavigation : defaultNavigation;
+  }, [user]);
+
+  if (isLoading) {
+    return <nav className="navbar bg-primary animate-pulse"></nav>;
   }
 
   return (
@@ -51,48 +58,42 @@ export default function Navbar() {
             tabIndex={0}
             className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
           >
-            {navigation.map((nav, i) => {
-              return (
-                <li key={i}>
-                  <a
-                    href={nav.href}
-                    key={i}
-                    className={classNames(path === nav.href ? "active" : "")}
-                  >
-                    {nav.name}
-                  </a>
-                </li>
-              );
-            })}
+            {navigation.map((nav, i) => (
+              <li key={nav.href}>
+                <Link
+                  href={nav.href}
+                  className={classNames(path === nav.href ? "active" : "")}
+                >
+                  {nav.name}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
-        <Link href="/" key="logo">
+        <Link href="/" aria-label="Home">
           <Image
             src="/logo_white.png"
-            width="180"
-            height="35"
+            width={180}
+            height={35}
             alt="ResumeVita.com Logo"
-          ></Image>
+            priority
+          />
         </Link>
       </div>
       <div className="navbar-center hidden lg:flex"></div>
       <div className="navbar-end">
         <ul className="menu menu-horizontal px-1 hidden lg:flex">
-          {navigation.map((nav, i) => {
-            return (
-              <li key={i}>
-                <a
-                  href={nav.href}
-                  key={i}
-                  className={classNames(path === nav.href ? "active" : "")}
-                >
-                  {nav.name}
-                </a>
-              </li>
-            );
-          })}
+          {navigation.map((nav, i) => (
+            <li key={nav.href}>
+              <Link
+                href={nav.href}
+                className={classNames(path === nav.href ? "active" : "")}
+              >
+                {nav.name}
+              </Link>
+            </li>
+          ))}
         </ul>
-        {/* {user && <a className="btn">Button</a>} */}
       </div>
     </nav>
   );

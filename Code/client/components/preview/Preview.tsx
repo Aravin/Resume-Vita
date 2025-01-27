@@ -3,25 +3,40 @@ import Link from "next/link";
 import { FaFilePdf, FaEdit } from "react-icons/fa";
 import axios from "axios";
 import useFetch from "../../hooks/useFetch";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Loader from "../Loader";
+
+interface ResumeData {
+  color?: string;
+  user?: string;
+  resume?: any; // You might want to type this more specifically based on your resume structure
+}
 
 export default function Preview() {
   const [loading, setLoader] = useState(true);
   const [color, setColor] = useState("grey");
-  const { user, error, isLoading } = useUser();
-  const userId = user?.sub?.split("|")[1];
+  const { user, error: authError, isLoading: authLoading } = useUser();
+  
+  const userId = useMemo(() => {
+    if (!user?.sub) return null;
+    return user.sub.split("|")[1];
+  }, [user?.sub]);
 
   // fetching data from service
-  const { data, fetching, fetchError } = useFetch(
-    process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + `/resume/${userId}`
+  const { data, fetching, fetchError } = useFetch<ResumeData>(
+    !authLoading && userId
+      ? `${process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT}/resume/${userId}`
+      : null
   );
-  const storedResume = data as any;
+  
+  const storedResume = data;
   const r = storedResume?.user === userId ? storedResume?.resume : {};
 
   useEffect(() => {
-    setColor(data.color || "grey");
-    setLoader(false);
+    if (data) {
+      setColor(data.color || "grey");
+      setLoader(false);
+    }
   }, [data]);
 
   const handleClick = (e: any) => {
@@ -55,7 +70,7 @@ export default function Preview() {
       });
   };
 
-  if (isLoading || fetching)
+  if (authLoading || fetching)
     return (
       <div>
         <Loader />
