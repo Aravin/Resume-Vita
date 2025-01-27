@@ -155,74 +155,76 @@ export default function Page() {
     <>
       <Breadcrumbs currentPage="Resume Preview" />
 
-      <div className="flex gap-4 justify-end pb-4 m-4">
-        <div>
-          <h3>Choose Color:</h3>
+      <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-gray-50 rounded-lg shadow-sm">
+        {/* Color Picker Section */}
+        <div className="flex flex-col sm:flex-row items-center gap-3 flex-1">
+          <h3 className="text-sm font-medium text-gray-700">Theme:</h3>
+          <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+            <button 
+              onClick={() => setColor("black")}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+              title="Black"
+            >
+              <div className={`w-6 h-6 bg-black rounded-full ring-2 ring-offset-2 ${color === "black" ? "ring-gray-500" : "ring-transparent"}`} />
+            </button>
+            <button 
+              onClick={() => setColor("gray")}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+              title="Gray"
+            >
+              <div className={`w-6 h-6 bg-gray-500 rounded-full ring-2 ring-offset-2 ${color === "gray" ? "ring-gray-500" : "ring-transparent"}`} />
+            </button>
+            <button 
+              onClick={() => setColor("blue")}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+              title="Blue"
+            >
+              <div className={`w-6 h-6 bg-blue-500 rounded-full ring-2 ring-offset-2 ${color === "blue" ? "ring-gray-500" : "ring-transparent"}`} />
+            </button>
+            <button 
+              onClick={() => setColor("red")}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+              title="Red"
+            >
+              <div className={`w-6 h-6 bg-red-500 rounded-full ring-2 ring-offset-2 ${color === "red" ? "ring-gray-500" : "ring-transparent"}`} />
+            </button>
+            <button 
+              onClick={() => setColor("green")}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+              title="Green"
+            >
+              <div className={`w-6 h-6 bg-green-500 rounded-full ring-2 ring-offset-2 ${color === "green" ? "ring-gray-500" : "ring-transparent"}`} />
+            </button>
+            <button 
+              onClick={() => setColor("yellow")}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+              title="Yellow"
+            >
+              <div className={`w-6 h-6 bg-yellow-500 rounded-full ring-2 ring-offset-2 ${color === "yellow" ? "ring-gray-500" : "ring-transparent"}`} />
+            </button>
+            <button 
+              onClick={() => setColor("pink")}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+              title="Pink"
+            >
+              <div className={`w-6 h-6 bg-pink-500 rounded-full ring-2 ring-offset-2 ${color === "pink" ? "ring-gray-500" : "ring-transparent"}`} />
+            </button>
+          </div>
         </div>
-        <div className="grid grid-cols-7 gap-4">
-          <button onClick={() => setColor("black")}>
-            <div
-              className={`w-5 h-5 bg-black border-2 ${
-                color === "black" && "border-gray-500"
-              }`}
-            ></div>
-          </button>
-          <button onClick={() => setColor("gray")}>
-            <div
-              className={`w-5 h-5 bg-gray-500 border-2 ${
-                color === "gray" && "border-gray-500"
-              }`}
-            ></div>
-          </button>
-          <button onClick={() => setColor("blue")}>
-            <div
-              className={`w-5 h-5 bg-blue-500 border-2 ${
-                color === "blue" && "border-gray-500"
-              }`}
-            ></div>
-          </button>
-          <button onClick={() => setColor("red")}>
-            <div
-              className={`w-5 h-5 bg-red-500 border-2 ${
-                color === "red" && "border-gray-500"
-              }`}
-            ></div>
-          </button>
-          <button onClick={() => setColor("green")}>
-            <div
-              className={`w-5 h-5 bg-green-500 border-2 ${
-                color === "green" && "border-gray-500"
-              }`}
-            ></div>
-          </button>
-          <button onClick={() => setColor("yellow")}>
-            <div
-              className={`w-5 h-5 bg-yellow-500 border-2 ${
-                color === "yellow" && "border-gray-500"
-              }`}
-            ></div>
-          </button>
-          <button onClick={() => setColor("pink")}>
-            <div
-              className={`w-5 h-5 bg-pink-500 border-2 ${
-                color === "pink" && "border-gray-500"
-              }`}
-            ></div>
-          </button>
-        </div>
-        <div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-row gap-2 items-center">
           <button
-            className="btn btn-sm btn-outline btn-accent"
+            className="btn btn-sm btn-outline btn-accent gap-2"
             onClick={handleDownload}
           >
-            <FaFilePdf /> <span className="hidden md:block">GET PDF</span>
+            <FaFilePdf className="text-lg" />
+            <span className="hidden sm:inline">Download PDF</span>
           </button>
-        </div>
-        {/* <div className="flex-1"><button className="btn btn-outline btn-secondary"><FaFileWord /> GET Word</button> </div> */}
-        <div>
           <Link href="/resume/create" passHref>
-            <button className="btn btn-sm btn-outline btn-primary">
-              <FaEdit /> <span className="hidden md:block">Edit PDF</span>
+            <button className="btn btn-sm btn-outline btn-primary gap-2">
+              <FaEdit className="text-lg" />
+              <span className="hidden sm:inline">Edit Resume</span>
             </button>
           </Link>
         </div>
