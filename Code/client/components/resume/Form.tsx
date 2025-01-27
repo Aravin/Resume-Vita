@@ -31,18 +31,18 @@ const AddButton = ({ onClick, label }: { onClick: (e: any) => void; label: strin
 );
 
 // Reusable form section component
-const FormSection = ({ 
-  title, 
-  subtitle = "", 
-  children 
-}: { 
-  title: string; 
-  subtitle?: string; 
-  children: React.ReactNode 
+const FormSection = ({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
 }) => (
   <div className="card bg-base-100 shadow-xl mb-8">
     <div className="card-body">
-      <h2 className="card-title">{title}</h2>
+      <h3 className="card-title pt-4">{title}</h3>
       {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
       {children}
     </div>
@@ -125,11 +125,11 @@ const renderFormSection = (
             totalItems={items.length}
             onDragStop={handlers.handleReorder}
             onMove={handlers.handleMove}
+            onDelete={handlers.handleDelete}
           >
             <Component 
               {...item} 
               register={register} 
-              delete={handlers.handleDelete} 
               errors={sectionErrors && sectionErrors[index]} 
             />
           </DraggableFormItem>

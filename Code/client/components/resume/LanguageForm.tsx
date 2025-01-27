@@ -6,7 +6,6 @@ interface LanguageType {
   name: string;
   level: string;
   index: number;
-  delete: Function;
   errors: any;
 }
 
@@ -52,28 +51,6 @@ export default function LanguageForm(prop: LanguageType) {
             </select>
           </div>
         </div>
-      </div>
-
-      <div className="flex-shrink-0 ml-5 my-5">
-        <button
-          className="btn btn-outline btn-square tooltip"
-          data-tip="Delete"
-          onClick={() => prop.delete(prop.index)}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            className="inline-block w-6 h-6 stroke-current"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
-            ></path>
-          </svg>
-        </button>
       </div>
     </div>
   );

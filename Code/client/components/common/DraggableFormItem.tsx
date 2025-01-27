@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Draggable from 'react-draggable';
-import { FaGripVertical, FaArrowUp, FaArrowDown, FaAngleDoubleUp, FaAngleDoubleDown } from "react-icons/fa";
+import { FaGripVertical, FaArrowUp, FaArrowDown, FaAngleDoubleUp, FaAngleDoubleDown, FaTimes } from "react-icons/fa";
 
 interface DraggableFormItemProps {
   children: React.ReactNode;
@@ -8,6 +8,7 @@ interface DraggableFormItemProps {
   totalItems: number;
   onDragStop: (oldIndex: number, newIndex: number) => void;
   onMove: (index: number, direction: 'up' | 'down' | 'top' | 'bottom') => void;
+  onDelete: (index: number) => void;
 }
 
 const DraggableFormItem: React.FC<DraggableFormItemProps> = ({ 
@@ -15,10 +16,12 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
   index, 
   totalItems, 
   onDragStop, 
-  onMove 
+  onMove,
+  onDelete
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleDragStart = () => {
     setIsDragging(true);
@@ -33,6 +36,25 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
     }
     
     setPosition({ x: 0, y: 0 }); // Reset position
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDelete(index);
+    setShowDeleteConfirm(false);
+  };
+
+  const cancelDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowDeleteConfirm(false);
   };
 
   return (
@@ -55,6 +77,39 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
           transition-all duration-200 ease-in-out
         `}
       >
+        {/* Delete button and confirmation */}
+        <div className="absolute right-2 top-2 flex items-center gap-2">
+          {showDeleteConfirm ? (
+            <div className="flex items-center gap-2 bg-white p-1 rounded-lg shadow-md">
+              <span className="text-sm text-gray-600">Delete?</span>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+              >
+                Yes
+              </button>
+              <button
+                type="button"
+                onClick={cancelDelete}
+                className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+              >
+                No
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              title="Delete item"
+              onClick={handleDelete}
+              className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 text-red-500 transition-all duration-200"
+            >
+              <FaTimes size={12} />
+            </button>
+          )}
+        </div>
+
+        {/* Movement controls */}
         <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 flex flex-col gap-1">
           <button 
             type="button"
