@@ -21,388 +21,204 @@ import InternshipForm from "./InternshipForm";
 import { resumeDefaultValues } from "./ResumeDefaultValue";
 import { ResumeSchema } from "./ResumeSchema";
 
+// Utility function for handling section items
+const createSectionHandlers = (sectionName: string, getValues: any, setResume: any, reset: any) => {
+  const handleAdd = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const values = getValues();
+    const items = values[sectionName];
+    const updatedItems = items ? [...items, {} as any] : [{} as any];
+    setResume({ ...values, [sectionName]: updatedItems });
+  };
+
+  const handleDelete = (index: number) => {
+    confirmAlert({
+      title: "Delete",
+      message: "Are you sure want to delete this record?",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: () => {
+            const values = getValues();
+            const items = values[sectionName];
+            const updatedItems = items?.filter((_: any, i: number) => i !== index);
+            const updatedValues = { ...values, [sectionName]: updatedItems };
+            setResume(updatedValues);
+            reset(updatedValues);
+          },
+        },
+        {
+          label: "No",
+          onClick: () => {},
+        },
+      ],
+    });
+  };
+
+  return { handleAdd, handleDelete };
+};
+
+// Reusable form section component
+const FormSection = ({ 
+  title, 
+  subtitle = "", 
+  children 
+}: { 
+  title: string; 
+  subtitle?: string; 
+  children: React.ReactNode 
+}) => (
+  <>
+    <h3>{title}</h3>
+    {subtitle && <p className="font-light text-sm">{subtitle}</p>}
+    <div className="bg-white p-6 rounded shadow">
+      {children}
+    </div>
+  </>
+);
+
+// Add button component
+const AddButton = ({ onClick, label }: { onClick: (e: any) => void; label: string }) => (
+  <div className="pt-5">
+    <button className="btn btn-outline" onClick={onClick}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fillRule="evenodd"
+          d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+          clipRule="evenodd"
+        />
+      </svg>
+      {label}
+    </button>
+  </div>
+);
+
 export default function ResumeForm() {
   const router = useRouter();
   const { user, error, isLoading } = useUser();
   const userId = user?.sub?.split("|")[1];
   const [resume, setResume] = useState(resumeDefaultValues);
-  // local storage hook
-  const [localResume, setLocalResume] = useLocalStorage(
-    "resumeData",
-    {} as any
-  );
-
-  // fetch hook
-  // const { data, loading, fetchError } = useFetch(process.env.BACKEND_API_ENDPOINT + `/resume/${userId}`);
+  const [localResume, setLocalResume] = useLocalStorage("resumeData", {} as any);
 
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
     getValues,
     reset,
-  }: any = useForm({
+  } = useForm({
     mode: "onBlur",
     resolver: yupResolver(ResumeSchema),
     defaultValues: resumeDefaultValues,
   });
 
+  // Watch for changes in employment's isCurrent field
   useEffect(() => {
-    let isMounted = true; // Flag to track component mount status
+    const subscription = watch((value, { name, type }) => {
+      if (name?.includes('employments') && name?.endsWith('isCurrent') && type === 'change') {
+        const employments = value.employments || [];
+        const currentIndex = parseInt(name.split('.')[1]);
+        
+        // If the current checkbox is being checked and employments exist
+        if (employments[currentIndex]?.isCurrent) {
+          // Uncheck all other employments
+          employments.forEach((_, index) => {
+            if (index !== currentIndex && employments[index]?.isCurrent) {
+              setValue(`employments.${index}.isCurrent`, false);
+            }
+          });
+        }
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [watch, setValue]);
+
+  // Create handlers for all sections
+  const sections = {
+    educations: createSectionHandlers("educations", getValues, setResume, reset),
+    internships: createSectionHandlers("internships", getValues, setResume, reset),
+    employments: createSectionHandlers("employments", getValues, setResume, reset),
+    skills: createSectionHandlers("skills", getValues, setResume, reset),
+    languages: createSectionHandlers("languages", getValues, setResume, reset),
+    links: createSectionHandlers("links", getValues, setResume, reset),
+    courses: createSectionHandlers("courses", getValues, setResume, reset),
+    references: createSectionHandlers("references", getValues, setResume, reset),
+  };
+
+  useEffect(() => {
+    let isMounted = true;
 
     async function fetchResume() {
       if (!userId) return;
 
-      const res = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + `/resume/${userId}`
-      );
-      const data = await res.json();
+      try {
+        const res = await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + `/resume/${userId}`
+        );
+        const data = await res.json();
 
-      // Only update state if the component is still mounted
-      if (isMounted && data?.resume) {
-        setResume(data.resume);
-        reset(data.resume);
+        if (isMounted && data?.resume) {
+          setResume(data.resume);
+          reset(data.resume);
+        }
+      } catch (error) {
+        console.error('Failed to fetch resume:', error);
       }
     }
 
     fetchResume();
+    return () => { isMounted = false; };
+  }, [userId, reset]);
 
-    // Cleanup function to handle unmounting
-    return () => {
-      isMounted = false;
-    };
-  }, [userId]); // Only run the effect when userId changes
-
-  const handleEducationAdd = (e: any) => {
-    e.preventDefault();
-    let temp = getValues();
-    const tempItem = temp.educations;
-    const updatedItems = tempItem ? [...tempItem, {} as any] : [{} as any];
-    temp.educations = updatedItems;
-    setResume(temp);
-    // reset();
-  };
-
-  const handleEducationDelete = (index: number) => {
-    confirmAlert({
-      title: "Delete",
-      message: "Are you sure want to delete this record?",
-      buttons: [
-        {
-          label: "Yes",
-          onClick: () => {
-            let temp = getValues();
-            const tempItem = temp.educations;
-            const updatedEducations = tempItem?.filter(
-              (_: any, i: number) => i !== index
-            );
-            temp.educations = updatedEducations;
-            setResume(temp);
-            reset(temp);
-          },
-        },
-        {
-          label: "No",
-          onClick: () => {},
-        },
-      ],
-    });
-  };
-
-  const handleInternshipAdd = (e: any) => {
-    e.preventDefault();
-    let temp = getValues();
-    const tempItem = temp.internships;
-    const updatedItems = tempItem ? [...tempItem, {} as any] : [{} as any];
-    temp.internships = updatedItems;
-    setResume(temp);
-    // reset(resume);
-  };
-
-  const handleInternshipDelete = (index: number) => {
-    confirmAlert({
-      title: "Delete",
-      message: "Are you sure want to delete this record?",
-      buttons: [
-        {
-          label: "Yes",
-          onClick: () => {
-            let temp = getValues();
-            const tempItem = temp.internships;
-            const updatedItems = tempItem.filter(
-              (_: any, i: number) => i !== index
-            );
-            temp.internships = updatedItems;
-            setResume(temp);
-            reset(temp);
-          },
-        },
-        {
-          label: "No",
-          onClick: () => {},
-        },
-      ],
-    });
-  };
-
-  const handleEmploymentAdd = (e: any) => {
-    e.preventDefault();
-    let temp = getValues();
-    const tempItem = temp.employments;
-    const updatedItems = tempItem ? [...tempItem, {} as any] : [{} as any];
-    temp.employments = updatedItems;
-    setResume(temp);
-    // reset(resume);
-  };
-
-  const handleEmploymentDelete = (index: number) => {
-    confirmAlert({
-      title: "Delete",
-      message: "Are you sure want to delete this record?",
-      buttons: [
-        {
-          label: "Yes",
-          onClick: () => {
-            let temp = getValues();
-            const tempItem = temp.employments;
-            const updatedItems = tempItem?.filter(
-              (_: any, i: number) => i !== index
-            );
-            temp.employments = updatedItems;
-            setResume(temp);
-            reset(temp);
-          },
-        },
-        {
-          label: "No",
-          onClick: () => {},
-        },
-      ],
-    });
-  };
-
-  const handleSkillAdd = (e: any) => {
-    e.preventDefault();
-    let temp = getValues();
-    const tempItem = temp.skills;
-    const updatedItems = tempItem ? [...tempItem, {} as any] : [{} as any];
-    temp.skills = updatedItems;
-    setResume(temp);
-    // reset();
-  };
-
-  const handleSkillDelete = (index: number) => {
-    confirmAlert({
-      title: "Delete",
-      message: "Are you sure want to delete this record?",
-      buttons: [
-        {
-          label: "Yes",
-          onClick: () => {
-            let temp = getValues();
-            const tempItem = temp.skills;
-            const updatedItems = tempItem?.filter(
-              (_: any, i: number) => i !== index
-            );
-            temp.skills = updatedItems;
-            setResume(temp);
-            reset(temp);
-          },
-        },
-        {
-          label: "No",
-          onClick: () => {},
-        },
-      ],
-    });
-  };
-
-  const handleLangAdd = (e: any) => {
-    e.preventDefault();
-    let temp = getValues();
-    const tempItem = temp.languages;
-    const updatedItems = tempItem ? [...tempItem, {} as any] : [{} as any];
-    temp.languages = updatedItems;
-    setResume(temp);
-    // reset(resume);
-  };
-
-  const handleLangDelete = (index: number) => {
-    confirmAlert({
-      title: "Delete",
-      message: "Are you sure want to delete this record?",
-      buttons: [
-        {
-          label: "Yes",
-          onClick: () => {
-            let temp = getValues();
-            const tempItem = temp.languages;
-            const updatedItems = tempItem.filter(
-              (_: any, i: number) => i !== index
-            );
-            temp.languages = updatedItems;
-            setResume(temp);
-            reset(temp);
-          },
-        },
-        {
-          label: "No",
-          onClick: () => {},
-        },
-      ],
-    });
-  };
-
-  const handleLinkAdd = (e: any) => {
-    e.preventDefault();
-    let temp = getValues();
-    const tempItem = temp.links;
-    const updatedItems = tempItem ? [...tempItem, {} as any] : [{} as any];
-    temp.links = updatedItems;
-    setResume(temp);
-    // reset(resume);
-  };
-
-  const handleLinkDelete = (index: number) => {
-    confirmAlert({
-      title: "Delete",
-      message: "Are you sure want to delete this record?",
-      buttons: [
-        {
-          label: "Yes",
-          onClick: () => {
-            let temp = getValues();
-            const tempItem = temp.links;
-            const updatedItems = tempItem?.filter(
-              (_: any, i: number) => i !== index
-            );
-            temp.links = updatedItems;
-            setResume(temp);
-            reset(temp);
-          },
-        },
-        {
-          label: "No",
-          onClick: () => {},
-        },
-      ],
-    });
-  };
-
-  const handleCourseAdd = (e: any) => {
-    e.preventDefault();
-    let temp = getValues();
-    const tempItem = temp.courses;
-    const updatedItems = tempItem ? [...tempItem, {} as any] : [{} as any];
-    temp.courses = updatedItems;
-    setResume(temp);
-    // reset(resume);
-  };
-
-  const handleCourseDelete = (index: number) => {
-    confirmAlert({
-      title: "Delete",
-      message: "Are you sure want to delete this record?",
-      buttons: [
-        {
-          label: "Yes",
-          onClick: () => {
-            let temp = getValues();
-            const tempItem = temp.courses;
-            const updatedItems = tempItem.filter(
-              (_: any, i: number) => i !== index
-            );
-            temp.courses = updatedItems;
-            setResume(temp);
-            reset(temp);
-          },
-        },
-        {
-          label: "No",
-          onClick: () => {},
-        },
-      ],
-    });
-  };
-
-  const handleReferenceAdd = (e: any) => {
-    e.preventDefault();
-    let temp = getValues();
-    const tempItem = temp.references;
-    const updatedItems = tempItem ? [...tempItem, {} as any] : [{} as any];
-    temp.references = updatedItems;
-    setResume(temp);
-    // reset(resume);
-  };
-
-  const handleReferenceDelete = (index: number) => {
-    confirmAlert({
-      title: "Delete",
-      message: "Are you sure want to delete this record?",
-      buttons: [
-        {
-          label: "Yes",
-          onClick: () => {
-            let temp = getValues();
-            const tempItem = temp.references;
-            const updatedItems = tempItem?.filter(
-              (_: any, i: number) => i !== index
-            );
-            temp.references = updatedItems;
-            setResume(temp);
-            reset(temp);
-          },
-        },
-        {
-          label: "No",
-          onClick: () => {},
-        },
-      ],
-    });
-  };
-
-  const onSubmit: SubmitHandler<any> = (data) => {
-    // console.log(initialResumeData);
-    // // if data is same, dont save
-    // if (JSON.stringify(data) === JSON.stringify(initialResumeData)) {
-    //   return router.push('/resume/preview');
-    // }
-
-    // create object
+  const onSubmit: SubmitHandler<any> = async (data) => {
     const resumeData = {
       user: userId,
       resume: data,
     };
 
-    // store to localStorage - temp
     setLocalResume(resumeData);
 
-    // save to database - permanent
-    axios
-      .post(
+    try {
+      await axios.post(
         process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + "/resume",
         resumeData
-      )
-      .then(function (response) {
-        router.push("/resume/preview");
-      })
-      .catch(function (error) {});
+      );
+      router.push("/resume/preview");
+    } catch (error) {
+      console.error('Failed to save resume:', error);
+      // Handle error appropriately
+    }
   };
 
-  if (isLoading)
-    return (
-      <div>
-        <Loader />
-      </div>
-    );
+  if (isLoading) return <div><Loader /></div>;
+
+  const renderFormSection = (
+    Component: any,
+    items: any[],
+    handlers: { handleAdd: any; handleDelete: any },
+    sectionErrors: any,
+    addButtonLabel: string
+  ) => (
+    <>
+      {items?.map((item: any, index: number) => {
+        item.index = index;
+        return <Component key={index} {...item} register={register} delete={handlers.handleDelete} errors={sectionErrors && sectionErrors[index]} />;
+      })}
+      <AddButton onClick={handlers.handleAdd} label={addButtonLabel} />
+    </>
+  );
 
   return (
-    <form onSubmit={(e) => e.preventDefault()}>
-      <h3>Personal Details</h3>
-
-      {/* Section 1 */}
-      <div className="bg-white p-6 rounded shadow">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <FormSection title="Personal Details">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
           <div className="form-control">
             <label className="label">
@@ -485,12 +301,9 @@ export default function ResumeForm() {
             )}
           </div>
         </div>
-      </div>
+      </FormSection>
 
-      <h3>Profile Summary</h3>
-
-      {/* Section 2 */}
-      <div className="bg-white p-6 rounded shadow">
+      <FormSection title="Profile Summary">
         <div className="grid grid-cols-1 gap-6">
           <div className="flex-1 form-control">
             <label className="label">
@@ -505,280 +318,102 @@ export default function ResumeForm() {
             />
           </div>
         </div>
-      </div>
+      </FormSection>
 
-      <h3>Education*</h3>
-      <p className="font-light text-sm">
-        Info: Add minimum 3 education to make resume better
-      </p>
+      <FormSection 
+        title="Education*" 
+        subtitle="Info: Add minimum 3 education to make resume better"
+      >
+        {renderFormSection(
+          EducationForm,
+          resume?.educations,
+          sections.educations,
+          errors.educations,
+          "Add Education"
+        )}
+      </FormSection>
 
-      {/* Section 3 */}
+      <FormSection title="Internships">
+        {renderFormSection(
+          InternshipForm,
+          resume?.internships,
+          sections.internships,
+          errors.internships,
+          "Add Internship"
+        )}
+      </FormSection>
 
-      <div className="bg-white p-6 rounded shadow">
-        {resume?.educations?.map((e: any, i: number) => {
-          e.index = i;
-          return EducationForm({
-            ...e,
-            register,
-            delete: handleEducationDelete,
-            errors: errors.educations && errors.educations[i],
-          });
-        })}
+      <FormSection title="Employment History">
+        {renderFormSection(
+          EmploymentForm,
+          resume?.employments,
+          sections.employments,
+          errors.employments,
+          "Add Employment"
+        )}
+      </FormSection>
 
-        <div className="pt-5">
-          <button className="btn btn-outline" onClick={handleEducationAdd}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Add Education
-          </button>
-        </div>
-      </div>
+      <FormSection 
+        title="Skills"
+        subtitle="Info: Add minimum 3 skills to make resume better"
+      >
+        {renderFormSection(
+          SkillForm,
+          resume?.skills,
+          sections.skills,
+          errors.skills,
+          "Add More Skill"
+        )}
+      </FormSection>
 
-      <h3>Internships</h3>
+      <FormSection title="Language">
+        {renderFormSection(
+          LanguageForm,
+          resume?.languages,
+          sections.languages,
+          errors.languages,
+          "Add More Language"
+        )}
+      </FormSection>
 
-      <div className="bg-white p-6 rounded shadow">
-        {resume?.internships?.map((e: any, i: number) => {
-          e.index = i;
-          return InternshipForm({
-            ...e,
-            register,
-            delete: handleInternshipDelete,
-            errors: errors.internships && errors.internships[i],
-          });
-        })}
+      <FormSection 
+        title="Websites / Social Links"
+        subtitle="Info: Add your blog/portfolio/github links"
+      >
+        {renderFormSection(
+          LinkForm,
+          resume?.links,
+          sections.links,
+          errors.links,
+          "Add More Links"
+        )}
+      </FormSection>
 
-        <div className="pt-5">
-          <button className="btn btn-outline" onClick={handleInternshipAdd}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Add Internship
-          </button>
-        </div>
-      </div>
+      <FormSection title="Certifications / Courses">
+        {renderFormSection(
+          CourseForm,
+          resume?.courses,
+          sections.courses,
+          errors.courses,
+          "Add Course"
+        )}
+      </FormSection>
 
-      <h3>Employment History</h3>
-
-      <div className="bg-white p-6 rounded shadow">
-        {resume?.employments?.map((e: any, i: number) => {
-          e.index = i;
-          return EmploymentForm({
-            ...e,
-            register,
-            delete: handleEmploymentDelete,
-            errors: errors.employments && errors.employments[i],
-          });
-        })}
-
-        <div className="pt-5">
-          <button className="btn btn-outline" onClick={handleEmploymentAdd}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Add Employment
-          </button>
-        </div>
-      </div>
-
-      <h3>Skills</h3>
-      <p className="font-light text-sm">
-        Info: Add minimum 3 skills to make resume better
-      </p>
-
-      <div className="bg-white p-6 rounded shadow">
-        {resume?.skills?.map((e: any, i: number) => {
-          e.index = i;
-          return SkillForm({
-            ...e,
-            register,
-            delete: handleSkillDelete,
-            errors: errors.skills && errors.skills[i],
-          });
-        })}
-
-        <div className="pt-5">
-          <button className="btn btn-outline" onClick={handleSkillAdd}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Add More Skill
-          </button>
-        </div>
-      </div>
-
-      <h3>Language</h3>
-
-      <div className="bg-white p-6 rounded shadow">
-        {resume?.languages?.map((e: any, i: number) => {
-          e.index = i;
-          return LanguageForm({
-            ...e,
-            register,
-            delete: handleLangDelete,
-            errors: errors.languages && errors.languages[i],
-          });
-        })}
-
-        <div className="pt-5">
-          <button className="btn btn-outline" onClick={handleLangAdd}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Add More Language
-          </button>
-        </div>
-      </div>
-
-      <h3>Websites / Social Links</h3>
-      <p className="font-light text-sm">
-        Info: Add your blog/portfolio/github links
-      </p>
-
-      <div className="bg-white p-6 rounded shadow">
-        {resume?.links?.map((e: any, i: number) => {
-          e.index = i;
-          return LinkForm({
-            ...e,
-            register,
-            delete: handleLinkDelete,
-            errors: errors.links && errors.links[i],
-          });
-        })}
-
-        <div className="pt-5">
-          <button className="btn btn-outline" onClick={handleLinkAdd}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Add More Links
-          </button>
-        </div>
-      </div>
-
-      <h3>Certifications / Courses</h3>
-
-      <div className="bg-white p-6 rounded shadow">
-        {resume?.courses?.map((e: any, i: number) => {
-          e.index = i;
-          return CourseForm({
-            ...e,
-            register,
-            delete: handleCourseDelete,
-            errors: errors.courses && errors.courses[i],
-          });
-        })}
-        <div className="pt-5">
-          <button className="btn btn-outline" onClick={handleCourseAdd}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Add Course
-          </button>
-        </div>
-      </div>
-
-      <h3>References</h3>
-
-      <div className="bg-white p-6 rounded shadow">
-        {resume?.references?.map((e: any, i: number) => {
-          e.index = i;
-          return ReferenceForm({
-            ...e,
-            register,
-            delete: handleReferenceDelete,
-            errors: errors.references && errors.references[i],
-          });
-        })}
-
-        <div className="pt-5">
-          <button className="btn btn-outline" onClick={handleReferenceAdd}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Add Reference
-          </button>
-        </div>
-      </div>
+      <FormSection title="References">
+        {renderFormSection(
+          ReferenceForm,
+          resume?.references,
+          sections.references,
+          errors.references,
+          "Add Reference"
+        )}
+      </FormSection>
 
       <div className="flex py-8">
         <input
           type="submit"
           className="btn btn-primary btn-block"
           value="Save and Preview"
-          onClick={handleSubmit(onSubmit)}
         />
       </div>
     </form>
