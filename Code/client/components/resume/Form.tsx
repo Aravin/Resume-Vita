@@ -40,11 +40,13 @@ const FormSection = ({
   subtitle?: string;
   children: React.ReactNode;
 }) => (
-  <div className="card bg-base-100 shadow-xl mb-8">
+  <div className="card bg-base-100 shadow-xl">
     <div className="card-body">
-      <h3 className="card-title pt-4">{title}</h3>
+      <h3 className="card-title">{title}</h3>
+      <div>
       {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
       {children}
+      </div>
     </div>
   </div>
 );

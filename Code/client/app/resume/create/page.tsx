@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <div className="flex flex-col items-center">
-      <div className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl w-full">
+      <div className="w-full md:w-3/4 lg:w-3/5">
         {/* <h2>Edit Resume</h2> */}
         <Breadcrumbs currentPage="Create/Edit Resume" />
         <ResumeForm></ResumeForm>
