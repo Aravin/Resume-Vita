@@ -32,17 +32,24 @@ jobs:
         working-directory: Code/api
         run: yarn build
 
-      - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
-          name: id_rsa # specify the key name
-          if_key_exists: replace # replace if exists
-          config: | # Add SSH configuration
-            Host *
-              StrictHostKeyChecking yes
-              UserKnownHostsFile=~/.ssh/known_hosts
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+          
+          # Create SSH config
+          echo "Host *
+            IdentityFile ~/.ssh/deploy_key
+            UserKnownHostsFile ~/.ssh/known_hosts
+            StrictHostKeyChecking yes" > ~/.ssh/config
+          
+          # Debug SSH setup
+          ls -la ~/.ssh/
+          echo "Testing SSH connection..."
+          ssh -v -i ~/.ssh/deploy_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "echo 'SSH connection successful'"
 
       - name: Deploy to CloudPanel
         env:
@@ -50,19 +57,15 @@ jobs:
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
         run: |
-          # Debug SSH setup
-          echo "Testing SSH connection..."
-          ssh -v $SERVER_USER@$SERVER_HOST "echo 'SSH connection successful'"
-          
           # Create deployment archive
           cd Code/api
           tar -czf deploy.tar.gz dist/ package.json yarn.lock
 
           # Upload to server
-          scp deploy.tar.gz $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH/
+          scp -i ~/.ssh/deploy_key deploy.tar.gz $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH/
 
           # Execute deployment commands
-          ssh $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && \
+          ssh -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && \
             # Stop PM2 service
             pm2 stop api.resumevita.com || true && \
             # Create backup directory if it doesn't exist
