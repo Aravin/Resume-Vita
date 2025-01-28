@@ -37,6 +37,12 @@ jobs:
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          name: id_rsa # specify the key name
+          if_key_exists: replace # replace if exists
+          config: | # Add SSH configuration
+            Host *
+              StrictHostKeyChecking yes
+              UserKnownHostsFile=~/.ssh/known_hosts
 
       - name: Deploy to CloudPanel
         env:
@@ -44,6 +50,10 @@ jobs:
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
         run: |
+          # Debug SSH setup
+          echo "Testing SSH connection..."
+          ssh -v $SERVER_USER@$SERVER_HOST "echo 'SSH connection successful'"
+          
           # Create deployment archive
           cd Code/api
           tar -czf deploy.tar.gz dist/ package.json yarn.lock
