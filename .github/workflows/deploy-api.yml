@@ -8,133 +8,134 @@ on:
       - 'Code/api/**'
       - '.github/workflows/deploy-api.yml'
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    environment: cloudpanel
-    env:
-      PUPPETEER_SKIP_DOWNLOAD: "true"
-      DEPLOY_PATH: "/home/resumevita-api/htdocs/api.resumevita.com"
-      TEMP_PATH: "/home/ubuntu/temp_deploy"
+# Deployment temporarily disabled
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     environment: cloudpanel
+#     env:
+#       PUPPETEER_SKIP_DOWNLOAD: "true"
+#       DEPLOY_PATH: "/home/resumevita-api/htdocs/api.resumevita.com"
+#       TEMP_PATH: "/home/ubuntu/temp_deploy"
     
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'yarn'
-          cache-dependency-path: 'Code/api/yarn.lock'
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '18'
+#           cache: 'yarn'
+#           cache-dependency-path: 'Code/api/yarn.lock'
 
-      - name: Install dependencies
-        working-directory: Code/api
-        run: yarn install --frozen-lockfile
+#       - name: Install dependencies
+#         working-directory: Code/api
+#         run: yarn install --frozen-lockfile
 
-      - name: Build application
-        working-directory: Code/api
-        run: yarn build
+#       - name: Build application
+#         working-directory: Code/api
+#         run: yarn build
 
-      - name: Install sshpass
-        run: sudo apt-get install -y sshpass
+#       - name: Install sshpass
+#         run: sudo apt-get install -y sshpass
 
-      - name: Debug SSH Connection and Permissions
-        run: |
-          echo "Testing SSH connection and checking permissions..."
-          echo "Username: ubuntu"
-          echo "Host: $SSH_HOST"
-          echo "Deploy path: $DEPLOY_PATH"
-          echo "Temp path: $TEMP_PATH"
+#       - name: Debug SSH Connection and Permissions
+#         run: |
+#           echo "Testing SSH connection and checking permissions..."
+#           echo "Username: ubuntu"
+#           echo "Host: $SSH_HOST"
+#           echo "Deploy path: $DEPLOY_PATH"
+#           echo "Temp path: $TEMP_PATH"
           
-          # Check current directory and permissions
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no ubuntu@$SSH_HOST "
-            echo '=== Current user and groups ==='
-            id
+#           # Check current directory and permissions
+#           sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no ubuntu@$SSH_HOST "
+#             echo '=== Current user and groups ==='
+#             id
             
-            echo '=== Parent directory permissions ==='
-            sudo ls -la /home/resumevita-api/htdocs/
+#             echo '=== Parent directory permissions ==='
+#             sudo ls -la /home/resumevita-api/htdocs/
             
-            echo '=== Target directory permissions ==='
-            sudo ls -la $DEPLOY_PATH || echo 'Directory does not exist yet'
+#             echo '=== Target directory permissions ==='
+#             sudo ls -la $DEPLOY_PATH || echo 'Directory does not exist yet'
             
-            echo '=== Current processes ==='
-            ps aux | grep node
-          "
-        env:
-          SSH_PASS: ${{ secrets.SSH_PASSWORD }}
-          SSH_HOST: ${{ secrets.HOST }}
+#             echo '=== Current processes ==='
+#             ps aux | grep node
+#           "
+#         env:
+#           SSH_PASS: ${{ secrets.SSH_PASSWORD }}
+#           SSH_HOST: ${{ secrets.HOST }}
 
-      - name: Prepare and deploy files
-        if: success()
-        run: |
-          cd Code/api
+#       - name: Prepare and deploy files
+#         if: success()
+#         run: |
+#           cd Code/api
           
-          # Create deployment package
-          echo "Creating deployment package..."
-          zip -r deploy.zip dist package.json yarn.lock
+#           # Create deployment package
+#           echo "Creating deployment package..."
+#           zip -r deploy.zip dist package.json yarn.lock
           
-          # Create temp directory and set permissions
-          echo "Creating directories and setting permissions..."
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no ubuntu@$SSH_HOST "
-            echo '=== Creating temp directory ==='
-            mkdir -p $TEMP_PATH
+#           # Create temp directory and set permissions
+#           echo "Creating directories and setting permissions..."
+#           sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no ubuntu@$SSH_HOST "
+#             echo '=== Creating temp directory ==='
+#             mkdir -p $TEMP_PATH
             
-            echo '=== Creating deploy directory ==='
-            sudo mkdir -p /home/resumevita-api/htdocs
-            sudo mkdir -p $DEPLOY_PATH
-            sudo chown -R ubuntu:ubuntu $DEPLOY_PATH
-            sudo chmod -R 775 $DEPLOY_PATH
+#             echo '=== Creating deploy directory ==='
+#             sudo mkdir -p /home/resumevita-api/htdocs
+#             sudo mkdir -p $DEPLOY_PATH
+#             sudo chown -R ubuntu:ubuntu $DEPLOY_PATH
+#             sudo chmod -R 775 $DEPLOY_PATH
             
-            echo '=== Directory permissions after creation ==='
-            echo '--- Temp directory ---'
-            ls -la $TEMP_PATH/
-            echo '--- Deploy directory ---'
-            sudo ls -la $DEPLOY_PATH/
-          "
+#             echo '=== Directory permissions after creation ==='
+#             echo '--- Temp directory ---'
+#             ls -la $TEMP_PATH/
+#             echo '--- Deploy directory ---'
+#             sudo ls -la $DEPLOY_PATH/
+#           "
           
-          echo "Uploading zip file to temp directory..."
-          sshpass -p "$SSH_PASS" scp -o StrictHostKeyChecking=no deploy.zip ubuntu@$SSH_HOST:$TEMP_PATH/
+#           echo "Uploading zip file to temp directory..."
+#           sshpass -p "$SSH_PASS" scp -o StrictHostKeyChecking=no deploy.zip ubuntu@$SSH_HOST:$TEMP_PATH/
           
-          # Extract and setup on server
-          echo "Moving files and setting up..."
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no ubuntu@$SSH_HOST "
-            echo '=== Moving zip to deploy directory ==='
-            sudo rm -rf $DEPLOY_PATH/*
-            sudo cp $TEMP_PATH/deploy.zip $DEPLOY_PATH/
-            cd $DEPLOY_PATH || exit 1
+#           # Extract and setup on server
+#           echo "Moving files and setting up..."
+#           sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no ubuntu@$SSH_HOST "
+#             echo '=== Moving zip to deploy directory ==='
+#             sudo rm -rf $DEPLOY_PATH/*
+#             sudo cp $TEMP_PATH/deploy.zip $DEPLOY_PATH/
+#             cd $DEPLOY_PATH || exit 1
             
-            echo '=== Current directory contents before extraction ==='
-            ls -la
+#             echo '=== Current directory contents before extraction ==='
+#             ls -la
             
-            echo '=== Extracting files ==='
-            sudo unzip -o deploy.zip
-            sudo chown -R ubuntu:ubuntu .
+#             echo '=== Extracting files ==='
+#             sudo unzip -o deploy.zip
+#             sudo chown -R ubuntu:ubuntu .
             
-            echo '=== Directory contents after extraction ==='
-            ls -la
+#             echo '=== Directory contents after extraction ==='
+#             ls -la
             
-            echo '=== Cleaning up ==='
-            rm -f deploy.zip
-            rm -rf $TEMP_PATH
+#             echo '=== Cleaning up ==='
+#             rm -f deploy.zip
+#             rm -rf $TEMP_PATH
             
-            echo '=== Installing dependencies ==='
-            export PUPPETEER_SKIP_DOWNLOAD=true
-            which yarn
-            yarn --version
-            yarn install
+#             echo '=== Installing dependencies ==='
+#             export PUPPETEER_SKIP_DOWNLOAD=true
+#             which yarn
+#             yarn --version
+#             yarn install
             
-            echo '=== Starting service ==='
-            sudo pkill -f 'node dist/index.js' || true
-            sudo nohup node dist/index.js > app.log 2>&1 &
-            sleep 2
-            echo '=== Service logs ==='
-            tail -n 20 app.log || cat app.log
+#             echo '=== Starting service ==='
+#             sudo pkill -f 'node dist/index.js' || true
+#             sudo nohup node dist/index.js > app.log 2>&1 &
+#             sleep 2
+#             echo '=== Service logs ==='
+#             tail -n 20 app.log || cat app.log
             
-            echo '=== Setting final permissions ==='
-            sudo chown -R resumevita-api:resumevita-api $DEPLOY_PATH
-            sudo chmod -R 770 $DEPLOY_PATH
-          "
-        env:
-          SSH_PASS: ${{ secrets.SSH_PASSWORD }}
-          SSH_HOST: ${{ secrets.HOST }}
+#             echo '=== Setting final permissions ==='
+#             sudo chown -R resumevita-api:resumevita-api $DEPLOY_PATH
+#             sudo chmod -R 770 $DEPLOY_PATH
+#           "
+#         env:
+#           SSH_PASS: ${{ secrets.SSH_PASSWORD }}
+#           SSH_HOST: ${{ secrets.HOST }}
