@@ -15,6 +15,7 @@ jobs:
     env:
       PUPPETEER_SKIP_DOWNLOAD: "true"
       DEPLOY_PATH: "/home/resumevita-api/htdocs/api.resumevita.com"
+      TEMP_PATH: "/home/ubuntu/temp_deploy"
     
     steps:
       - name: Checkout code
@@ -44,6 +45,7 @@ jobs:
           echo "Username: ubuntu"
           echo "Host: $SSH_HOST"
           echo "Deploy path: $DEPLOY_PATH"
+          echo "Temp path: $TEMP_PATH"
           
           # Check current directory and permissions
           sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no ubuntu@$SSH_HOST "
@@ -78,40 +80,45 @@ jobs:
           echo "Creating deployment package..."
           zip -r deploy.zip dist package.json yarn.lock
           
-          # Create directory and set permissions
-          echo "Creating directory and setting permissions..."
+          # Create temp directory and set permissions
+          echo "Creating directories and setting permissions..."
           sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no ubuntu@$SSH_HOST "
-            echo '=== Creating directory ==='
+            echo '=== Creating temp directory ==='
+            mkdir -p $TEMP_PATH
+            
+            echo '=== Creating deploy directory ==='
             sudo mkdir -p $DEPLOY_PATH
-            sudo chown -R ubuntu:ubuntu $DEPLOY_PATH
-            sudo chmod -R 775 $DEPLOY_PATH
+            sudo chown -R ubuntu:ubuntu /home/resumevita-api/htdocs
+            sudo chmod -R 775 /home/resumevita-api/htdocs
             
             echo '=== Directory permissions after creation ==='
+            ls -la $TEMP_PATH/
             sudo ls -la $DEPLOY_PATH/
-            
-            echo '=== Parent directory permissions ==='
             sudo ls -la /home/resumevita-api/htdocs/
           "
           
-          echo "Uploading zip file..."
-          sshpass -p "$SSH_PASS" scp -o StrictHostKeyChecking=no deploy.zip ubuntu@$SSH_HOST:$DEPLOY_PATH/
+          echo "Uploading zip file to temp directory..."
+          sshpass -p "$SSH_PASS" scp -o StrictHostKeyChecking=no deploy.zip ubuntu@$SSH_HOST:$TEMP_PATH/
           
           # Extract and setup on server
-          echo "Extracting and setting up on server..."
+          echo "Moving files and setting up..."
           sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no ubuntu@$SSH_HOST "
+            echo '=== Moving zip to deploy directory ==='
+            sudo cp $TEMP_PATH/deploy.zip $DEPLOY_PATH/
             cd $DEPLOY_PATH
             
             echo '=== Current directory contents before extraction ==='
             sudo ls -la
             
             echo '=== Extracting files ==='
-            unzip -o deploy.zip
+            sudo unzip -o deploy.zip
             
             echo '=== Directory contents after extraction ==='
             sudo ls -la
             
-            echo '=== Cleaning up zip ==='
-            rm deploy.zip
+            echo '=== Cleaning up ==='
+            sudo rm deploy.zip
+            rm -rf $TEMP_PATH
             
             echo '=== Installing dependencies ==='
             export PUPPETEER_SKIP_DOWNLOAD=true
@@ -126,8 +133,8 @@ jobs:
             sudo pm2 list
             
             echo '=== Setting final permissions ==='
-            sudo chown -R resumevita-api:resumevita-api $DEPLOY_PATH
-            sudo chmod -R 755 $DEPLOY_PATH
+            sudo chown -R resumevita-api:resumevita-api /home/resumevita-api/htdocs
+            sudo chmod -R 770 /home/resumevita-api/htdocs
           "
         env:
           SSH_PASS: ${{ secrets.SSH_PASSWORD }}
