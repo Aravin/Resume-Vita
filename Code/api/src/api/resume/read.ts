@@ -1,4 +1,3 @@
-// Test GitHub Actions deployment workflow
 import { Request, Response } from 'express';
 import { MongoClient } from 'mongodb';
 import { calculateATSScore } from '../../helpers/atsScoring';
