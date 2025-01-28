@@ -98,6 +98,7 @@ jobs:
           echo "Moving files and setting up..."
           sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no ubuntu@$SSH_HOST "
             echo '=== Moving zip to deploy directory ==='
+            sudo rm -rf $DEPLOY_PATH/*
             sudo cp $TEMP_PATH/deploy.zip $DEPLOY_PATH/
             cd $DEPLOY_PATH
             
@@ -117,11 +118,16 @@ jobs:
             
             echo '=== Installing dependencies ==='
             export PUPPETEER_SKIP_DOWNLOAD=true
-            yarn install --frozen-lockfile
+            cd $DEPLOY_PATH
+            yarn install
             
             echo '=== Starting service ==='
             sudo pkill -f 'node dist/index.js' || true
+            cd $DEPLOY_PATH
             sudo nohup node dist/index.js > app.log 2>&1 &
+            sleep 2
+            echo '=== Service logs ==='
+            tail -n 20 app.log
             
             echo '=== Setting final permissions ==='
             sudo chown -R resumevita-api:resumevita-api /home/resumevita-api/htdocs
