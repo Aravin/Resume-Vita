@@ -11,6 +11,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: cloudpanel
     
     steps:
       - name: Checkout code
@@ -39,10 +40,9 @@ jobs:
 
       - name: Deploy to CloudPanel
         env:
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH_API }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          TIMESTAMP: $(date +%Y%m%d_%H%M%S)
         run: |
           # Create deployment archive
           cd Code/api
