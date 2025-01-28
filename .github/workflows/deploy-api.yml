@@ -34,60 +34,57 @@ jobs:
         working-directory: Code/api
         run: yarn build
 
-      - name: Install sshpass
-        run: sudo apt-get install -y sshpass
+      - name: Install curl
+        run: sudo apt-get install -y curl
 
       - name: Debug Connection
         run: |
           echo "Testing connection..."
-          echo "Username length: ${#SFTP_USER}"
-          echo "Password length: ${#SFTP_PASS}"
-          echo "Host: $SFTP_HOST"
+          echo "Username length: ${#FTP_USER}"
+          echo "Password length: ${#FTP_PASS}"
+          echo "Host: $FTP_HOST"
           echo "Deploy path: $DEPLOY_PATH"
           
-          # Test basic SSH connection
-          echo "Step 1: Testing basic SSH connection..."
-          sshpass -p "$SFTP_PASS" ssh -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "echo 'SSH connection successful'"
+          # Test basic FTP connection
+          echo "Step 1: Testing basic FTP connection..."
+          curl -v ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/
           
           # Check home directory
           echo "Step 2: Checking home directory..."
-          sshpass -p "$SFTP_PASS" ssh -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "pwd"
+          curl -v ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/ --list-only
           
           # Try to create a test file
           echo "Step 3: Testing file creation in home directory..."
-          sshpass -p "$SFTP_PASS" ssh -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "touch test.txt && echo 'File created' || echo 'Failed to create file'"
+          curl -v -T test.txt ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/ --ftp-create-dirs
           
           # Check if we can access deploy path
           echo "Step 4: Testing deploy path access..."
-          sshpass -p "$SFTP_PASS" ssh -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "cd $DEPLOY_PATH 2>/dev/null && echo 'Deploy path accessible' || echo 'Cannot access deploy path'"
+          curl -v ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/$DEPLOY_PATH/ --list-only
         env:
-          SFTP_USER: ${{ secrets.SFTP_USERNAME }}
-          SFTP_PASS: ${{ secrets.SFTP_PASSWORD }}
-          SFTP_HOST: ${{ secrets.SERVER_HOST }}
+          FTP_USER: ${{ secrets.SFTP_USERNAME }}
+          FTP_PASS: ${{ secrets.SFTP_PASSWORD }}
+          FTP_HOST: ${{ secrets.SERVER_HOST }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
 
-      - name: Deploy to server
+      - name: Deploy with FTP
         if: success()
         run: |
           cd Code/api
-          echo "Creating dist directory..."
-          sshpass -p "$SFTP_PASS" ssh -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "mkdir -p $DEPLOY_PATH/dist" || echo "Failed to create directory"
+          echo "Uploading dist files via FTP..."
+          for file in dist/*; do
+            curl -T "$file" ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/$DEPLOY_PATH/dist/ --ftp-create-dirs
+          done
           
-          echo "Copying dist files..."
-          sshpass -p "$SFTP_PASS" scp -r dist/* $SFTP_USER@$SFTP_HOST:$DEPLOY_PATH/dist/ || echo "Failed to copy dist"
-          
-          echo "Copying package files..."
-          sshpass -p "$SFTP_PASS" scp package.json yarn.lock $SFTP_USER@$SFTP_HOST:$DEPLOY_PATH/ || echo "Failed to copy package files"
+          echo "Uploading package files via FTP..."
+          curl -T "package.json" ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/$DEPLOY_PATH/
+          curl -T "yarn.lock" ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/$DEPLOY_PATH/
           
           echo "Running deployment commands..."
-          sshpass -p "$SFTP_PASS" ssh -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "cd $DEPLOY_PATH && \
-            export PUPPETEER_SKIP_DOWNLOAD=true && \
-            yarn install --production --frozen-lockfile && \
-            pm2 stop api.resumevita.com || true && \
-            pm2 start dist/index.js --name api.resumevita.com && \
-            pm2 save"
+          curl -v ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/$DEPLOY_PATH/ --upload-file deploy.sh
+          curl -v ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/$DEPLOY_PATH/ --quote "chmod +x deploy.sh"
+          curl -v ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/$DEPLOY_PATH/ --quote "./deploy.sh"
         env:
-          SFTP_USER: ${{ secrets.SFTP_USERNAME }}
-          SFTP_PASS: ${{ secrets.SFTP_PASSWORD }}
-          SFTP_HOST: ${{ secrets.SERVER_HOST }}
+          FTP_USER: ${{ secrets.SFTP_USERNAME }}
+          FTP_PASS: ${{ secrets.SFTP_PASSWORD }}
+          FTP_HOST: ${{ secrets.SERVER_HOST }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
