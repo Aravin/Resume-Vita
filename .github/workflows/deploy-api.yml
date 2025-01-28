@@ -14,7 +14,7 @@ jobs:
     environment: cloudpanel
     env:
       PUPPETEER_SKIP_DOWNLOAD: "true"
-      DEPLOY_PATH: "/home/resumevita-github-ssh/htdocs/api.resumevita.com"
+      DEPLOY_PATH: "/home/resumevita-api/htdocs/api.resumevita.com"
     
     steps:
       - name: Checkout code
@@ -47,7 +47,19 @@ jobs:
           
           # Test basic SSH connection
           echo "Step 1: Testing basic SSH connection..."
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "pwd && ls -la $DEPLOY_PATH"
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "pwd && ls -la ~/"
+        env:
+          SSH_USER: ${{ secrets.SSH_USERNAME }}
+          SSH_PASS: ${{ secrets.SSH_PASSWORD }}
+          SSH_HOST: 3.7.54.65
+
+      - name: Setup deploy directory
+        run: |
+          echo "Setting up deploy directory with correct permissions..."
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "
+            mkdir -p $DEPLOY_PATH && \
+            chmod -R 755 $DEPLOY_PATH
+          "
         env:
           SSH_USER: ${{ secrets.SSH_USERNAME }}
           SSH_PASS: ${{ secrets.SSH_PASSWORD }}
