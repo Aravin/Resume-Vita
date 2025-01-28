@@ -10,24 +10,18 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-    container:
-      image: node:18-alpine
+    runs-on: ubuntu-22.04-minimal
     environment: cloudpanel
     env:
       PUPPETEER_SKIP_DOWNLOAD: "true"
     
     steps:
-      - name: Install deployment dependencies
-        run: |
-          apk add --no-cache openssh-client git sshpass
-
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          echo "StrictHostKeyChecking no" > ~/.ssh/config
-          chmod 600 ~/.ssh/config
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+          cache-dependency-path: 'Code/api/yarn.lock'
 
       - name: Checkout code
         uses: actions/checkout@v3
