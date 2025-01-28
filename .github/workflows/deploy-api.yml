@@ -10,7 +10,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-22.04-minimal
+    runs-on: ubuntu-latest
     environment: cloudpanel
     env:
       PUPPETEER_SKIP_DOWNLOAD: "true"
