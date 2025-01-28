@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Install deployment dependencies
         run: |
-          apk add --no-cache openssh-client git
+          apk add --no-cache openssh-client git rsync
 
       - name: Setup SSH
         run: |
@@ -41,15 +41,14 @@ jobs:
         run: yarn build
 
       - name: Deploy to server
-        uses: appleboy/scp-action@v0.1.4
+        uses: Burnett01/rsync-deployments@6.0.0
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SFTP_USERNAME }}
-          password: ${{ secrets.SFTP_PASSWORD }}
-          source: "Code/api/dist/*,Code/api/package.json,Code/api/yarn.lock"
-          target: ${{ secrets.DEPLOY_PATH }}
-          strip_components: 2
-          overwrite: true
+          switches: -avzr --delete
+          path: Code/api/
+          remote_path: ${{ secrets.DEPLOY_PATH }}
+          remote_host: ${{ secrets.SERVER_HOST }}
+          remote_user: ${{ secrets.SFTP_USERNAME }}
+          remote_password: ${{ secrets.SFTP_PASSWORD }}
 
       - name: Install dependencies and start PM2
         uses: appleboy/ssh-action@v1.0.0
