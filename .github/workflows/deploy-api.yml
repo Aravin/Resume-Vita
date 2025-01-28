@@ -78,12 +78,14 @@ jobs:
           echo "Creating deployment package..."
           zip -r deploy.zip dist package.json yarn.lock
           
-          # Create directory and upload zip
-          echo "Creating directory and uploading files..."
+          # Create directory and set permissions
+          echo "Creating directory and setting permissions..."
           sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no ubuntu@$SSH_HOST "
             echo '=== Creating directory ==='
             sudo mkdir -p $DEPLOY_PATH
             sudo chown -R ubuntu:ubuntu $DEPLOY_PATH
+            sudo chmod -R 775 $DEPLOY_PATH
+            
             echo '=== Directory permissions after creation ==='
             sudo ls -la $DEPLOY_PATH/
             
@@ -92,7 +94,7 @@ jobs:
           "
           
           echo "Uploading zip file..."
-          sshpass -p "$SSH_PASS" scp deploy.zip ubuntu@$SSH_HOST:$DEPLOY_PATH/
+          sshpass -p "$SSH_PASS" scp -o StrictHostKeyChecking=no deploy.zip ubuntu@$SSH_HOST:$DEPLOY_PATH/
           
           # Extract and setup on server
           echo "Extracting and setting up on server..."
