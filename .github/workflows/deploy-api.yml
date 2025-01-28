@@ -11,18 +11,17 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    container:
+      image: node:18-alpine
     environment: cloudpanel
     
     steps:
+      - name: Install deployment dependencies
+        run: |
+          apk add --no-cache openssh-client git
+
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'yarn'
-          cache-dependency-path: 'Code/api/yarn.lock'
 
       - name: Install dependencies
         working-directory: Code/api
@@ -32,27 +31,22 @@ jobs:
         working-directory: Code/api
         run: yarn build
 
-      - name: Deploy to CloudPanel via SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      - name: Deploy via SFTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          username: ${{ secrets.SFTP_USERNAME }}
           server: ${{ secrets.SERVER_HOST }}
-          port: 22
-          password: ${{ secrets.SFTP_PASSWORD }}
-          local_path: './Code/api/dist/*'
-          remote_path: ${{ secrets.DEPLOY_PATH }}/dist
-          sftp_only: true
-          
-      - name: Deploy package files
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
-        with:
           username: ${{ secrets.SFTP_USERNAME }}
-          server: ${{ secrets.SERVER_HOST }}
-          port: 22
           password: ${{ secrets.SFTP_PASSWORD }}
-          local_path: './Code/api/package.json,./Code/api/yarn.lock'
-          remote_path: ${{ secrets.DEPLOY_PATH }}
-          sftp_only: true
+          protocol: sftp
+          port: 22
+          local-dir: ./Code/api/
+          server-dir: ${{ secrets.DEPLOY_PATH }}/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.env*
+            **/backups/**
 
       - name: Install dependencies and restart PM2
         uses: appleboy/ssh-action@v1.0.0
