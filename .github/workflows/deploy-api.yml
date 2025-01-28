@@ -22,6 +22,13 @@ jobs:
         run: |
           apk add --no-cache openssh-client git
 
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "StrictHostKeyChecking no" > ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -33,23 +40,29 @@ jobs:
         working-directory: Code/api
         run: yarn build
 
-      - name: Deploy to server
-        uses: cross-the-world/ssh-scp-ssh-pipelines@latest
+      - name: Test SSH Connection
+        run: |
+          ssh -v -p 22 ${{ secrets.SFTP_USERNAME }}@${{ secrets.SERVER_HOST }} "echo 'SSH Connection Test'"
         env:
-          WELCOME: "ssh scp ssh pipelines"
-          LASTSSH: "Doing something after copying"
+          SSHPASS: ${{ secrets.SFTP_PASSWORD }}
+
+      - name: Deploy to server
+        uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SERVER_HOST }}
-          user: ${{ secrets.SFTP_USERNAME }}
-          pass: ${{ secrets.SFTP_PASSWORD }}
-          connect_timeout: 10s
-          first_ssh: |
-            mkdir -p ${{ secrets.DEPLOY_PATH }}/dist
-          scp: |
-            './Code/api/dist/*' => ${{ secrets.DEPLOY_PATH }}/dist/
-            './Code/api/package.json' => ${{ secrets.DEPLOY_PATH }}/
-            './Code/api/yarn.lock' => ${{ secrets.DEPLOY_PATH }}/
-          last_ssh: |
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          source: "Code/api/dist/*,Code/api/package.json,Code/api/yarn.lock"
+          target: ${{ secrets.DEPLOY_PATH }}
+          strip_components: 2
+
+      - name: Run deployment commands
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          script: |
             cd ${{ secrets.DEPLOY_PATH }}
             export PUPPETEER_SKIP_DOWNLOAD=true
             yarn install --production --frozen-lockfile
