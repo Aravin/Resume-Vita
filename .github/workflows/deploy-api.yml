@@ -34,27 +34,19 @@ jobs:
         working-directory: Code/api
         run: yarn build
 
-      - name: Deploy to server
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SFTP_USERNAME }}
-          password: ${{ secrets.SFTP_PASSWORD }}
-          source: "Code/api/dist/*,Code/api/package.json,Code/api/yarn.lock"
-          target: ${{ secrets.DEPLOY_PATH }}
-          strip_components: 2
-          overwrite: true
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
 
-      - name: Install dependencies and start PM2
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SFTP_USERNAME }}
-          password: ${{ secrets.SFTP_PASSWORD }}
-          script: |
-            cd ${{ secrets.DEPLOY_PATH }}
-            export PUPPETEER_SKIP_DOWNLOAD=true
-            yarn install --production --frozen-lockfile
-            pm2 stop api.resumevita.com || true
-            pm2 start dist/index.js --name api.resumevita.com
-            pm2 save
+      - name: Deploy to server
+        env:
+          SSHPASS: ${{ secrets.SFTP_PASSWORD }}
+        run: |
+          cd Code/api
+          sshpass -e scp -o StrictHostKeyChecking=no -r dist/* ${{ secrets.SFTP_USERNAME }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_PATH }}/dist/
+          sshpass -e scp -o StrictHostKeyChecking=no package.json yarn.lock ${{ secrets.SFTP_USERNAME }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_PATH }}/
+          sshpass -e ssh -o StrictHostKeyChecking=no ${{ secrets.SFTP_USERNAME }}@${{ secrets.SERVER_HOST }} "cd ${{ secrets.DEPLOY_PATH }} && \
+            export PUPPETEER_SKIP_DOWNLOAD=true && \
+            yarn install --production --frozen-lockfile && \
+            pm2 stop api.resumevita.com || true && \
+            pm2 start dist/index.js --name api.resumevita.com && \
+            pm2 save"
