@@ -40,11 +40,22 @@ jobs:
         working-directory: Code/api
         run: yarn build
 
-      - name: Test SSH Connection
-        run: |
-          ssh -v -p 22 ${{ secrets.SFTP_USERNAME }}@${{ secrets.SERVER_HOST }} "echo 'SSH Connection Test'"
-        env:
-          SSHPASS: ${{ secrets.SFTP_PASSWORD }}
+      - name: Backup and prepare for deployment
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            # Create backups directory if it doesn't exist
+            mkdir -p backups
+            # Create backup with timestamp
+            if [ -d "dist" ]; then
+              tar -czf backups/backup_$(date +%Y%m%d_%H%M%S).tar.gz dist/
+              # Keep only last 5 backups
+              ls -t backups/backup_*.tar.gz | tail -n +6 | xargs rm -f 2>/dev/null || true
+            fi
 
       - name: Deploy to server
         uses: appleboy/scp-action@v0.1.4
@@ -55,8 +66,9 @@ jobs:
           source: "Code/api/dist/*,Code/api/package.json,Code/api/yarn.lock"
           target: ${{ secrets.DEPLOY_PATH }}
           strip_components: 2
+          overwrite: true
 
-      - name: Run deployment commands
+      - name: Install dependencies and start PM2
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -66,5 +78,9 @@ jobs:
             cd ${{ secrets.DEPLOY_PATH }}
             export PUPPETEER_SKIP_DOWNLOAD=true
             yarn install --production --frozen-lockfile
-            pm2 restart api.resumevita.com || pm2 start dist/index.js --name api.resumevita.com
+            # Stop the current process if running
+            pm2 stop api.resumevita.com || true
+            # Start with new code
+            pm2 start dist/index.js --name api.resumevita.com
+            # Save PM2 process list
             pm2 save
