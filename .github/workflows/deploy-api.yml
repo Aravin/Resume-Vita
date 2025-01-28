@@ -14,6 +14,7 @@ jobs:
     environment: cloudpanel
     env:
       PUPPETEER_SKIP_DOWNLOAD: "true"
+      DEPLOY_PATH: "/htdocs/api.resumevita.com"
     
     steps:
       - name: Checkout code
@@ -40,19 +41,17 @@ jobs:
       - name: Debug SSH Connection
         run: |
           echo "Testing SSH connection..."
-          echo "Username length: ${#SSH_USER}"
-          echo "Password length: ${#SSH_PASS}"
+          echo "Username: $SSH_USER"
           echo "Host: $SSH_HOST"
           echo "Deploy path: $DEPLOY_PATH"
           
           # Test basic SSH connection
           echo "Step 1: Testing basic SSH connection..."
-          sshpass -p "$SSH_PASS" ssh -v -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "echo 'Connection successful'"
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "pwd && ls -la $DEPLOY_PATH"
         env:
-          SSH_USER: ${{ secrets.SFTP_USERNAME }}
-          SSH_PASS: ${{ secrets.SFTP_PASSWORD }}
-          SSH_HOST: ${{ secrets.SERVER_HOST }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          SSH_USER: ${{ secrets.SSH_USERNAME }}
+          SSH_PASS: ${{ secrets.SSH_PASSWORD }}
+          SSH_HOST: 3.7.54.65
 
       - name: Deploy with SSH
         if: success()
@@ -75,7 +74,6 @@ jobs:
             pm2 start dist/index.js --name api.resumevita.com && \
             pm2 save"
         env:
-          SSH_USER: ${{ secrets.SFTP_USERNAME }}
-          SSH_PASS: ${{ secrets.SFTP_PASSWORD }}
-          SSH_HOST: ${{ secrets.SERVER_HOST }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          SSH_USER: ${{ secrets.SSH_USERNAME }}
+          SSH_PASS: ${{ secrets.SSH_PASSWORD }}
+          SSH_HOST: 3.7.54.65
