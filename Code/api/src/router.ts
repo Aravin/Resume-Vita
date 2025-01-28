@@ -3,6 +3,7 @@ import { generatePDF } from './api/pdf/generate';
 import { reports } from './api/reports';
 import { addResume } from './api/resume/add';
 import { readResume } from './api/resume/read';
+import { getATSScore } from './api/resume/ats-score';
 
 export const router = Router(); 
 
@@ -20,6 +21,10 @@ router.get('/resume/:userId', async (req: Request, res: Response) => {
 
 router.post('/resume', async (req: Request, res: Response) => {
     return await addResume(req, res);
+});
+
+router.get('/resume/:userId/ats-score', async (req: Request, res: Response) => {
+    return await getATSScore(req, res);
 });
 
 router.get('/reports', async (req: Request, res: Response) => {

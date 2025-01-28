@@ -31,13 +31,19 @@ export async function generatePDF(req: Request, res: Response) {
 
         // create a new page
         const page = await browser.newPage();
-        await page.setViewport({ width: 800, height: 1000 });
+        
+        // Set viewport to A4 proportions (width: 800px, height: 1131px ≈ 800 * 1.414)
+        await page.setViewport({ 
+            width: 800, 
+            height: 1131,
+            deviceScaleFactor: 2 // For higher quality image
+        });
 
         await page.setContent(fullPdf, {
             waitUntil: 'networkidle2',
         });
 
-        // save PDF
+        // save PDF with A4 format
         const pdfBuffer = await page.pdf({
             format: 'a4',
             printBackground: true,
@@ -50,14 +56,16 @@ export async function generatePDF(req: Request, res: Response) {
             ContentType: 'application/pdf',
         };
 
-        // save PNG
-        const imgBuffer = await page.screenshot(
-            { type: 'webp' }
-        );
+        // save PNG with A4 proportions
+        const imgBuffer = await page.screenshot({
+            type: 'webp',
+            fullPage: true,
+            omitBackground: false
+        });
 
         const ImgParams = {
             Bucket: appConfig.aws.storageBucket,
-            Key: `${user}/${user}.webp`, // The name of the object. For example, 'sample_upload.txt'.
+            Key: `${user}/${user}.webp`,
             Body: imgBuffer,
             ContentType: 'image/webp',
         };
