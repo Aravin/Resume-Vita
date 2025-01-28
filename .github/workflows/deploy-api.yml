@@ -34,57 +34,41 @@ jobs:
         working-directory: Code/api
         run: yarn build
 
-      - name: Install curl
-        run: sudo apt-get install -y curl
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
 
       - name: Debug Connection
         run: |
           echo "Testing connection..."
-          echo "Username length: ${#FTP_USER}"
-          echo "Password length: ${#FTP_PASS}"
-          echo "Host: $FTP_HOST"
+          echo "Username length: ${#SFTP_USER}"
+          echo "Password length: ${#SFTP_PASS}"
+          echo "Host: $SFTP_HOST"
           echo "Deploy path: $DEPLOY_PATH"
           
-          # Test basic FTP connection
-          echo "Step 1: Testing basic FTP connection..."
-          curl -v ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/
-          
-          # Check home directory
-          echo "Step 2: Checking home directory..."
-          curl -v ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/ --list-only
-          
-          # Try to create a test file
-          echo "Step 3: Testing file creation in home directory..."
-          curl -v -T test.txt ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/ --ftp-create-dirs
-          
-          # Check if we can access deploy path
-          echo "Step 4: Testing deploy path access..."
-          curl -v ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/$DEPLOY_PATH/ --list-only
+          # Test basic SFTP connection
+          echo "Step 1: Testing basic SFTP connection..."
+          sshpass -p "$SFTP_PASS" sftp -o StrictHostKeyChecking=no -b - $SFTP_USER@$SFTP_HOST <<EOF
+          ls
+          EOF
         env:
-          FTP_USER: ${{ secrets.SFTP_USERNAME }}
-          FTP_PASS: ${{ secrets.SFTP_PASSWORD }}
-          FTP_HOST: ${{ secrets.SERVER_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USERNAME }}
+          SFTP_PASS: ${{ secrets.SFTP_PASSWORD }}
+          SFTP_HOST: ${{ secrets.SERVER_HOST }}:22
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
 
-      - name: Deploy with FTP
+      - name: Deploy with SFTP
         if: success()
         run: |
           cd Code/api
-          echo "Uploading dist files via FTP..."
-          for file in dist/*; do
-            curl -T "$file" ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/$DEPLOY_PATH/dist/ --ftp-create-dirs
-          done
-          
-          echo "Uploading package files via FTP..."
-          curl -T "package.json" ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/$DEPLOY_PATH/
-          curl -T "yarn.lock" ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/$DEPLOY_PATH/
-          
-          echo "Running deployment commands..."
-          curl -v ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/$DEPLOY_PATH/ --upload-file deploy.sh
-          curl -v ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/$DEPLOY_PATH/ --quote "chmod +x deploy.sh"
-          curl -v ftp://$FTP_USER:$FTP_PASS@$FTP_HOST/$DEPLOY_PATH/ --quote "./deploy.sh"
+          echo "Uploading dist files via SFTP..."
+          sshpass -p "$SFTP_PASS" sftp -o StrictHostKeyChecking=no -b - $SFTP_USER@$SFTP_HOST <<EOF
+          mkdir -p $DEPLOY_PATH/dist
+          put -r dist/* $DEPLOY_PATH/dist/
+          put package.json $DEPLOY_PATH/
+          put yarn.lock $DEPLOY_PATH/
+          EOF
         env:
-          FTP_USER: ${{ secrets.SFTP_USERNAME }}
-          FTP_PASS: ${{ secrets.SFTP_PASSWORD }}
-          FTP_HOST: ${{ secrets.SERVER_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USERNAME }}
+          SFTP_PASS: ${{ secrets.SFTP_PASSWORD }}
+          SFTP_HOST: ${{ secrets.SERVER_HOST }}:22
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
