@@ -82,7 +82,10 @@ jobs:
             sudo mkdir -p $DEPLOY_PATH
             sudo chown -R ubuntu:ubuntu $DEPLOY_PATH
             echo '=== Directory permissions after creation ==='
-            ls -la $DEPLOY_PATH/
+            sudo ls -la $DEPLOY_PATH/
+            
+            echo '=== Parent directory permissions ==='
+            sudo ls -la /home/resumevita-api/htdocs/
           "
           
           echo "Uploading zip file..."
@@ -94,13 +97,13 @@ jobs:
             cd $DEPLOY_PATH
             
             echo '=== Current directory contents before extraction ==='
-            ls -la
+            sudo ls -la
             
             echo '=== Extracting files ==='
             unzip -o deploy.zip
             
             echo '=== Directory contents after extraction ==='
-            ls -la
+            sudo ls -la
             
             echo '=== Cleaning up zip ==='
             rm deploy.zip
@@ -119,6 +122,7 @@ jobs:
             
             echo '=== Setting final permissions ==='
             sudo chown -R resumevita-api:resumevita-api $DEPLOY_PATH
+            sudo chmod -R 755 $DEPLOY_PATH
           "
         env:
           SSH_PASS: ${{ secrets.SSH_PASSWORD }}
