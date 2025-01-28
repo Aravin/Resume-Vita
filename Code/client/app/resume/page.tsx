@@ -43,11 +43,31 @@ export default function Page() {
   );
 
   // Memoized handler to prevent recreating on each render
-  const handleDownload = React.useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleDownload = React.useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!userId) return;
-    const downloadUrl = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
-    window.open(downloadUrl, '_blank');
+    
+    try {
+      const downloadUrl = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
+      const response = await fetch(downloadUrl);
+      const blob = await response.blob();
+      
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `resume.pdf`;  // Set the download filename
+      
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the URL object
+      window.URL.revokeObjectURL(link.href);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // You might want to show an error message to the user here
+    }
   }, [userId]);
 
   if (authLoading) {
