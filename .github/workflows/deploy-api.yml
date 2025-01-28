@@ -42,8 +42,18 @@ jobs:
           SSHPASS: ${{ secrets.SFTP_PASSWORD }}
         run: |
           cd Code/api
-          sshpass -e scp -o StrictHostKeyChecking=no -r dist/* ${{ secrets.SFTP_USERNAME }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_PATH }}/dist/
-          sshpass -e scp -o StrictHostKeyChecking=no package.json yarn.lock ${{ secrets.SFTP_USERNAME }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_PATH }}/
+          # Create SFTP batch file
+          echo "mkdir -p ${{ secrets.DEPLOY_PATH }}/dist" > sftp_batch
+          echo "cd ${{ secrets.DEPLOY_PATH }}/dist" >> sftp_batch
+          echo "put -r dist/*" >> sftp_batch
+          echo "cd ${{ secrets.DEPLOY_PATH }}" >> sftp_batch
+          echo "put package.json" >> sftp_batch
+          echo "put yarn.lock" >> sftp_batch
+          
+          # Execute SFTP commands
+          sshpass -e sftp -o StrictHostKeyChecking=no -b sftp_batch ${{ secrets.SFTP_USERNAME }}@${{ secrets.SERVER_HOST }}
+          
+          # Run deployment commands
           sshpass -e ssh -o StrictHostKeyChecking=no ${{ secrets.SFTP_USERNAME }}@${{ secrets.SERVER_HOST }} "cd ${{ secrets.DEPLOY_PATH }} && \
             export PUPPETEER_SKIP_DOWNLOAD=true && \
             yarn install --production --frozen-lockfile && \
