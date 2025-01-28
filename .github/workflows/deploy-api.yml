@@ -44,13 +44,22 @@ jobs:
           echo "Password length: ${#SFTP_PASS}"
           echo "Host: $SFTP_HOST"
           echo "Deploy path: $DEPLOY_PATH"
-          echo "Checking server environment..."
-          sshpass -p "$SFTP_PASS" ssh -v -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "
-            echo 'Current directory:' && pwd && \
-            echo 'Can we access deploy path?' && \
-            ls -la $DEPLOY_PATH 2>&1 || echo 'Cannot access deploy path' && \
-            echo 'Parent directory access?' && \
-            ls -la \$(dirname $DEPLOY_PATH) 2>&1 || echo 'Cannot access parent'"
+          
+          # Test basic SSH connection
+          echo "Step 1: Testing basic SSH connection..."
+          sshpass -p "$SFTP_PASS" ssh -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "echo 'SSH connection successful'"
+          
+          # Check home directory
+          echo "Step 2: Checking home directory..."
+          sshpass -p "$SFTP_PASS" ssh -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "pwd"
+          
+          # Try to create a test file
+          echo "Step 3: Testing file creation in home directory..."
+          sshpass -p "$SFTP_PASS" ssh -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "touch test.txt && echo 'File created' || echo 'Failed to create file'"
+          
+          # Check if we can access deploy path
+          echo "Step 4: Testing deploy path access..."
+          sshpass -p "$SFTP_PASS" ssh -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "cd $DEPLOY_PATH 2>/dev/null && echo 'Deploy path accessible' || echo 'Cannot access deploy path'"
         env:
           SFTP_USER: ${{ secrets.SFTP_USERNAME }}
           SFTP_PASS: ${{ secrets.SFTP_PASSWORD }}
@@ -58,16 +67,17 @@ jobs:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
 
       - name: Deploy to server
+        if: success()
         run: |
           cd Code/api
           echo "Creating dist directory..."
           sshpass -p "$SFTP_PASS" ssh -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "mkdir -p $DEPLOY_PATH/dist" || echo "Failed to create directory"
           
           echo "Copying dist files..."
-          sshpass -p "$SFTP_PASS" scp -v -o StrictHostKeyChecking=no -r dist/* $SFTP_USER@$SFTP_HOST:$DEPLOY_PATH/dist/ || echo "Failed to copy dist"
+          sshpass -p "$SFTP_PASS" scp -r dist/* $SFTP_USER@$SFTP_HOST:$DEPLOY_PATH/dist/ || echo "Failed to copy dist"
           
           echo "Copying package files..."
-          sshpass -p "$SFTP_PASS" scp -v -o StrictHostKeyChecking=no package.json yarn.lock $SFTP_USER@$SFTP_HOST:$DEPLOY_PATH/ || echo "Failed to copy package files"
+          sshpass -p "$SFTP_PASS" scp package.json yarn.lock $SFTP_USER@$SFTP_HOST:$DEPLOY_PATH/ || echo "Failed to copy package files"
           
           echo "Running deployment commands..."
           sshpass -p "$SFTP_PASS" ssh -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "cd $DEPLOY_PATH && \
