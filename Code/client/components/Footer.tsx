@@ -39,6 +39,33 @@ export default function Footer() {
           </Link>
         </div>
         <div>
+          <span className="footer-title">Resources</span>
+          <Link
+            href="/blog"
+            className="link link-hover"
+          >
+            Blog
+          </Link>
+          <Link
+            href="/blog/ats-optimized-resume"
+            className="link link-hover"
+          >
+            ATS Guide
+          </Link>
+          <Link
+            href="/blog/professional-resume-templates"
+            className="link link-hover"
+          >
+            Resume Templates
+          </Link>
+          <Link
+            href="/blog/share-your-resume"
+            className="link link-hover"
+          >
+            Sharing Guide
+          </Link>
+        </div>
+        <div>
           <span className="footer-title">Company</span>
           <a
             href="https://github.com/Aravin/Resume-Vita"

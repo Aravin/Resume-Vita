@@ -9,12 +9,14 @@ import { useMemo } from "react";
 const defaultNavigation = [
   { name: "Home", href: "/" },
   { name: "Features", href: "/features" },
+  { name: "Blog", href: "/blog" },
   { name: "🔑 Login", href: "/api/auth/login" },
 ];
 
 const authenticatedNavigation = [
   { name: "📄 Your Resume", href: "/resume" },
   { name: "⚙️ Account & Settings", href: "/account" },
+  { name: "Blog", href: "/blog" },
   { name: "🔓 Sign out", href: "/api/auth/logout" },
 ];
 
