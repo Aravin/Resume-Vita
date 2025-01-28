@@ -60,9 +60,6 @@ jobs:
             
             echo '=== Current processes ==='
             ps aux | grep node
-            
-            echo '=== PM2 status ==='
-            sudo pm2 list || echo 'PM2 not running'
           "
         env:
           SSH_PASS: ${{ secrets.SSH_PASSWORD }}
@@ -123,12 +120,8 @@ jobs:
             yarn install --frozen-lockfile
             
             echo '=== Starting service ==='
-            sudo pm2 stop api.resumevita.com || true
-            sudo pm2 start dist/index.js --name api.resumevita.com
-            sudo pm2 save
-            
-            echo '=== Final PM2 status ==='
-            sudo pm2 list
+            sudo pkill -f 'node dist/index.js' || true
+            sudo nohup node dist/index.js > app.log 2>&1 &
             
             echo '=== Setting final permissions ==='
             sudo chown -R resumevita-api:resumevita-api /home/resumevita-api/htdocs
