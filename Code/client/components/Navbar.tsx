@@ -5,13 +5,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
-import { FaKey, FaSignOutAlt, FaFileAlt, FaCog, FaBlog } from "react-icons/fa";
+import { FaKey, FaSignOutAlt, FaFileAlt, FaCog, FaBlog, FaHome, FaLayerGroup } from "react-icons/fa";
 
 const defaultNavigation = [
-  { name: "Home", href: "/" },
-  { name: "Features", href: "/features" },
+  { name: (<><FaHome className="inline-block mr-1" /> Home</>), href: "/" },
+  { name: (<><FaLayerGroup className="inline-block mr-1" /> Features</>), href: "/features" },
   { name: (<><FaBlog className="inline-block mr-1" /> Blog</>), href: "/blog" },
-  { name: (<><FaKey className="inline-block mr-1" /> Login</>), href: "/api/auth/login" },
+  { name: (<><FaKey className="inline-block mr-1" /> Login</>), href: "/api/auth/login?returnTo=/resume" },
 ];
 
 const authenticatedNavigation = [
