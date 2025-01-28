@@ -38,16 +38,30 @@ jobs:
       - name: Install sshpass
         run: sudo apt-get install -y sshpass
 
-      - name: Debug SSH Connection
+      - name: Debug SSH Connection and Permissions
         run: |
-          echo "Testing SSH connection..."
+          echo "Testing SSH connection and checking permissions..."
           echo "Username: $SSH_USER"
           echo "Host: $SSH_HOST"
           echo "Deploy path: $DEPLOY_PATH"
           
-          # Test basic SSH connection
-          echo "Step 1: Testing basic SSH connection..."
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "pwd && ls -la ~/"
+          # Check current directory and permissions
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "
+            echo '=== Current user and groups ==='
+            id
+            
+            echo '=== Parent directory permissions ==='
+            ls -la /home/resumevita-api/htdocs/
+            
+            echo '=== Target directory permissions ==='
+            ls -la $DEPLOY_PATH || echo 'Directory does not exist yet'
+            
+            echo '=== Current processes ==='
+            ps aux | grep node
+            
+            echo '=== PM2 status ==='
+            pm2 list || echo 'PM2 not running'
+          "
         env:
           SSH_USER: ${{ secrets.SSH_USERNAME }}
           SSH_PASS: ${{ secrets.SSH_PASSWORD }}
@@ -64,19 +78,45 @@ jobs:
           
           # Create directory and upload zip
           echo "Creating directory and uploading files..."
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "mkdir -p $DEPLOY_PATH"
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "
+            echo '=== Creating directory ==='
+            mkdir -p $DEPLOY_PATH
+            echo '=== Directory permissions after creation ==='
+            ls -la $DEPLOY_PATH/
+          "
+          
+          echo "Uploading zip file..."
           sshpass -p "$SSH_PASS" scp deploy.zip $SSH_USER@$SSH_HOST:$DEPLOY_PATH/
           
           # Extract and setup on server
           echo "Extracting and setting up on server..."
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "cd $DEPLOY_PATH && \
-            unzip -o deploy.zip && \
-            rm deploy.zip && \
-            export PUPPETEER_SKIP_DOWNLOAD=true && \
-            yarn install --production --frozen-lockfile && \
-            pm2 stop api.resumevita.com || true && \
-            pm2 start dist/index.js --name api.resumevita.com && \
-            pm2 save"
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "
+            cd $DEPLOY_PATH
+            
+            echo '=== Current directory contents before extraction ==='
+            ls -la
+            
+            echo '=== Extracting files ==='
+            unzip -o deploy.zip
+            
+            echo '=== Directory contents after extraction ==='
+            ls -la
+            
+            echo '=== Cleaning up zip ==='
+            rm deploy.zip
+            
+            echo '=== Installing dependencies ==='
+            export PUPPETEER_SKIP_DOWNLOAD=true
+            yarn install --production --frozen-lockfile
+            
+            echo '=== Starting service ==='
+            pm2 stop api.resumevita.com || true
+            pm2 start dist/index.js --name api.resumevita.com
+            pm2 save
+            
+            echo '=== Final PM2 status ==='
+            pm2 list
+          "
         env:
           SSH_USER: ${{ secrets.SSH_USERNAME }}
           SSH_PASS: ${{ secrets.SSH_PASSWORD }}
