@@ -193,6 +193,28 @@ export default function Page() {
       <Breadcrumbs currentPage="Resume Preview" />
 
       <div className="flex flex-col md:flex-row items-stretch gap-6 p-4 bg-gray-50 rounded-lg shadow-sm">
+        
+
+        {/* Template Picker Section */}
+        <div className="flex flex-wrap justify-center gap-3">
+          {[
+            { name: "Default Template", value: "default" },
+            { name: "Modern Template", value: "modern" }
+          ].map((templateOption) => (
+            <button
+              key={templateOption.value}
+              className={`px-4 py-2 rounded transition-colors ${
+                template === templateOption.value 
+                  ? bgColorClasses[color] + ' text-white' 
+                  : 'border border-gray-300 hover:bg-gray-50'
+              }`}
+              onClick={() => handleTemplateChange(templateOption.value as 'default' | 'modern')}
+            >
+              {templateOption.name}
+            </button>
+          ))}
+        </div>
+
         {/* Color Picker Section */}
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <h3 className="text-sm font-medium text-gray-700 whitespace-nowrap">Color:</h3>
@@ -223,26 +245,6 @@ export default function Page() {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Template Picker Section */}
-        <div className="flex flex-wrap justify-center gap-3">
-          {[
-            { name: "Default Template", value: "default" },
-            { name: "Modern Template", value: "modern" }
-          ].map((templateOption) => (
-            <button
-              key={templateOption.value}
-              className={`px-4 py-2 rounded transition-colors ${
-                template === templateOption.value 
-                  ? bgColorClasses[color] + ' text-white' 
-                  : 'border border-gray-300 hover:bg-gray-50'
-              }`}
-              onClick={() => handleTemplateChange(templateOption.value as 'default' | 'modern')}
-            >
-              {templateOption.name}
-            </button>
-          ))}
         </div>
 
         {/* Action Buttons */}
