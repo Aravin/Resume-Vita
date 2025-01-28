@@ -44,13 +44,13 @@ interface ATSScore {
 }
 
 // Common keywords that ATS systems look for
-const COMMON_KEYWORDS = {
+const COMMON_KEYWORDS: Record<string, string[]> = {
   leadership: ['led', 'managed', 'coordinated', 'supervised', 'directed'],
   achievement: ['achieved', 'delivered', 'improved', 'increased', 'reduced', 'decreased'],
   development: ['developed', 'created', 'designed', 'implemented', 'built', 'engineered'],
   technical: ['node.js', 'react', 'typescript', 'javascript', 'angular', 'express', 'api'],
   soft_skills: ['collaborated', 'communicated', 'problem-solving', 'innovative', 'analytical']
-} as const;
+};
 
 // Minimum required lengths
 const REQUIREMENTS = {
@@ -125,10 +125,10 @@ function calculateKeywordScore(
   // Check keywords by category
   Object.entries(COMMON_KEYWORDS).forEach(([category, keywords]) => {
     totalKeywords += keywords.length;
-    const found = keywords.filter(keyword => resumeText.includes(keyword.toLowerCase()));
+    const found = keywords.filter((keyword: string) => resumeText.includes(keyword.toLowerCase()));
     foundKeywords += found.length;
     
-    const missing = keywords.filter(keyword => !resumeText.includes(keyword.toLowerCase()));
+    const missing = keywords.filter((keyword: string) => !resumeText.includes(keyword.toLowerCase()));
     if (missing.length > 0) {
       missingKeywordsByCategory[category] = missing;
     }
