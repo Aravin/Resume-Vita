@@ -14,6 +14,8 @@ jobs:
     container:
       image: node:18-alpine
     environment: cloudpanel
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: "true"
     
     steps:
       - name: Install deployment dependencies
@@ -49,6 +51,7 @@ jobs:
             './Code/api/yarn.lock' => ${{ secrets.DEPLOY_PATH }}/
           last_ssh: |
             cd ${{ secrets.DEPLOY_PATH }}
+            export PUPPETEER_SKIP_DOWNLOAD=true
             yarn install --production --frozen-lockfile
             pm2 restart api.resumevita.com || pm2 start dist/index.js --name api.resumevita.com
             pm2 save
