@@ -80,14 +80,20 @@ jobs:
             echo '=== Creating temp directory ==='
             mkdir -p $TEMP_PATH
             
+            echo '=== Setting up permissions ==='
+            sudo chown -R ubuntu:ubuntu /home/resumevita-api/htdocs
+            sudo chmod -R 775 /home/resumevita-api/htdocs
+            
             echo '=== Creating deploy directory ==='
-            sudo mkdir -p $DEPLOY_PATH
-            sudo chown -R ubuntu:ubuntu $DEPLOY_PATH
-            sudo chmod -R 775 $DEPLOY_PATH
+            mkdir -p $DEPLOY_PATH
             
             echo '=== Directory permissions after creation ==='
+            echo '--- Temp directory ---'
             ls -la $TEMP_PATH/
+            echo '--- Deploy directory ---'
             ls -la $DEPLOY_PATH/
+            echo '--- Parent directory ---'
+            ls -la /home/resumevita-api/htdocs/
           "
           
           echo "Uploading zip file to temp directory..."
@@ -97,7 +103,7 @@ jobs:
           echo "Moving files and setting up..."
           sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no ubuntu@$SSH_HOST "
             echo '=== Moving zip to deploy directory ==='
-            sudo rm -rf $DEPLOY_PATH/*
+            rm -rf $DEPLOY_PATH/*
             cp $TEMP_PATH/deploy.zip $DEPLOY_PATH/
             cd $DEPLOY_PATH || exit 1
             
