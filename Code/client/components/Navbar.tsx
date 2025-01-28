@@ -5,19 +5,20 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
+import { FaKey, FaSignOutAlt, FaFileAlt, FaCog, FaBlog } from "react-icons/fa";
 
 const defaultNavigation = [
   { name: "Home", href: "/" },
   { name: "Features", href: "/features" },
-  { name: "Blog", href: "/blog" },
-  { name: "🔑 Login", href: "/api/auth/login" },
+  { name: (<><FaBlog className="inline-block mr-1" /> Blog</>), href: "/blog" },
+  { name: (<><FaKey className="inline-block mr-1" /> Login</>), href: "/api/auth/login" },
 ];
 
 const authenticatedNavigation = [
-  { name: "📄 Your Resume", href: "/resume" },
-  { name: "⚙️ Account & Settings", href: "/account" },
-  { name: "Blog", href: "/blog" },
-  { name: "🔓 Sign out", href: "/api/auth/logout" },
+  { name: (<><FaFileAlt className="inline-block mr-1" /> Your Resume</>), href: "/resume" },
+  { name: (<><FaCog className="inline-block mr-1" /> Account & Settings</>), href: "/account" },
+  { name: (<><FaBlog className="inline-block mr-1" /> Blog</>), href: "/blog" },
+  { name: (<><FaSignOutAlt className="inline-block mr-1" /> Sign out</>), href: "/api/auth/logout" },
 ];
 
 function classNames(...classes: string[]) {
