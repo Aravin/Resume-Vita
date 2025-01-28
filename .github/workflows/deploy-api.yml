@@ -40,7 +40,7 @@ jobs:
         working-directory: Code/api
         run: yarn build
 
-      - name: Backup and prepare for deployment
+      - name: Backup current deployment
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -48,13 +48,11 @@ jobs:
           password: ${{ secrets.SFTP_PASSWORD }}
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
-            # Create backups directory if it doesn't exist
-            mkdir -p backups
-            # Create backup with timestamp
             if [ -d "dist" ]; then
-              tar -czf backups/backup_$(date +%Y%m%d_%H%M%S).tar.gz dist/
-              # Keep only last 5 backups
-              ls -t backups/backup_*.tar.gz | tail -n +6 | xargs rm -f 2>/dev/null || true
+              timestamp=$(date +%Y%m%d_%H%M%S)
+              mkdir -p backups
+              cp -r dist "backups/dist_$timestamp"
+              find backups -type d -name "dist_*" -mtime +5 -exec rm -rf {} \;
             fi
 
       - name: Deploy to server
@@ -78,9 +76,6 @@ jobs:
             cd ${{ secrets.DEPLOY_PATH }}
             export PUPPETEER_SKIP_DOWNLOAD=true
             yarn install --production --frozen-lockfile
-            # Stop the current process if running
             pm2 stop api.resumevita.com || true
-            # Start with new code
             pm2 start dist/index.js --name api.resumevita.com
-            # Save PM2 process list
             pm2 save
