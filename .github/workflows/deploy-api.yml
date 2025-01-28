@@ -59,6 +59,9 @@ jobs:
             echo '=== Current processes ==='
             ps aux | grep node
             
+            echo '=== Installing PM2 globally ==='
+            sudo npm install -g pm2
+            
             echo '=== PM2 status ==='
             sudo pm2 list || echo 'PM2 not running'
           "
