@@ -14,7 +14,7 @@ jobs:
     environment: cloudpanel
     env:
       PUPPETEER_SKIP_DOWNLOAD: "true"
-      DEPLOY_PATH: "/htdocs/api.resumevita.com"
+      DEPLOY_PATH: "/home/resumevita-github-ssh/htdocs/api.resumevita.com"
     
     steps:
       - name: Checkout code
