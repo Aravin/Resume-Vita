@@ -43,24 +43,31 @@ jobs:
           echo "Username length: ${#SFTP_USER}"
           echo "Password length: ${#SFTP_PASS}"
           echo "Host: $SFTP_HOST"
-          echo "Attempting simple SSH connection..."
-          sshpass -p "$SFTP_PASS" ssh -v -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "echo 'Connection test'"
+          echo "Deploy path: $DEPLOY_PATH"
+          echo "Checking server environment..."
+          sshpass -p "$SFTP_PASS" ssh -v -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "
+            echo 'Current directory:' && pwd && \
+            echo 'Can we access deploy path?' && \
+            ls -la $DEPLOY_PATH 2>&1 || echo 'Cannot access deploy path' && \
+            echo 'Parent directory access?' && \
+            ls -la \$(dirname $DEPLOY_PATH) 2>&1 || echo 'Cannot access parent'"
         env:
           SFTP_USER: ${{ secrets.SFTP_USERNAME }}
           SFTP_PASS: ${{ secrets.SFTP_PASSWORD }}
           SFTP_HOST: ${{ secrets.SERVER_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
 
       - name: Deploy to server
         run: |
           cd Code/api
           echo "Creating dist directory..."
-          sshpass -p "$SFTP_PASS" ssh -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "mkdir -p $DEPLOY_PATH/dist"
+          sshpass -p "$SFTP_PASS" ssh -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "mkdir -p $DEPLOY_PATH/dist" || echo "Failed to create directory"
           
           echo "Copying dist files..."
-          sshpass -p "$SFTP_PASS" scp -v -o StrictHostKeyChecking=no -r dist/* $SFTP_USER@$SFTP_HOST:$DEPLOY_PATH/dist/
+          sshpass -p "$SFTP_PASS" scp -v -o StrictHostKeyChecking=no -r dist/* $SFTP_USER@$SFTP_HOST:$DEPLOY_PATH/dist/ || echo "Failed to copy dist"
           
           echo "Copying package files..."
-          sshpass -p "$SFTP_PASS" scp -v -o StrictHostKeyChecking=no package.json yarn.lock $SFTP_USER@$SFTP_HOST:$DEPLOY_PATH/
+          sshpass -p "$SFTP_PASS" scp -v -o StrictHostKeyChecking=no package.json yarn.lock $SFTP_USER@$SFTP_HOST:$DEPLOY_PATH/ || echo "Failed to copy package files"
           
           echo "Running deployment commands..."
           sshpass -p "$SFTP_PASS" ssh -o StrictHostKeyChecking=no $SFTP_USER@$SFTP_HOST "cd $DEPLOY_PATH && \
