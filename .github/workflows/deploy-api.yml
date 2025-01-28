@@ -32,16 +32,18 @@ jobs:
         run: yarn build
 
       - name: Deploy via SFTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        uses: ssh-actions/ssh-sftp-action@main
         with:
-          server: ${{ secrets.SERVER_HOST }}
+          host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SFTP_USERNAME }}
           password: ${{ secrets.SFTP_PASSWORD }}
-          protocol: sftp
-          port: 22
-          local-dir: ./Code/api/
-          server-dir: ${{ secrets.DEPLOY_PATH }}/
-          exclude: |
+          port: '22'
+          upload-from: |
+            Code/api/dist
+            Code/api/package.json
+            Code/api/yarn.lock
+          upload-to: ${{ secrets.DEPLOY_PATH }}
+          ignore-files: |
             **/.git*
             **/.git*/**
             **/node_modules/**
