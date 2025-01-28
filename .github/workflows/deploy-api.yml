@@ -1,74 +1,74 @@
-name: Deploy API to AWS CloudPanel
+# name: Deploy API to AWS CloudPanel
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'Code/api/**'
-      - '.github/workflows/deploy-api.yml'
+# on:
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - 'Code/api/**'
+#       - '.github/workflows/deploy-api.yml'
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    environment: cloudpanel
-    env:
-      PUPPETEER_SKIP_DOWNLOAD: "true"
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     environment: cloudpanel
+#     env:
+#       PUPPETEER_SKIP_DOWNLOAD: "true"
     
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'yarn'
-          cache-dependency-path: 'Code/api/yarn.lock'
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '18'
+#           cache: 'yarn'
+#           cache-dependency-path: 'Code/api/yarn.lock'
 
-      - name: Install dependencies
-        working-directory: Code/api
-        run: yarn install --frozen-lockfile
+#       - name: Install dependencies
+#         working-directory: Code/api
+#         run: yarn install --frozen-lockfile
 
-      - name: Build application
-        working-directory: Code/api
-        run: yarn build
+#       - name: Build application
+#         working-directory: Code/api
+#         run: yarn build
 
-      - name: Install sshpass
-        run: sudo apt-get install -y sshpass
+#       - name: Install sshpass
+#         run: sudo apt-get install -y sshpass
 
-      - name: Debug Connection
-        run: |
-          echo "Testing connection..."
-          echo "Username length: ${#SFTP_USER}"
-          echo "Password length: ${#SFTP_PASS}"
-          echo "Host: $SFTP_HOST"
-          echo "Deploy path: $DEPLOY_PATH"
+#       - name: Debug Connection
+#         run: |
+#           echo "Testing connection..."
+#           echo "Username length: ${#SFTP_USER}"
+#           echo "Password length: ${#SFTP_PASS}"
+#           echo "Host: $SFTP_HOST"
+#           echo "Deploy path: $DEPLOY_PATH"
           
-          # Test basic SFTP connection
-          echo "Step 1: Testing basic SFTP connection..."
-          sshpass -p "$SFTP_PASS" sftp -o StrictHostKeyChecking=no -b - $SFTP_USER@$SFTP_HOST <<EOF
-          ls
-          EOF
-        env:
-          SFTP_USER: ${{ secrets.SFTP_USERNAME }}
-          SFTP_PASS: ${{ secrets.SFTP_PASSWORD }}
-          SFTP_HOST: ${{ secrets.SERVER_HOST }}:22
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+#           # Test basic SFTP connection
+#           echo "Step 1: Testing basic SFTP connection..."
+#           sshpass -p "$SFTP_PASS" sftp -o StrictHostKeyChecking=no -b - $SFTP_USER@$SFTP_HOST <<EOF
+#           ls
+#           EOF
+#         env:
+#           SFTP_USER: ${{ secrets.SFTP_USERNAME }}
+#           SFTP_PASS: ${{ secrets.SFTP_PASSWORD }}
+#           SFTP_HOST: ${{ secrets.SERVER_HOST }}:22
+#           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
 
-      - name: Deploy with SFTP
-        if: success()
-        run: |
-          cd Code/api
-          echo "Uploading dist files via SFTP..."
-          sshpass -p "$SFTP_PASS" sftp -o StrictHostKeyChecking=no -b - $SFTP_USER@$SFTP_HOST <<EOF
-          mkdir -p $DEPLOY_PATH/dist
-          put -r dist/* $DEPLOY_PATH/dist/
-          put package.json $DEPLOY_PATH/
-          put yarn.lock $DEPLOY_PATH/
-          EOF
-        env:
-          SFTP_USER: ${{ secrets.SFTP_USERNAME }}
-          SFTP_PASS: ${{ secrets.SFTP_PASSWORD }}
-          SFTP_HOST: ${{ secrets.SERVER_HOST }}:22
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+#       - name: Deploy with SFTP
+#         if: success()
+#         run: |
+#           cd Code/api
+#           echo "Uploading dist files via SFTP..."
+#           sshpass -p "$SFTP_PASS" sftp -o StrictHostKeyChecking=no -b - $SFTP_USER@$SFTP_HOST <<EOF
+#           mkdir -p $DEPLOY_PATH/dist
+#           put -r dist/* $DEPLOY_PATH/dist/
+#           put package.json $DEPLOY_PATH/
+#           put yarn.lock $DEPLOY_PATH/
+#           EOF
+#         env:
+#           SFTP_USER: ${{ secrets.SFTP_USERNAME }}
+#           SFTP_PASS: ${{ secrets.SFTP_PASSWORD }}
+#           SFTP_HOST: ${{ secrets.SERVER_HOST }}:22
+#           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
