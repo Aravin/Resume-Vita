@@ -82,13 +82,12 @@ jobs:
             
             echo '=== Creating deploy directory ==='
             sudo mkdir -p $DEPLOY_PATH
-            sudo chown -R ubuntu:ubuntu /home/resumevita-api/htdocs
-            sudo chmod -R 775 /home/resumevita-api/htdocs
+            sudo chown -R ubuntu:ubuntu $DEPLOY_PATH
+            sudo chmod -R 775 $DEPLOY_PATH
             
             echo '=== Directory permissions after creation ==='
             ls -la $TEMP_PATH/
-            sudo ls -la $DEPLOY_PATH/
-            sudo ls -la /home/resumevita-api/htdocs/
+            ls -la $DEPLOY_PATH/
           "
           
           echo "Uploading zip file to temp directory..."
@@ -99,39 +98,38 @@ jobs:
           sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no ubuntu@$SSH_HOST "
             echo '=== Moving zip to deploy directory ==='
             sudo rm -rf $DEPLOY_PATH/*
-            sudo cp $TEMP_PATH/deploy.zip $DEPLOY_PATH/
-            cd $DEPLOY_PATH
+            cp $TEMP_PATH/deploy.zip $DEPLOY_PATH/
+            cd $DEPLOY_PATH || exit 1
             
             echo '=== Current directory contents before extraction ==='
-            sudo ls -la
+            ls -la
             
             echo '=== Extracting files ==='
-            sudo unzip -o deploy.zip
-            sudo chown -R ubuntu:ubuntu .
+            unzip -o deploy.zip
             
             echo '=== Directory contents after extraction ==='
-            sudo ls -la
+            ls -la
             
             echo '=== Cleaning up ==='
-            sudo rm -f deploy.zip
+            rm -f deploy.zip
             rm -rf $TEMP_PATH
             
             echo '=== Installing dependencies ==='
             export PUPPETEER_SKIP_DOWNLOAD=true
-            cd $DEPLOY_PATH
+            which yarn
+            yarn --version
             yarn install
             
             echo '=== Starting service ==='
             sudo pkill -f 'node dist/index.js' || true
-            cd $DEPLOY_PATH
             sudo nohup node dist/index.js > app.log 2>&1 &
             sleep 2
             echo '=== Service logs ==='
-            tail -n 20 app.log
+            tail -n 20 app.log || cat app.log
             
             echo '=== Setting final permissions ==='
-            sudo chown -R resumevita-api:resumevita-api /home/resumevita-api/htdocs
-            sudo chmod -R 770 /home/resumevita-api/htdocs
+            sudo chown -R resumevita-api:resumevita-api $DEPLOY_PATH
+            sudo chmod -R 770 $DEPLOY_PATH
           "
         env:
           SSH_PASS: ${{ secrets.SSH_PASSWORD }}
