@@ -53,33 +53,25 @@ jobs:
           SSH_PASS: ${{ secrets.SSH_PASSWORD }}
           SSH_HOST: 3.7.54.65
 
-      - name: Setup deploy directory
-        run: |
-          echo "Setting up deploy directory with correct permissions..."
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "
-            mkdir -p $DEPLOY_PATH && \
-            chmod -R 755 $DEPLOY_PATH
-          "
-        env:
-          SSH_USER: ${{ secrets.SSH_USERNAME }}
-          SSH_PASS: ${{ secrets.SSH_PASSWORD }}
-          SSH_HOST: 3.7.54.65
-
-      - name: Deploy with SSH
+      - name: Prepare and deploy files
         if: success()
         run: |
           cd Code/api
-          echo "Creating dist directory..."
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "mkdir -p $DEPLOY_PATH/dist"
           
-          echo "Copying dist files..."
-          sshpass -p "$SSH_PASS" scp -r dist/* $SSH_USER@$SSH_HOST:$DEPLOY_PATH/dist/
+          # Create deployment package
+          echo "Creating deployment package..."
+          zip -r deploy.zip dist package.json yarn.lock
           
-          echo "Copying package files..."
-          sshpass -p "$SSH_PASS" scp package.json yarn.lock $SSH_USER@$SSH_HOST:$DEPLOY_PATH/
+          # Create directory and upload zip
+          echo "Creating directory and uploading files..."
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "mkdir -p $DEPLOY_PATH"
+          sshpass -p "$SSH_PASS" scp deploy.zip $SSH_USER@$SSH_HOST:$DEPLOY_PATH/
           
-          echo "Installing dependencies and starting service..."
+          # Extract and setup on server
+          echo "Extracting and setting up on server..."
           sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "cd $DEPLOY_PATH && \
+            unzip -o deploy.zip && \
+            rm deploy.zip && \
             export PUPPETEER_SKIP_DOWNLOAD=true && \
             yarn install --production --frozen-lockfile && \
             pm2 stop api.resumevita.com || true && \
