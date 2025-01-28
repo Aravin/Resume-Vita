@@ -32,56 +32,36 @@ jobs:
         working-directory: Code/api
         run: yarn build
 
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
+      - name: Deploy to CloudPanel via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          username: ${{ secrets.SFTP_USERNAME }}
+          server: ${{ secrets.SERVER_HOST }}
+          port: 22
+          password: ${{ secrets.SFTP_PASSWORD }}
+          local_path: './Code/api/dist/*'
+          remote_path: ${{ secrets.DEPLOY_PATH }}/dist
+          sftp_only: true
           
-          # Create SSH config
-          echo "Host *
-            IdentityFile ~/.ssh/deploy_key
-            UserKnownHostsFile ~/.ssh/known_hosts
-            StrictHostKeyChecking yes" > ~/.ssh/config
-          
-          # Debug SSH setup
-          ls -la ~/.ssh/
-          echo "Testing SSH connection..."
-          ssh -v -i ~/.ssh/deploy_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "echo 'SSH connection successful'"
+      - name: Deploy package files
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          username: ${{ secrets.SFTP_USERNAME }}
+          server: ${{ secrets.SERVER_HOST }}
+          port: 22
+          password: ${{ secrets.SFTP_PASSWORD }}
+          local_path: './Code/api/package.json,./Code/api/yarn.lock'
+          remote_path: ${{ secrets.DEPLOY_PATH }}
+          sftp_only: true
 
-      - name: Deploy to CloudPanel
-        env:
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-        run: |
-          # Create deployment archive
-          cd Code/api
-          tar -czf deploy.tar.gz dist/ package.json yarn.lock
-
-          # Upload to server
-          scp -i ~/.ssh/deploy_key deploy.tar.gz $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH/
-
-          # Execute deployment commands
-          ssh -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && \
-            # Stop PM2 service
-            pm2 stop api.resumevita.com || true && \
-            # Create backup directory if it doesn't exist
-            mkdir -p ./backups && \
-            # Create backup with timestamp
-            tar -czf ./backups/backup_\$(date +%Y%m%d_%H%M%S).tar.gz dist/ node_modules/ package.json yarn.lock && \
-            # Clean old backups (keep last 5)
-            ls -t ./backups/backup_*.tar.gz | tail -n +6 | xargs rm -f 2>/dev/null || true && \
-            # Extract new deployment (preserve .env)
-            tar -xzf deploy.tar.gz && \
-            # Install dependencies
-            yarn install --production --frozen-lockfile && \
-            # Start PM2 service with the new code
-            pm2 delete api.resumevita.com || true && \
-            pm2 start dist/index.js --name api.resumevita.com && \
-            # Save PM2 process list
-            pm2 save && \
-            # Cleanup
-            rm deploy.tar.gz"
+      - name: Install dependencies and restart PM2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            yarn install --production --frozen-lockfile
+            pm2 restart api.resumevita.com || pm2 start dist/index.js --name api.resumevita.com
+            pm2 save
