@@ -39,6 +39,12 @@ const useFetch = <T>(url: string | null) => {
         const response = await fetch(url, { signal });
         
         if (!response.ok) {
+          if (response.status === 404) {
+            if (isMounted && !signal.aborted) {
+              setState({ data: null, fetching: false, fetchError: null });
+            }
+            return;
+          }
           throw new Error(
             `HTTP error! status: ${response.status} - ${response.statusText}`
           );
