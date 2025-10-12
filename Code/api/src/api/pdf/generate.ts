@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 import { s3Client } from "../../helpers/s3";
 import { appConfig } from '../../config';
 import { PutObjectCommand } from "@aws-sdk/client-s3";
@@ -14,8 +14,21 @@ export async function generatePDF(req: Request, res: Response) {
         return res.sendStatus(400);
     }
 
-    // open the browser
-    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+    // open the browser with Cloud Run compatible options
+    const browser = await puppeteer.launch({
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process',
+            '--disable-gpu'
+        ],
+        headless: true,
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined
+    });
 
     try {
 
