@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@auth0/nextjs-auth0';
 import AWS from 'aws-sdk';
 
 // Configure AWS S3
@@ -14,20 +13,6 @@ export async function GET(
   { params }: { params: { userId: string } }
 ) {
   try {
-    // Check authentication
-    const session = await getSession();
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Extract user ID from Auth0 session
-    const sessionUserId = session.user.sub?.split("|")[1];
-    
-    // Check authorization - user can only access their own files
-    if (sessionUserId !== params.userId) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
     const bucketName = process.env.AWS_S3_BUCKET || 'resume-vita-bucket';
     const fileKey = `${params.userId}/${params.userId}.pdf`;
     
@@ -64,16 +49,6 @@ export async function POST(
   { params }: { params: { userId: string } }
 ) {
   try {
-    const session = await getSession();
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const sessionUserId = session.user.sub?.split("|")[1];
-    if (sessionUserId !== params.userId) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
     const { fileType = 'pdf' } = await request.json();
     const bucketName = process.env.AWS_S3_BUCKET || 'resume-vita-bucket';
     const fileKey = `${params.userId}/${params.userId}.${fileType}`;
