@@ -17,7 +17,7 @@ export async function addResume(req: Request, res: Response) {
         }
 
         // collections
-        const collection = (res.locals.db as MongoClient).db("resumeTree").collection("resumes");
+        const collection = (res.locals.db as MongoClient).db("resumevita").collection("resumes");
 
         const query = { user: body.user };
         const date = new Date();

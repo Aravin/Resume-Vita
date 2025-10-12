@@ -8,7 +8,7 @@ export async function reports(req: Request, res: Response) {
         const body = req.body;
 
         // collections
-        const collection = (res.locals.db as MongoClient).db("resumeTree").collection("resumes");
+        const collection = (res.locals.db as MongoClient).db("resumevita").collection("resumes");
 
         const savedResumes = await collection.estimatedDocumentCount();
         const generatedResumes = await collection.countDocuments({ 'isPDFGenerated': true });

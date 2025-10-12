@@ -13,7 +13,7 @@ export async function addAccount(req: Request, res: Response) {
         }
 
         // collections
-        const collection = (res.locals.db as MongoClient).db("resumeTree").collection("users");
+        const collection = (res.locals.db as MongoClient).db("resumevita").collection("users");
 
         const response = await collection.insertOne(body);
 

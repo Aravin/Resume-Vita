@@ -73,7 +73,7 @@ export async function generatePDF(req: Request, res: Response) {
         await Promise.all([saveToAWS(PdfParams), saveToAWS(HTMLparams), saveToAWS(ImgParams)]);
 
         // update to DB as PDF generated
-        const collection = await (res.locals.db as MongoClient).db("resumeTree").collection("resumes");
+        const collection = await (res.locals.db as MongoClient).db("resumevita").collection("resumes");
 
         const query = { user: user };
         const update = { $set: { isPDFGenerated: true, color, template, pdf_generated_date: new Date() } };

@@ -12,7 +12,7 @@ export async function getATSScore(req: Request, res: Response) {
         }
 
         // collections
-        const collection = (res.locals.db as MongoClient).db("resumeTree").collection("resumes");
+        const collection = (res.locals.db as MongoClient).db("resumevita").collection("resumes");
 
         const query = { user: params.userId };
 
