@@ -16,8 +16,8 @@ export default function Banner() {
         <div className="flex items-center gap-3">
           <FaExclamationTriangle className="text-lg flex-shrink-0" />
           <div className="text-sm md:text-base">
-            <strong>Backend Maintenance:</strong> We're currently experiencing backend issues. 
-            Some features may be temporarily unavailable. We're working to restore full functionality soon.
+            <strong>Backend Maintenance:</strong> We&apos;re currently experiencing backend issues. 
+            Some features may be temporarily unavailable. We&apos;re working to restore full functionality soon.
           </div>
         </div>
         <button
