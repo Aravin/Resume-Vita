@@ -1,29 +1,50 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSignedUrl } from "@/hooks/useSignedUrl";
 
 export default function Page({ params }: { params: { id: string } }) {
   const id = params.id;
-  const path = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${id}/${id}.pdf`;
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { getSignedUrl } = useSignedUrl();
 
   useEffect(() => {
-    const checkPdfExists = async () => {
+    const loadSignedUrl = async () => {
       try {
-        const response = await fetch(path, { method: 'HEAD' });
-        if (!response.ok) {
-          setError('Resume not found or no longer available.');
-        }
+        setIsLoading(true);
+        setError(null);
+        const url = await getSignedUrl(id);
+        setSignedUrl(url);
       } catch (err) {
-        setError('Unable to load the resume. Please try again later.');
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+        if (errorMessage.includes('PDF not found')) {
+          setError('Resume not found or no longer available.');
+        } else {
+          setError('Unable to load the resume. Please try again later.');
+        }
+      } finally {
+        setIsLoading(false);
       }
     };
-    checkPdfExists();
-  }, [path]);
+    loadSignedUrl();
+  }, [id, getSignedUrl]);
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white" style={{ zIndex: 9999 }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading resume...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (
-      <div className="top-0 left-0 bottom-0 right-0 absolute flex items-center justify-center">
+      <div className="fixed inset-0 flex items-center justify-center bg-white" style={{ zIndex: 9999 }}>
         <div className="text-center">
           <h1 className="text-2xl font-semibold text-error mb-4">{error}</h1>
           <p className="text-gray-600">
@@ -34,18 +55,31 @@ export default function Page({ params }: { params: { id: string } }) {
     );
   }
 
+  if (!signedUrl) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white" style={{ zIndex: 9999 }}>
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold text-error mb-4">Unable to load resume</h1>
+          <p className="text-gray-600">
+            Please try again later.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="top-0 left-0 bottom-0 right-0 absolute">
+    <div className="fixed inset-0 bg-white" style={{ zIndex: 9999 }}>
       <object
-        className="w-full h-screen"
-        data={path}
+        className="w-full h-full"
+        data={signedUrl}
         type="application/pdf"
       >
         <div className="flex items-center justify-center h-full">
           <div className="text-center p-4">
             <p className="mb-2">Unable to display the PDF in your browser.</p>
             <a 
-              href={path}
+              href={signedUrl}
               className="text-primary hover:underline"
               target="_blank"
               rel="noopener noreferrer"
