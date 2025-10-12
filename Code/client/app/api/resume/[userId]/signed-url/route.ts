@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import AWS from 'aws-sdk';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 // Configure AWS S3
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+const s3Client = new S3Client({
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
   region: process.env.AWS_S3_REGION || 'ap-south-2',
 });
 
@@ -16,12 +19,14 @@ export async function GET(
     const bucketName = process.env.AWS_S3_BUCKET || 'resume-vita-bucket';
     const fileKey = `${params.userId}/${params.userId}.pdf`;
     
-    // Generate signed URL (expires in 1 hour)
-    const signedUrl = s3.getSignedUrl('getObject', {
+    // Create the command
+    const command = new GetObjectCommand({
       Bucket: bucketName,
       Key: fileKey,
-      Expires: 3600, // 1 hour
     });
+    
+    // Generate signed URL (expires in 1 hour)
+    const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
 
     return NextResponse.json({ 
       signedUrl,
@@ -32,7 +37,7 @@ export async function GET(
   } catch (error) {
     console.error('Error generating signed URL:', error);
     
-    if (error instanceof Error && 'code' in error && error.code === 'NoSuchKey') {
+    if (error instanceof Error && 'name' in error && error.name === 'NoSuchKey') {
       return NextResponse.json({ error: 'PDF not found' }, { status: 404 });
     }
     
@@ -53,11 +58,14 @@ export async function POST(
     const bucketName = process.env.AWS_S3_BUCKET || 'resume-vita-bucket';
     const fileKey = `${params.userId}/${params.userId}.${fileType}`;
     
-    const signedUrl = s3.getSignedUrl('getObject', {
+    // Create the command
+    const command = new GetObjectCommand({
       Bucket: bucketName,
       Key: fileKey,
-      Expires: 3600,
     });
+    
+    // Generate signed URL (expires in 1 hour)
+    const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
 
     return NextResponse.json({ 
       signedUrl,
