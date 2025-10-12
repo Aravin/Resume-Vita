@@ -8,6 +8,7 @@ import { FaFilePdf, FaEdit } from "react-icons/fa";
 import { AiFillFileAdd, AiFillEdit } from "react-icons/ai";
 import Loader from "../../components/Loader";
 import useFetch from "../../hooks/useFetch";
+import { useSignedUrl } from "../../hooks/useSignedUrl";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
 
 interface ResumeData {
@@ -30,6 +31,8 @@ interface ResumeData {
 export default function Page() {
   const { user, error: authError, isLoading: authLoading } = useUser();
   const [isImageLoading, setIsImageLoading] = useState(true);
+  const [imageUrl, setImageUrl] = useState<string>('');
+  const { getSignedUrl, isLoading: isSignedUrlLoading, error: signedUrlError } = useSignedUrl();
   
   const userId = useMemo(() => {
     if (!user?.sub) return null;
@@ -42,33 +45,48 @@ export default function Page() {
       : null
   );
 
+  // Load signed URL for image preview
+  React.useEffect(() => {
+    if (userId && data?.isPDFGenerated) {
+      getSignedUrl(userId, 'webp')
+        .then(url => setImageUrl(url))
+        .catch(error => {
+          console.error('Failed to get image signed URL:', error);
+          // Fallback to direct URL if signed URL fails
+          const s3BaseUrl = process.env.NEXT_PUBLIC_S3_BUCKET || '';
+          const s3Url = s3BaseUrl.startsWith('http') ? s3BaseUrl : `https://${s3BaseUrl}`;
+          setImageUrl(`${s3Url}/${userId}/${userId}.webp?t=${Date.now()}`);
+        });
+    }
+  }, [userId, data?.isPDFGenerated, getSignedUrl]);
+
   // Memoized handler to prevent recreating on each render
   const handleDownload = React.useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!userId) return;
     
     try {
-      const downloadUrl = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
-      const response = await fetch(downloadUrl);
-      const blob = await response.blob();
+      // Get signed URL for download
+      const signedUrl = await getSignedUrl(userId, 'pdf');
       
       // Create a temporary link element
       const link = document.createElement('a');
-      link.href = window.URL.createObjectURL(blob);
+      link.href = signedUrl;
       link.download = `resume.pdf`;  // Set the download filename
+      link.target = "_blank";
       
       // Append to body, click, and remove
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
-      // Clean up the URL object
-      window.URL.revokeObjectURL(link.href);
     } catch (error) {
       console.error('Download failed:', error);
-      // You might want to show an error message to the user here
+      if (signedUrlError) {
+        console.error('Signed URL error:', signedUrlError);
+      }
     }
-  }, [userId]);
+  }, [userId, getSignedUrl, signedUrlError]);
 
   if (authLoading) {
     return (
@@ -167,7 +185,7 @@ export default function Page() {
                         )}
                         <Image
                           className="cursor-pointer hover:opacity-50 transition-opacity object-cover object-top"
-                          src={`${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.webp?t=${Date.now()}`}
+                          src={imageUrl || `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.webp?t=${Date.now()}`}
                           width={240}
                           height={339}
                           alt="PDF Preview"
@@ -207,9 +225,11 @@ export default function Page() {
                   <button
                     className="btn btn-outline btn-accent w-full h-12 normal-case"
                     onClick={handleDownload}
+                    disabled={isSignedUrlLoading}
                     aria-label="Download resume"
                   >
-                    <FaFilePdf className="mr-2" /> Download Resume
+                    <FaFilePdf className="mr-2" /> 
+                    {isSignedUrlLoading ? 'Generating...' : 'Download Resume'}
                   </button>
 
                   <a
