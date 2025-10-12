@@ -35,5 +35,8 @@ EXPOSE 8080
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
+# Set default port (can be overridden by Cloud Run)
+ENV PORT=8080
+
 # Start the application
 CMD ["yarn", "start"]
