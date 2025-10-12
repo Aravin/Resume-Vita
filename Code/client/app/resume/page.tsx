@@ -32,6 +32,7 @@ export default function Page() {
   const { user, error: authError, isLoading: authLoading } = useUser();
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [imageUrl, setImageUrl] = useState<string>('');
+  const [downloadError, setDownloadError] = useState<string | null>(null);
   const { getSignedUrl, isLoading: isSignedUrlLoading, error: signedUrlError } = useSignedUrl();
   
   const userId = useMemo(() => {
@@ -64,45 +65,65 @@ export default function Page() {
     e.preventDefault();
     if (!userId) return;
     
+    setDownloadError(null); // Clear previous errors
+    
     try {
       // Get signed URL for download
       const signedUrl = await getSignedUrl(userId, 'pdf');
       
-      // Fetch the PDF as blob to avoid popup blockers
-      const response = await fetch(signedUrl);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
+      // Try blob download first (better for avoiding popup blockers)
+      try {
+        const response = await fetch(signedUrl);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
+        }
+        
+        const blob = await response.blob();
+        
+        if (blob.size === 0) {
+          throw new Error('Downloaded file is empty');
+        }
+        
+        // Create blob URL and trigger download
+        const blobUrl = window.URL.createObjectURL(blob);
+        
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = "ResumeVita.pdf";
+        link.style.display = 'none';
+        
+        // Add to DOM, click, and remove
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up after a short delay
+        setTimeout(() => {
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(blobUrl);
+        }, 100);
+        
+      } catch (blobError) {
+        // Fallback: Direct download using signed URL
+        const link = document.createElement("a");
+        link.href = signedUrl;
+        link.download = "ResumeVita.pdf";
+        link.target = "_blank";
+        link.style.display = 'none';
+        
+        document.body.appendChild(link);
+        link.click();
+        
+        setTimeout(() => {
+          document.body.removeChild(link);
+        }, 100);
       }
-      
-      const blob = await response.blob();
-      
-      if (blob.size === 0) {
-        throw new Error('Downloaded file is empty');
-      }
-      
-      // Create blob URL and trigger download
-      const blobUrl = window.URL.createObjectURL(blob);
-      
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = "ResumeVita.pdf";
-      link.style.display = 'none';
-      
-      // Add to DOM, click, and remove
-      document.body.appendChild(link);
-      link.click();
-      
-      // Clean up after a short delay
-      setTimeout(() => {
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(blobUrl);
-      }, 100);
       
     } catch (error) {
-      // Handle download error silently
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setDownloadError(errorMessage);
     }
-  }, [userId, getSignedUrl, signedUrlError]);
+  }, [userId, getSignedUrl]);
 
   if (authLoading) {
     return (
@@ -231,6 +252,22 @@ export default function Page() {
               {/* Actions Card */}
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <h3 className="text-lg font-semibold mb-6">Actions</h3>
+                
+                {/* Download Error Display */}
+                {downloadError && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                    <div className="text-red-800 text-sm">
+                      <strong>Download Error:</strong> {downloadError}
+                    </div>
+                    <button 
+                      onClick={() => setDownloadError(null)}
+                      className="text-red-600 text-xs mt-1 hover:underline"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
+                
                 <div className="space-y-3">
                   <Link href="/resume/create" passHref>
                     <button className="btn btn-outline btn-primary w-full h-12 normal-case" aria-label="Edit resume">
