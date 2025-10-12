@@ -100,10 +100,7 @@ export default function Page() {
       }, 100);
       
     } catch (error) {
-      console.error('Download failed:', error);
-      if (signedUrlError) {
-        console.error('Signed URL error:', signedUrlError);
-      }
+      // Handle download error silently
     }
   }, [userId, getSignedUrl, signedUrlError]);
 
