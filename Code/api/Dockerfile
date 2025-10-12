@@ -19,14 +19,17 @@ WORKDIR /app
 COPY package*.json ./
 COPY yarn.lock ./
 
-# Install dependencies (production only)
-RUN yarn install --frozen-lockfile --production && yarn cache clean
+# Install all dependencies (including dev dependencies for build)
+RUN yarn install --frozen-lockfile && yarn cache clean
 
 # Copy source code
 COPY . .
 
 # Build the application
 RUN yarn build
+
+# Remove dev dependencies after build to reduce image size
+RUN yarn install --production --frozen-lockfile && yarn cache clean
 
 # Expose port
 EXPOSE 8080
