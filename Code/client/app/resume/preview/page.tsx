@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FaFilePdf, FaEdit } from "react-icons/fa";
 import axios from "axios";
 import useFetch from "../../../hooks/useFetch";
+import { useSignedUrl } from "../../../hooks/useSignedUrl";
 import { useEffect, useState, useMemo, memo, useCallback } from "react";
 import Loader from "../../../components/Loader";
 import { Breadcrumbs } from "../../../components/Breadcrumbs";
@@ -65,6 +66,7 @@ export default function Page() {
   const [color, setColor] = useState<keyof typeof colorClasses>("black");
   const [template, setTemplate] = useState<'default' | 'modern'>('default');
   const { user, error: authError, isLoading: authLoading } = useUser();
+  const { getSignedUrl, isLoading: isSignedUrlLoading, error: signedUrlError } = useSignedUrl();
   
   const userId = useMemo(() => {
     if (!user?.sub) return null;
@@ -124,22 +126,27 @@ export default function Page() {
         template,
       };
 
-      // Make API request
+      // Make API request to generate PDF
       await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT}/pdf`, body);
 
+      // Get signed URL for download
+      const signedUrl = await getSignedUrl(userId, 'pdf');
+      
       // Create and trigger download link
-      const downloadUrl = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
       const downloadLink = document.createElement("a");
-      downloadLink.href = downloadUrl;
+      downloadLink.href = signedUrl;
       downloadLink.download = "ResumeVita";
       downloadLink.target = "_blank";
       downloadLink.dispatchEvent(new MouseEvent("click"));
     } catch (error) {
       console.error('Failed to generate PDF:', error);
+      if (signedUrlError) {
+        console.error('Signed URL error:', signedUrlError);
+      }
     } finally {
       setLoader(false);
     }
-  }, [userId, color, template]);
+  }, [userId, color, template, getSignedUrl, signedUrlError]);
 
 
   const handleColorChange = useCallback((newColor: keyof typeof colorClasses) => {
@@ -253,9 +260,12 @@ export default function Page() {
             className="btn btn-sm btn-outline btn-accent gap-2 min-w-[40px]"
             onClick={handleDownload}
             title="Download PDF"
+            disabled={loading || isSignedUrlLoading}
           >
             <FaFilePdf className="text-lg" />
-            <span className="hidden sm:inline">Download PDF</span>
+            <span className="hidden sm:inline">
+              {loading || isSignedUrlLoading ? 'Generating...' : 'Download PDF'}
+            </span>
           </button>
           <Link href="/resume/create" passHref>
             <button 
