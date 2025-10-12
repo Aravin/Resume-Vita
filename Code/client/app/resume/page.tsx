@@ -51,7 +51,6 @@ export default function Page() {
       getSignedUrl(userId, 'webp')
         .then(url => setImageUrl(url))
         .catch(error => {
-          console.error('Failed to get image signed URL:', error);
           // Fallback to direct URL if signed URL fails
           const s3BaseUrl = process.env.NEXT_PUBLIC_S3_BUCKET || '';
           const s3Url = s3BaseUrl.startsWith('http') ? s3BaseUrl : `https://${s3BaseUrl}`;
@@ -69,16 +68,36 @@ export default function Page() {
       // Get signed URL for download
       const signedUrl = await getSignedUrl(userId, 'pdf');
       
-      // Create a temporary link element
-      const link = document.createElement('a');
-      link.href = signedUrl;
-      link.download = `resume.pdf`;  // Set the download filename
-      link.target = "_blank";
+      // Fetch the PDF as blob to avoid popup blockers
+      const response = await fetch(signedUrl);
       
-      // Append to body, click, and remove
+      if (!response.ok) {
+        throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
+      }
+      
+      const blob = await response.blob();
+      
+      if (blob.size === 0) {
+        throw new Error('Downloaded file is empty');
+      }
+      
+      // Create blob URL and trigger download
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = "ResumeVita.pdf";
+      link.style.display = 'none';
+      
+      // Add to DOM, click, and remove
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      
+      // Clean up after a short delay
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+      }, 100);
       
     } catch (error) {
       console.error('Download failed:', error);
