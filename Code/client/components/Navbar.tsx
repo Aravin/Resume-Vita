@@ -35,7 +35,7 @@ export default function Navbar() {
   const { user, error, isLoading } = useUser();
   const path = usePathname();
 
-  const navigation = useMemo(() => {
+  const navItems = useMemo(() => {
     // During loading, show default navigation to prevent hydration mismatch
     if (isLoading) {
       return defaultNavigation;
@@ -67,7 +67,7 @@ export default function Navbar() {
             tabIndex={0}
             className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
           >
-            {navigation.map((nav, i) => (
+            {navItems.map((nav, i) => (
               <li key={nav.href}>
                 {nav.isLogout ? (
                   <a
@@ -101,7 +101,7 @@ export default function Navbar() {
       <div className="navbar-center hidden lg:flex"></div>
       <div className="navbar-end">
         <ul className="menu menu-horizontal px-1 hidden lg:flex">
-          {navigation.map((nav, i) => (
+          {navItems.map((nav, i) => (
             <li key={nav.href}>
               {nav.isLogout ? (
                 <a
