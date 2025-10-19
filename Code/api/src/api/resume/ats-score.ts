@@ -2,6 +2,37 @@ import { Request, Response } from 'express';
 import { MongoClient } from 'mongodb';
 import { calculateATSScore } from '../../helpers/atsScoring';
 
+interface ResumeContent {
+  personal?: {
+    email?: string;
+    phone?: string;
+    summary?: string;
+    name?: string;
+    role?: string;
+    location?: string;
+  };
+  employments?: Array<{
+    title?: string;
+    company?: string;
+    location?: string;
+    startDate?: string;
+    endDate?: string;
+    isCurrent?: boolean;
+    summary?: string;
+  }>;
+  skills?: Array<{
+    name?: string;
+    level?: string;
+  }>;
+  educations?: Array<{
+    institution?: string;
+    subject?: string;
+    startDate?: string;
+    endDate?: string;
+    summary?: string;
+  }>;
+}
+
 export async function getATSScore(req: Request, res: Response) {
     try {
         const params = req.params;
@@ -23,7 +54,7 @@ export async function getATSScore(req: Request, res: Response) {
         }
 
         // Calculate ATS score
-        const atsScore = calculateATSScore(resume);
+        const atsScore = calculateATSScore(resume as ResumeContent);
 
         res.send({ atsScore });
     }
