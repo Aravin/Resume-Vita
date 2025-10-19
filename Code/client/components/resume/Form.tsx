@@ -53,22 +53,24 @@ const FormSection = ({
 );
 
 // Utility function for handling section items
-const createSectionHandlers = (sectionName: string, getValues: any, setResume: any, reset: any) => {
+const createSectionHandlers = (sectionName: string, getValues: any, setResume: any, reset: any, setValue: any) => {
   const handleAdd = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const values = getValues();
     const items = values[sectionName] || [];
-    items.push({});
-    setResume((prev: any) => ({ ...prev, [sectionName]: items }));
-    reset({ ...values, [sectionName]: items });
+    const newItems = [...items, {}];
+    // Update both resume state and form state
+    setResume((prev: any) => ({ ...prev, [sectionName]: newItems }));
+    setValue(sectionName, newItems);
   };
 
   const handleDelete = (index: number) => {
     const values = getValues();
     const items = values[sectionName] || [];
-    items.splice(index, 1);
-    setResume((prev: any) => ({ ...prev, [sectionName]: items }));
-    reset({ ...values, [sectionName]: items });
+    const newItems = items.filter((_: any, i: number) => i !== index);
+    // Update both resume state and form state
+    setResume((prev: any) => ({ ...prev, [sectionName]: newItems }));
+    setValue(sectionName, newItems);
   };
 
   const handleMove = (index: number, direction: 'up' | 'down' | 'top' | 'bottom') => {
@@ -93,17 +95,19 @@ const createSectionHandlers = (sectionName: string, getValues: any, setResume: a
         break;
     }
     
+    // Update both resume state and form state
     setResume((prev: any) => ({ ...prev, [sectionName]: items }));
-    reset({ ...values, [sectionName]: items });
+    setValue(sectionName, items);
   };
 
   const handleReorder = (oldIndex: number, newIndex: number) => {
     const values = getValues();
-    const items = values[sectionName] || [];
+    const items = [...(values[sectionName] || [])];
     const [movedItem] = items.splice(oldIndex, 1);
     items.splice(newIndex, 0, movedItem);
+    // Update both resume state and form state
     setResume((prev: any) => ({ ...prev, [sectionName]: items }));
-    reset({ ...values, [sectionName]: items });
+    setValue(sectionName, items);
   };
 
   return { handleAdd, handleDelete, handleReorder, handleMove };
@@ -188,14 +192,14 @@ export default function ResumeForm() {
 
   // Create handlers for all sections
   const sections = {
-    educations: createSectionHandlers("educations", getValues, setResume, reset),
-    internships: createSectionHandlers("internships", getValues, setResume, reset),
-    employments: createSectionHandlers("employments", getValues, setResume, reset),
-    skills: createSectionHandlers("skills", getValues, setResume, reset),
-    languages: createSectionHandlers("languages", getValues, setResume, reset),
-    links: createSectionHandlers("links", getValues, setResume, reset),
-    courses: createSectionHandlers("courses", getValues, setResume, reset),
-    references: createSectionHandlers("references", getValues, setResume, reset),
+    educations: createSectionHandlers("educations", getValues, setResume, reset, setValue),
+    internships: createSectionHandlers("internships", getValues, setResume, reset, setValue),
+    employments: createSectionHandlers("employments", getValues, setResume, reset, setValue),
+    skills: createSectionHandlers("skills", getValues, setResume, reset, setValue),
+    languages: createSectionHandlers("languages", getValues, setResume, reset, setValue),
+    links: createSectionHandlers("links", getValues, setResume, reset, setValue),
+    courses: createSectionHandlers("courses", getValues, setResume, reset, setValue),
+    references: createSectionHandlers("references", getValues, setResume, reset, setValue),
   };
 
   useEffect(() => {

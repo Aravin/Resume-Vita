@@ -1,6 +1,5 @@
 import { UseFormRegister } from "react-hook-form";
 import { nanoid } from "nanoid";
-import MonthYearPicker from "../common/MonthYearPicker";
 
 interface EducationType {
   register: UseFormRegister<any>;
@@ -64,11 +63,13 @@ export default function EducationForm(prop: EducationType) {
               <label className="label">
                 <span className="label-text text-gray-500">Start Date*</span>
               </label>
-              <MonthYearPicker
-                register={prop.register(`educations.${prop.index}.startDate`)}
+              <input
+                type="month"
+                className={`input input-bordered font-medium ${
+                  prop.errors?.startDate ? "input-error" : ""
+                }`}
                 defaultValue={prop.startDate}
-                hasError={!!prop.errors?.startDate}
-                placeholder="Select start month and year"
+                {...prop.register(`educations.${prop.index}.startDate`)}
               />
             </div>
 
@@ -76,11 +77,13 @@ export default function EducationForm(prop: EducationType) {
               <label className="label">
                 <span className="label-text text-gray-500">End Date*</span>
               </label>
-              <MonthYearPicker
-                register={prop.register(`educations.${prop.index}.endDate`)}
+              <input
+                type="month"
+                className={`input input-bordered font-medium ${
+                  prop.errors?.endDate ? "input-error" : ""
+                }`}
                 defaultValue={prop.endDate}
-                hasError={!!prop.errors?.endDate}
-                placeholder="Select end month and year"
+                {...prop.register(`educations.${prop.index}.endDate`)}
               />
             </div>
           </div>
