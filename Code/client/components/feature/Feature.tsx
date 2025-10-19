@@ -19,10 +19,10 @@ export default function Features() {
                   It&apos;s never been easier to build beautiful resumes/cvs
                   that convey your message and tell your story.
                 </p>
-                <div className="relative flex flex-col sm:flex-row sm:space-x-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <Link
                     href="/resume"
-                    className="flex items-center w-full px-6 py-3 mb-3 text-lg text-white bg-primary rounded-md sm:mb-0 hover:bg-primary-focus sm:w-auto"
+                    className="btn btn-primary btn-lg w-full sm:w-auto"
                   >
                     Try It Free
                     <svg

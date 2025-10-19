@@ -15,7 +15,6 @@ interface NavigationItem {
 }
 
 const defaultNavigation: NavigationItem[] = [
-  { name: (<><FaHome className="inline-block mr-2" /> Home</>), href: "/" },
   { name: (<><FaLayerGroup className="inline-block mr-2" /> Features</>), href: "/features" },
   { name: (<><FaBlog className="inline-block mr-2" /> Blog</>), href: "/blog" },
   { name: (<><FaKey className="inline-block mr-2" /> Login</>), href: "/api/auth/login?returnTo=/resume" },
@@ -45,113 +44,144 @@ export default function Navbar() {
     return user ? authenticatedNavigation : defaultNavigation;
   }, [user, isLoading]);
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
 
   return (
-    <nav className="navbar bg-primary shadow-lg sticky top-0 z-50">
-      <div className="navbar-start">
-        {/* Mobile Menu Button */}
-        <div className="dropdown lg:hidden">
-          <div 
-            tabIndex={0} 
-            role="button" 
-            className="btn btn-ghost btn-circle text-white hover:bg-white/20 transition-all duration-300"
-            onClick={toggleMobileMenu}
-          >
-            {isMobileMenuOpen ? (
-              <FaTimes className="w-5 h-5" />
-            ) : (
+    <>
+      {/* Main Navbar */}
+      <nav className="navbar bg-primary shadow-lg sticky top-0 z-50">
+        <div className="navbar-start">
+          {/* Mobile Menu Button */}
+          <div className="lg:hidden">
+            <button 
+              className="btn btn-ghost btn-circle text-white hover:bg-white/20 transition-all duration-300"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
               <FaBars className="w-5 h-5" />
-            )}
+            </button>
           </div>
           
-          {/* Mobile Menu Dropdown */}
-          <ul
-            tabIndex={0}
-            className={`menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-xl bg-base-100 rounded-box w-64 transform transition-all duration-300 ${
-              isMobileMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
-            }`}
-          >
+          {/* Logo */}
+          <Link href="/" aria-label="Home" className="btn btn-ghost hover:bg-white/10 transition-all duration-300">
+            <Image
+              src="/logo_white.png"
+              width={180}
+              height={35}
+              alt="ResumeVita.com Logo"
+              priority
+              className="hover:scale-105 transition-transform duration-300 w-32 sm:w-40 md:w-48 lg:w-52 h-auto"
+            />
+          </Link>
+        </div>
+        
+        {/* Desktop Menu */}
+        <div className="navbar-end hidden lg:flex">
+          <ul className="menu menu-horizontal px-1">
             {navItems.map((nav, i) => (
               <li key={nav.href}>
                 {nav.isLogout ? (
                   <a
                     href={nav.href}
-                    className={`link transition-all duration-300 hover:bg-primary hover:text-white rounded-lg ${
-                      path === nav.href ? "bg-primary text-white" : ""
+                    className={`btn btn-ghost text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-lg ${
+                      path === nav.href ? "bg-white/20 scale-105" : ""
                     }`}
-                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {nav.name}
                   </a>
                 ) : (
                   <Link
                     href={nav.href}
-                    className={`link transition-all duration-300 hover:bg-primary hover:text-white rounded-lg ${
-                      path === nav.href ? "bg-primary text-white" : ""
+                    className={`btn btn-ghost text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-lg ${
+                      path === nav.href ? "bg-white/20 scale-105" : ""
                     }`}
-                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {nav.name}
                   </Link>
                 )}
               </li>
             ))}
-            {/* Mobile Theme Toggle */}
-            <li className="divider my-2"></li>
-            <li>
-              <div className="px-2">
-                <ThemeToggle />
-              </div>
-            </li>
           </ul>
+          {/* Theme Toggle */}
+          <ThemeToggle />
         </div>
-        
-        {/* Logo */}
-        <Link href="/" aria-label="Home" className="btn btn-ghost hover:bg-white/10 transition-all duration-300">
-          <Image
-            src="/logo_white.png"
-            width={180}
-            height={35}
-            alt="ResumeVita.com Logo"
-            priority
-            className="hover:scale-105 transition-transform duration-300"
+      </nav>
+
+      {/* Mobile Drawer Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[99999] lg:hidden">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50"
+            onClick={() => setIsMobileMenuOpen(false)}
           />
-        </Link>
-      </div>
-      
-      {/* Desktop Menu */}
-      <div className="navbar-end hidden lg:flex">
-        <ul className="menu menu-horizontal px-1">
-          {navItems.map((nav, i) => (
-            <li key={nav.href}>
-              {nav.isLogout ? (
-                <a
-                  href={nav.href}
-                  className={`btn btn-ghost text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-lg ${
-                    path === nav.href ? "bg-white/20 scale-105" : ""
-                  }`}
+          
+          {/* Drawer */}
+          <div className="fixed left-0 top-0 h-full w-80 bg-base-100 shadow-2xl overflow-y-auto">
+            <div className="p-6">
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between mb-8 pb-4 border-b border-base-300">
+                <Image
+                  src="/logo_white.png"
+                  width={120}
+                  height={25}
+                  alt="ResumeVita.com Logo"
+                  className="w-24 h-auto"
+                />
+                <button 
+                  className="btn btn-ghost btn-circle hover:bg-base-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  {nav.name}
-                </a>
-              ) : (
-                <Link
-                  href={nav.href}
-                  className={`btn btn-ghost text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-lg ${
-                    path === nav.href ? "bg-white/20 scale-105" : ""
-                  }`}
-                >
-                  {nav.name}
-                </Link>
-              )}
-            </li>
-          ))}
-        </ul>
-        {/* Theme Toggle */}
-        <ThemeToggle />
-      </div>
-    </nav>
+                  <FaTimes className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Navigation Items */}
+              <div className="space-y-1">
+                <h3 className="text-xs font-semibold text-base-content/60 uppercase tracking-wider mb-4">Navigation</h3>
+                {navItems.map((nav, i) => (
+                  <div key={nav.href} className="mb-2">
+                    {nav.isLogout ? (
+                      <a
+                        href={nav.href}
+                        className={`flex items-center w-full px-4 py-3 rounded-lg text-left transition-all duration-300 hover:bg-primary hover:text-white ${
+                          path === nav.href ? "bg-primary text-white shadow-md" : "hover:shadow-sm"
+                        }`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <span className="flex items-center space-x-3">
+                          {nav.name}
+                        </span>
+                      </a>
+                    ) : (
+                      <Link
+                        href={nav.href}
+                        className={`flex items-center w-full px-4 py-3 rounded-lg text-left transition-all duration-300 hover:bg-primary hover:text-white ${
+                          path === nav.href ? "bg-primary text-white shadow-md" : "hover:shadow-sm"
+                        }`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <span className="flex items-center space-x-3">
+                          {nav.name}
+                        </span>
+                      </Link>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Theme Toggle Section */}
+              <div className="mt-8 pt-6 border-t border-base-300">
+                <h3 className="text-xs font-semibold text-base-content/60 uppercase tracking-wider mb-4">Settings</h3>
+                <div className="bg-base-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-base-content">Theme</span>
+                    <ThemeToggle isMobile={true} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

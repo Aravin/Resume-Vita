@@ -6247,7 +6247,7 @@ react-dom@^19.2.0:
   dependencies:
     scheduler "^0.27.0"
 
-react-draggable@^4.4.6:
+react-draggable@^4.4.7:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/react-draggable/-/react-draggable-4.5.0.tgz#0b274ccb6965fcf97ed38fcf7e3cc223bc48cdf5"
   integrity sha512-VC+HBLEZ0XJxnOxVAZsdRi8rD04Iz3SiiKOoYzamjylUcju/hP9np/aZdLHf/7WOD268WMoNJMvYfB5yAK45cw==

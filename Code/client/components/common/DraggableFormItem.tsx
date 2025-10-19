@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Draggable from 'react-draggable';
 import { FaGripVertical, FaArrowUp, FaArrowDown, FaAngleDoubleUp, FaAngleDoubleDown, FaTimes } from "react-icons/fa";
 
@@ -22,6 +22,7 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const nodeRef = useRef(null);
 
   const handleDragStart = () => {
     setIsDragging(true);
@@ -59,6 +60,7 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
 
   return (
     <Draggable
+      nodeRef={nodeRef}
       axis="y"
       position={position}
       onStart={handleDragStart}
@@ -67,6 +69,7 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
       handle=".drag-handle"
     >
       <div
+        ref={nodeRef}
         className={`
           group relative
           p-4 rounded-lg border-2 
