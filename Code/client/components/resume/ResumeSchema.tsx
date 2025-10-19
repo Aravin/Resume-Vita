@@ -6,7 +6,7 @@ export const ResumeSchema = yup
       firstName: yup.string().min(4).required(),
       lastName: yup.string().min(2).required(),
       email: yup.string().email().required(),
-      phone: yup.number().required(),
+      phone: yup.string().required(),
       summary: yup.string().min(100).max(2000).required(),
     }),
     educations: yup.array().of(

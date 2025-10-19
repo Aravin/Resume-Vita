@@ -3,7 +3,7 @@ export const resumeDefaultValues = {
     firstName: "",
     lastName: "",
     email: "",
-    phone: 0,
+    phone: "",
     summary: "",
   },
   educations: [

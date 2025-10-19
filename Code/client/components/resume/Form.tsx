@@ -168,7 +168,7 @@ export default function ResumeForm() {
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
       if (name?.includes('employments') && name?.endsWith('isCurrent') && type === 'change') {
-        const employments = value.employments || [];
+        const employments = (value.employments || []) as unknown as Array<{ isCurrent?: boolean }>;
         const currentIndex = parseInt(name.split('.')[1]);
         
         // If the current checkbox is being checked and employments exist
@@ -176,7 +176,7 @@ export default function ResumeForm() {
           // Uncheck all other employments
           employments.forEach((_, index) => {
             if (index !== currentIndex && employments[index]?.isCurrent) {
-              setValue(`employments.${index}.isCurrent`, false);
+              (setValue as any)(`employments.${index}.isCurrent`, false);
             }
           });
         }
