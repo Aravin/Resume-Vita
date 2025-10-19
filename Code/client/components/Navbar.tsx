@@ -7,18 +7,24 @@ import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { FaKey, FaSignOutAlt, FaFileAlt, FaCog, FaBlog, FaHome, FaLayerGroup } from "react-icons/fa";
 
-const defaultNavigation = [
+interface NavigationItem {
+  name: React.ReactElement;
+  href: string;
+  isLogout?: boolean;
+}
+
+const defaultNavigation: NavigationItem[] = [
   { name: (<><FaHome className="inline-block mr-1" /> Home</>), href: "/" },
   { name: (<><FaLayerGroup className="inline-block mr-1" /> Features</>), href: "/features" },
   { name: (<><FaBlog className="inline-block mr-1" /> Blog</>), href: "/blog" },
   { name: (<><FaKey className="inline-block mr-1" /> Login</>), href: "/api/auth/login?returnTo=/resume" },
 ];
 
-const authenticatedNavigation = [
+const authenticatedNavigation: NavigationItem[] = [
   { name: (<><FaFileAlt className="inline-block mr-1" /> Your Resume</>), href: "/resume" },
   { name: (<><FaCog className="inline-block mr-1" /> Account & Settings</>), href: "/account" },
   { name: (<><FaBlog className="inline-block mr-1" /> Blog</>), href: "/blog" },
-  { name: (<><FaSignOutAlt className="inline-block mr-1" /> Sign out</>), href: "/api/auth/logout" },
+  { name: (<><FaSignOutAlt className="inline-block mr-1" /> Sign out</>), href: "/api/auth/logout?returnTo=/", isLogout: true },
 ];
 
 function classNames(...classes: string[]) {
@@ -63,12 +69,21 @@ export default function Navbar() {
           >
             {navigation.map((nav, i) => (
               <li key={nav.href}>
-                <Link
-                  href={nav.href}
-                  className={classNames(path === nav.href ? "active" : "")}
-                >
-                  {nav.name}
-                </Link>
+                {nav.isLogout ? (
+                  <a
+                    href={nav.href}
+                    className={classNames(path === nav.href ? "active" : "")}
+                  >
+                    {nav.name}
+                  </a>
+                ) : (
+                  <Link
+                    href={nav.href}
+                    className={classNames(path === nav.href ? "active" : "")}
+                  >
+                    {nav.name}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>
@@ -88,12 +103,21 @@ export default function Navbar() {
         <ul className="menu menu-horizontal px-1 hidden lg:flex">
           {navigation.map((nav, i) => (
             <li key={nav.href}>
-              <Link
-                href={nav.href}
-                className={classNames(path === nav.href ? "active" : "")}
-              >
-                {nav.name}
-              </Link>
+              {nav.isLogout ? (
+                <a
+                  href={nav.href}
+                  className={classNames(path === nav.href ? "active" : "")}
+                >
+                  {nav.name}
+                </a>
+              ) : (
+                <Link
+                  href={nav.href}
+                  className={classNames(path === nav.href ? "active" : "")}
+                >
+                  {nav.name}
+                </Link>
+              )}
             </li>
           ))}
         </ul>
