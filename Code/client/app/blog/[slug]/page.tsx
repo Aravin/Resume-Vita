@@ -180,13 +180,14 @@ const blogPosts: Record<string, BlogPost> = {
 };
 
 interface Props {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
-export default function BlogPost({ params }: Props) {
-  const post = blogPosts[params.slug];
+export default async function BlogPost({ params }: Props) {
+  const { slug } = await params;
+  const post = blogPosts[slug];
 
   if (!post) {
     notFound();

@@ -13,11 +13,12 @@ const s3Client = new S3Client({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
+    const { userId } = await params;
     const bucketName = process.env.AWS_S3_BUCKET || 'resume-vita-bucket';
-    const fileKey = `${params.userId}/${params.userId}.pdf`;
+    const fileKey = `${userId}/${userId}.pdf`;
     
     // Create the command
     const command = new GetObjectCommand({
@@ -51,12 +52,13 @@ export async function GET(
 // Generate signed URL for WebP preview images
 export async function POST(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
+    const { userId } = await params;
     const { fileType = 'pdf' } = await request.json();
     const bucketName = process.env.AWS_S3_BUCKET || 'resume-vita-bucket';
-    const fileKey = `${params.userId}/${params.userId}.${fileType}`;
+    const fileKey = `${userId}/${userId}.${fileType}`;
     
     // Create the command
     const command = new GetObjectCommand({

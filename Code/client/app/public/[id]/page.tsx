@@ -3,14 +3,24 @@
 import React, { useState, useEffect } from "react";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
 
-export default function Page({ params }: { params: { id: string } }) {
-  const id = params.id;
+export default function Page({ params }: { params: Promise<{ id: string }> }) {
+  const [id, setId] = useState<string | null>(null);
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { getSignedUrl } = useSignedUrl();
 
   useEffect(() => {
+    const initializeParams = async () => {
+      const resolvedParams = await params;
+      setId(resolvedParams.id);
+    };
+    initializeParams();
+  }, [params]);
+
+  useEffect(() => {
+    if (!id) return;
+    
     const loadSignedUrl = async () => {
       try {
         setIsLoading(true);
