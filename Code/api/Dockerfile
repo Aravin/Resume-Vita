@@ -1,5 +1,5 @@
 # Use Alpine Linux for minimal size
-FROM node:16-alpine
+FROM node:20-alpine
 
 # Install only essential packages for Chrome
 RUN apk add --no-cache \
