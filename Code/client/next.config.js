@@ -2,13 +2,27 @@
 module.exports = {
   reactStrictMode: true,
   images: {
-    domains: [
-      'localhost',
-      'lh3.googleusercontent.com',
-      's.gravatar.com',
-      'resume-vita.s3.ap-south-1.amazonaws.com',
-      'resume-vita-bucket.s3.ap-south-2.amazonaws.com',
-      's3.ap-south-2.amazonaws.com'
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 's.gravatar.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'resume-vita.s3.ap-south-1.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'resume-vita-bucket.s3.ap-south-2.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 's3.ap-south-2.amazonaws.com',
+      },
     ],
   },
   compiler: {

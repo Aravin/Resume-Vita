@@ -29,7 +29,7 @@
 		"test:watch": "jest --watch"
 	},
 	"dependencies": {
-		"@auth0/nextjs-auth0": "^4.11.0",
+		"@auth0/nextjs-auth0": "^3.8.0",
 		"@aws-sdk/client-s3": "^3.699.0",
 		"@aws-sdk/s3-request-presigner": "^3.699.0",
 		"@hookform/resolvers": "^3.10.0",
