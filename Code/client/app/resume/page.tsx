@@ -175,30 +175,88 @@ export default function Page() {
 
       <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
         {showCreateNew && (
-          <div className="flex justify-center items-center min-h-[400px]">
-            <div className="text-center">
-              <div className="mb-4">
-                No Resume Added!, click on below image to create new Resume...
-              </div>
-              <div data-tip="Create Resume" className="tooltip tooltip-bottom">
-                <Link href="/resume/create" aria-label="Create new resume">
-                  <AiFillFileAdd className="h-24 w-24 mx-auto text-primary cursor-pointer hover:opacity-50 transition-opacity" />
-                </Link>
+          <div className="flex justify-center items-center min-h-[600px]">
+            <div className="card w-full max-w-2xl bg-base-100 shadow-xl">
+              <div className="card-body text-center">
+                <div className="mb-6">
+                  <div className="avatar placeholder mb-4">
+                    <div className="bg-primary text-primary-content rounded-full w-24">
+                      <AiFillFileAdd className="w-12 h-12" />
+                    </div>
+                  </div>
+                  <h2 className="card-title justify-center text-2xl mb-2">No Resume Found</h2>
+                  <p className="text-base-content/70 text-lg">
+                    You haven&apos;t created a resume yet. Let&apos;s get started and create your professional resume!
+                  </p>
+                </div>
+                
+                <div className="card-actions justify-center">
+                  <Link href="/resume/create" className="btn btn-primary btn-lg">
+                    <AiFillFileAdd className="w-5 h-5 mr-2" />
+                    Create Your First Resume
+                  </Link>
+                </div>
+                
+                <div className="divider">Get Started</div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div className="card bg-base-200">
+                    <div className="card-body p-4">
+                      <h3 className="card-title text-sm">Step 1: Create Resume</h3>
+                      <p className="text-xs text-base-content/70">Build your professional resume from scratch</p>
+                    </div>
+                  </div>
+                  <div className="card bg-base-200">
+                    <div className="card-body p-4">
+                      <h3 className="card-title text-sm">Step 2: Generate PDF</h3>
+                      <p className="text-xs text-base-content/70">Download your resume in PDF format</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {showGeneratePDF && (
-          <div className="flex justify-center items-center min-h-[400px]">
-            <div className="text-center">
-              <div className="mb-4">
-                PDF not generated!, click on edit image and generate PDF...
-              </div>
-              <div data-tip="Create Resume" className="tooltip tooltip-bottom">
-                <Link href="/resume/create" aria-label="Edit and generate PDF">
-                  <AiFillEdit className="h-24 w-24 mx-auto text-primary cursor-pointer hover:opacity-50 transition-opacity" />
-                </Link>
+          <div className="flex justify-center items-center min-h-[600px]">
+            <div className="card w-full max-w-2xl bg-base-100 shadow-xl">
+              <div className="card-body text-center">
+                <div className="mb-6">
+                  <div className="avatar placeholder mb-4">
+                    <div className="bg-warning text-warning-content rounded-full w-24">
+                      <AiFillEdit className="w-12 h-12" />
+                    </div>
+                  </div>
+                  <h2 className="card-title justify-center text-2xl mb-2">Resume Created!</h2>
+                  <p className="text-base-content/70 text-lg">
+                    Your resume is ready, but the PDF hasn&apos;t been generated yet. Click below to edit and generate your PDF.
+                  </p>
+                </div>
+                
+                <div className="card-actions justify-center">
+                  <Link href="/resume/create" className="btn btn-warning btn-lg">
+                    <AiFillEdit className="w-5 h-5 mr-2" />
+                    Edit & Generate PDF
+                  </Link>
+                </div>
+                
+                <div className="divider">What&apos;s Next?</div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div className="card bg-base-200">
+                    <div className="card-body p-4">
+                      <h3 className="card-title text-sm">Review Content</h3>
+                      <p className="text-xs text-base-content/70">Make sure all information is accurate</p>
+                    </div>
+                  </div>
+                  <div className="card bg-base-200">
+                    <div className="card-body p-4">
+                      <h3 className="card-title text-sm">Generate PDF</h3>
+                      <p className="text-xs text-base-content/70">Create your downloadable resume</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

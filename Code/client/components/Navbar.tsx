@@ -36,12 +36,12 @@ export default function Navbar() {
   const path = usePathname();
 
   const navigation = useMemo(() => {
+    // During loading, show default navigation to prevent hydration mismatch
+    if (isLoading) {
+      return defaultNavigation;
+    }
     return user ? authenticatedNavigation : defaultNavigation;
-  }, [user]);
-
-  if (isLoading) {
-    return <nav className="navbar bg-primary animate-pulse"></nav>;
-  }
+  }, [user, isLoading]);
 
   return (
     <nav className="navbar bg-primary">
