@@ -12,7 +12,9 @@ import { useSignedUrl } from "../../hooks/useSignedUrl";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
 
 interface ResumeData {
-  isPDFGenerated: boolean;
+  user: string;
+  resume: any;
+  isPDFGenerated?: boolean;
   atsScore?: {
     overall: number;
     details: {
@@ -26,6 +28,8 @@ interface ResumeData {
       content: string[];
     };
   };
+  color?: string;
+  template?: string;
 }
 
 export default function Page() {
@@ -48,7 +52,7 @@ export default function Page() {
 
   // Load signed URL for image preview
   React.useEffect(() => {
-    if (userId && data?.isPDFGenerated) {
+    if (userId && data?.isPDFGenerated === true) {
       getSignedUrl(userId, 'webp')
         .then(url => setImageUrl(url))
         .catch(error => {
@@ -157,10 +161,13 @@ export default function Page() {
     );
   }
 
+
   if (fetching) {
     return (
-      <div role="status" aria-label="Loading">
+      <div role="status" aria-label="Loading" className="flex flex-col items-center justify-center min-h-screen">
         <Loader />
+        <p className="mt-4 text-gray-500">Loading resume data...</p>
+        <p className="text-sm text-gray-400 mt-2">This may take a few moments</p>
       </div>
     );
   }
@@ -356,104 +363,150 @@ export default function Page() {
               </div>
             </div>
 
-            {/* Right Column - ATS Score */}
+            {/* Right Column - Enhanced ATS Score */}
             <div>
               {data?.atsScore && (
                 <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <h3 className="text-lg font-semibold mb-6">ATS Score Analysis</h3>
-                  <div className="flex items-start mb-8">
-                    <div className="relative w-20 h-20 flex-shrink-0">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-2xl font-bold">{data.atsScore.overall}%</span>
-                      </div>
-                      <svg className="transform -rotate-90 w-20 h-20">
-                        <circle
-                          className="text-gray-200"
-                          strokeWidth="6"
-                          stroke="currentColor"
-                          fill="transparent"
-                          r="34"
-                          cx="40"
-                          cy="40"
-                        />
-                        <circle
-                          className="text-primary"
-                          strokeWidth="6"
-                          strokeDasharray={`${2 * Math.PI * 34}`}
-                          strokeDashoffset={`${2 * Math.PI * 34 * (1 - data.atsScore.overall / 100)}`}
-                          strokeLinecap="round"
-                          stroke="currentColor"
-                          fill="transparent"
-                          r="34"
-                          cx="40"
-                          cy="40"
-                        />
-                      </svg>
-                    </div>
-                    <div className="ml-8 flex-1 space-y-4">
-                      <div>
-                        <div className="flex justify-between mb-2">
-                          <span className="text-sm">Keywords Match</span>
-                          <span className="text-sm font-medium">{data.atsScore.details.keywords}%</span>
-                        </div>
-                        <div className="w-full bg-gray-100 rounded-full h-2">
-                          <div 
-                            className="h-2 rounded-full bg-yellow-400"
-                            style={{ width: `${data.atsScore.details.keywords}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex justify-between mb-2">
-                          <span className="text-sm">Format</span>
-                          <span className="text-sm font-medium">{data.atsScore.details.format}%</span>
-                        </div>
-                        <div className="w-full bg-gray-100 rounded-full h-2">
-                          <div 
-                            className="h-2 rounded-full bg-gray-300"
-                            style={{ width: `${data.atsScore.details.format}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex justify-between mb-2">
-                          <span className="text-sm">Content Quality</span>
-                          <span className="text-sm font-medium">{data.atsScore.details.content}%</span>
-                        </div>
-                        <div className="w-full bg-gray-100 rounded-full h-2">
-                          <div 
-                            className="h-2 rounded-full bg-gray-300"
-                            style={{ width: `${data.atsScore.details.content}%` }}
-                          ></div>
-                        </div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-gray-900">ATS Score Analysis</h3>
+                    <div className="flex items-center gap-2">
+                      <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        data.atsScore.overall >= 80 ? 'bg-green-100 text-green-800' :
+                        data.atsScore.overall >= 60 ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {data.atsScore.overall >= 80 ? 'Excellent' :
+                         data.atsScore.overall >= 60 ? 'Good' : 'Needs Improvement'}
                       </div>
                     </div>
                   </div>
 
+                  {/* Overall Score Circle */}
+                  <div className="flex items-center justify-center mb-8">
+                    <div className="relative w-32 h-32">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-center">
+                          <span className="text-4xl font-bold text-gray-900">{data.atsScore.overall}%</span>
+                          <p className="text-sm text-gray-500 mt-1">Overall Score</p>
+                        </div>
+                      </div>
+                      <svg className="transform -rotate-90 w-32 h-32">
+                        <circle
+                          className="text-gray-200"
+                          strokeWidth="8"
+                          stroke="currentColor"
+                          fill="transparent"
+                          r="56"
+                          cx="64"
+                          cy="64"
+                        />
+                        <circle
+                          className={`${
+                            data.atsScore.overall >= 80 ? 'text-green-500' :
+                            data.atsScore.overall >= 60 ? 'text-yellow-500' : 'text-red-500'
+                          }`}
+                          strokeWidth="8"
+                          strokeDasharray={`${2 * Math.PI * 56}`}
+                          strokeDashoffset={`${2 * Math.PI * 56 * (1 - data.atsScore.overall / 100)}`}
+                          strokeLinecap="round"
+                          stroke="currentColor"
+                          fill="transparent"
+                          r="56"
+                          cx="64"
+                          cy="64"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Score Breakdown */}
+                  <div className="space-y-6 mb-8">
+                    {Object.entries(data.atsScore.details).map(([category, score]) => {
+                      const categoryLabels = {
+                        keywords: 'Keywords Match',
+                        format: 'Format & Structure',
+                        content: 'Content Quality'
+                      };
+                      const categoryIcons = {
+                        keywords: '🔍',
+                        format: '📄',
+                        content: '✨'
+                      };
+                      const getScoreColor = (score: number) => {
+                        if (score >= 80) return 'bg-green-500';
+                        if (score >= 60) return 'bg-yellow-500';
+                        return 'bg-red-500';
+                      };
+                      
+                      return (
+                        <div key={category} className="bg-gray-50 p-4 rounded-lg">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">{categoryIcons[category as keyof typeof categoryIcons]}</span>
+                              <span className="font-medium text-gray-900">{categoryLabels[category as keyof typeof categoryLabels]}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg font-bold text-gray-900">{score}%</span>
+                              <div className={`w-3 h-3 rounded-full ${getScoreColor(score)}`}></div>
+                            </div>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-3">
+                            <div 
+                              className={`h-3 rounded-full transition-all duration-500 ${getScoreColor(score)}`}
+                              style={{ width: `${score}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Score Interpretation */}
+                  <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                    <h4 className="font-semibold text-blue-900 mb-2">📊 Score Interpretation</h4>
+                    <p className="text-sm text-blue-800">
+                      {data.atsScore.overall >= 80 
+                        ? "Your resume is ATS-optimized and should pass most applicant tracking systems. Great job!"
+                        : data.atsScore.overall >= 60 
+                        ? "Your resume is decent but could benefit from some improvements to better pass ATS screening."
+                        : "Your resume needs significant improvements to pass ATS screening. Focus on the suggestions below."
+                      }
+                    </p>
+                  </div>
+
                   {/* Improvement Sections */}
                   <div className="space-y-6">
-                    {data.atsScore && Object.entries(data.atsScore.improvements).map(([category, suggestions]) => 
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">🎯 Improvement Suggestions</h4>
+                    {Object.entries(data.atsScore.improvements).map(([category, suggestions]) => 
                       suggestions.length > 0 && (
-                        <div key={category}>
+                        <div key={category} className="border-l-4 border-blue-200 pl-4">
                           <div className="flex items-center gap-2 mb-3">
-                            <h4 className="text-sm font-medium capitalize">{category} Improvements</h4>
+                            <h5 className="font-medium text-gray-900 capitalize">{category} Improvements</h5>
                             {data.atsScore!.details[category as keyof typeof data.atsScore.details] < 70 && (
-                              <span className="text-xs text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded">
-                                Needs Attention
+                              <span className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded-full font-medium">
+                                Priority
                               </span>
                             )}
                           </div>
                           <ul className="space-y-2">
                             {suggestions.map((suggestion, index) => (
-                              <li key={index} className="text-sm text-gray-600 flex gap-2">
-                                <span className="text-gray-400">•</span>
-                                {suggestion}
+                              <li key={index} className="text-sm text-gray-700 flex gap-3 items-start">
+                                <span className="text-blue-500 mt-1">✓</span>
+                                <span>{suggestion}</span>
                               </li>
                             ))}
                           </ul>
                         </div>
                       )
                     )}
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <Link href="/resume/create" className="btn btn-primary w-full">
+                      <FaEdit className="mr-2" />
+                      Improve Resume Based on Analysis
+                    </Link>
                   </div>
                 </div>
               )}

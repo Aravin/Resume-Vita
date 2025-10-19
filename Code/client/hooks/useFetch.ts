@@ -36,7 +36,16 @@ const useFetch = <T>(url: string | null) => {
       try {
         setState(prev => ({ ...prev, fetching: true, fetchError: null }));
         
+        // Add timeout to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+          if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+          }
+        }, 10000); // 10 second timeout
+        
         const response = await fetch(url, { signal });
+        
+        clearTimeout(timeoutId);
         
         if (!response.ok) {
           if (response.status === 404) {
