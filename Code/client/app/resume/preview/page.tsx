@@ -6,6 +6,7 @@ import { FaFilePdf, FaEdit } from "react-icons/fa";
 import axios from "axios";
 import useFetch from "../../../hooks/useFetch";
 import { useSignedUrl } from "../../../hooks/useSignedUrl";
+import { useDownloadPDF } from "../../../hooks/useDownloadPDF";
 import { useEffect, useState, useMemo, memo, useCallback } from "react";
 import Loader from "../../../components/Loader";
 import { Breadcrumbs } from "../../../components/Breadcrumbs";
@@ -65,6 +66,7 @@ export default function Page() {
   const [loading, setLoader] = useState(true);
   const [color, setColor] = useState<keyof typeof colorClasses>("black");
   const [template, setTemplate] = useState<'default' | 'modern'>('default');
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   // Set document title
   useEffect(() => {
@@ -73,6 +75,7 @@ export default function Page() {
 
   const { user, error: authError, isLoading: authLoading } = useUser();
   const { getSignedUrl, isLoading: isSignedUrlLoading, error: signedUrlError } = useSignedUrl();
+  const { downloadExistingPDF, generateAndDownloadPDF, isSignedUrlLoading: isDownloadLoading } = useDownloadPDF();
   
   const userId = useMemo(() => {
     if (!user?.sub) return null;
@@ -108,51 +111,43 @@ export default function Page() {
 
   const handleDownload = useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (!userId) return;
     
-    // Early return if no document or userId
-    if (!document || !userId) {
-      console.error('Document or userId not available');
+    // Get and validate preview element
+    const previewElement = document.querySelector("#preview");
+    if (!previewElement) {
+      setDownloadError('Preview element not found');
       return;
     }
 
-    setLoader(true);
-
+    // Generate HTML with current theme and color
+    const html = new XMLSerializer().serializeToString(previewElement.cloneNode(true) as Node);
+    
     try {
-      // Get and validate preview element
-      const previewElement = document.querySelector("#preview");
-      if (!previewElement) {
-        throw new Error('Preview element not found');
-      }
-
-      // Prepare request body
-      const body = {
-        html: new XMLSerializer().serializeToString(previewElement.cloneNode(true) as Node),
-        user: userId,
+      await generateAndDownloadPDF({
+        userId,
+        html,
         color,
         template,
-      };
-
-      // Make API request to generate PDF
-      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT}/pdf`, body);
-
-      // Get signed URL for download
-      const signedUrl = await getSignedUrl(userId, 'pdf');
-      
-      // Create and trigger download link
-      const downloadLink = document.createElement("a");
-      downloadLink.href = signedUrl;
-      downloadLink.download = "ResumeVita";
-      downloadLink.target = "_blank";
-      downloadLink.dispatchEvent(new MouseEvent("click"));
+        setDownloadError,
+        setLoading: setLoader,
+        fileName: "ResumeVita.pdf"
+      });
     } catch (error) {
-      console.error('Failed to generate PDF:', error);
-      if (signedUrlError) {
-        console.error('Signed URL error:', signedUrlError);
-      }
-    } finally {
-      setLoader(false);
+      console.error('PDF generation failed, falling back to existing PDF:', error);
+      
+      // Clear any error messages from failed generation
+      setDownloadError(null);
+      
+      // Fallback to existing PDF if generation fails
+      await downloadExistingPDF({
+        userId,
+        setDownloadError,
+        setLoading: setLoader,
+        fileName: "ResumeVita.pdf"
+      });
     }
-  }, [userId, color, template, getSignedUrl, signedUrlError]);
+  }, [userId, color, template, generateAndDownloadPDF, downloadExistingPDF]);
 
 
   const handleColorChange = useCallback((newColor: keyof typeof colorClasses) => {

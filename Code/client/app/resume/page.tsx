@@ -9,6 +9,7 @@ import { AiFillFileAdd, AiFillEdit } from "react-icons/ai";
 import Loader from "../../components/Loader";
 import useFetch from "../../hooks/useFetch";
 import { useSignedUrl } from "../../hooks/useSignedUrl";
+import { useDownloadPDF } from "../../hooks/useDownloadPDF";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
 
 interface ResumeData {
@@ -38,6 +39,7 @@ export default function Page() {
   const [imageUrl, setImageUrl] = useState<string>('');
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const { getSignedUrl, isLoading: isSignedUrlLoading, error: signedUrlError } = useSignedUrl();
+  const { downloadExistingPDF, isSignedUrlLoading: isDownloadLoading } = useDownloadPDF();
 
   // Set document title - must be before any conditional returns
   React.useEffect(() => {
@@ -74,65 +76,12 @@ export default function Page() {
     e.preventDefault();
     if (!userId) return;
     
-    setDownloadError(null); // Clear previous errors
-    
-    try {
-      // Get signed URL for download
-      const signedUrl = await getSignedUrl(userId, 'pdf');
-      
-      // Try blob download first (better for avoiding popup blockers)
-      try {
-        const response = await fetch(signedUrl);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
-        }
-        
-        const blob = await response.blob();
-        
-        if (blob.size === 0) {
-          throw new Error('Downloaded file is empty');
-        }
-        
-        // Create blob URL and trigger download
-        const blobUrl = window.URL.createObjectURL(blob);
-        
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = "ResumeVita.pdf";
-        link.style.display = 'none';
-        
-        // Add to DOM, click, and remove
-        document.body.appendChild(link);
-        link.click();
-        
-        // Clean up after a short delay
-        setTimeout(() => {
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(blobUrl);
-        }, 100);
-        
-      } catch (blobError) {
-        // Fallback: Direct download using signed URL
-        const link = document.createElement("a");
-        link.href = signedUrl;
-        link.download = "ResumeVita.pdf";
-        link.target = "_blank";
-        link.style.display = 'none';
-        
-        document.body.appendChild(link);
-        link.click();
-        
-        setTimeout(() => {
-          document.body.removeChild(link);
-        }, 100);
-      }
-      
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      setDownloadError(errorMessage);
-    }
-  }, [userId, getSignedUrl]);
+    await downloadExistingPDF({
+      userId,
+      setDownloadError,
+      fileName: "ResumeVita.pdf"
+    });
+  }, [userId, downloadExistingPDF]);
 
   if (authLoading) {
     return (
@@ -348,11 +297,11 @@ export default function Page() {
                   <button
                     className="btn btn-outline btn-accent w-full h-12 normal-case"
                     onClick={handleDownload}
-                    disabled={isSignedUrlLoading}
+                    disabled={isDownloadLoading}
                     aria-label="Download resume"
                   >
                     <FaFilePdf className="mr-2" /> 
-                    {isSignedUrlLoading ? 'Generating...' : 'Download Resume'}
+                    {isDownloadLoading ? 'Generating...' : 'Download Resume'}
                   </button>
 
                   <a
