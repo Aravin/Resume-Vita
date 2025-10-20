@@ -72,12 +72,6 @@ export async function generatePDF(req: Request, res: Response) {
         const pdfBuffer = await page.pdf({
             format: 'a4',
             printBackground: true,
-            margin: {
-                top: '0.5in',
-                right: '0.5in',
-                bottom: '0.5in',
-                left: '0.5in'
-            }
         });
 
         const PdfParams = {
