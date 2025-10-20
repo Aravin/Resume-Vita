@@ -35,6 +35,7 @@ export default function Navbar() {
   const { user, error, isLoading } = useUser();
   const path = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const navItems = useMemo(() => {
     // During loading, show default navigation to prevent hydration mismatch
@@ -43,6 +44,19 @@ export default function Navbar() {
     }
     return user ? authenticatedNavigation : defaultNavigation;
   }, [user, isLoading]);
+
+  const handleLogoutClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowLogoutConfirm(true);
+  };
+
+  const handleLogoutConfirm = () => {
+    window.location.href = "/api/auth/logout?returnTo=/";
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutConfirm(false);
+  };
 
 
   return (
@@ -79,14 +93,14 @@ export default function Navbar() {
             {navItems.map((nav, i) => (
               <li key={nav.href}>
                 {nav.isLogout ? (
-                  <a
-                    href={nav.href}
+                  <button
+                    onClick={handleLogoutClick}
                     className={`btn btn-ghost text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-lg ${
                       path === nav.href ? "bg-white/20 scale-105" : ""
                     }`}
                   >
                     {nav.name}
-                  </a>
+                  </button>
                 ) : (
                   <Link
                     href={nav.href}
@@ -140,17 +154,19 @@ export default function Navbar() {
                 {navItems.map((nav, i) => (
                   <div key={nav.href} className="mb-2">
                     {nav.isLogout ? (
-                      <a
-                        href={nav.href}
+                      <button
+                        onClick={(e) => {
+                          handleLogoutClick(e);
+                          setIsMobileMenuOpen(false);
+                        }}
                         className={`flex items-center w-full px-4 py-3 rounded-lg text-left transition-all duration-300 hover:bg-primary hover:text-white ${
                           path === nav.href ? "bg-primary text-white shadow-md" : "hover:shadow-sm"
                         }`}
-                        onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <span className="flex items-center space-x-3">
                           {nav.name}
                         </span>
-                      </a>
+                      </button>
                     ) : (
                       <Link
                         href={nav.href}
@@ -177,6 +193,54 @@ export default function Navbar() {
                     <ThemeToggle isMobile={true} />
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50"
+            onClick={handleLogoutCancel}
+          />
+          
+          {/* Modal */}
+          <div className="relative bg-base-100 rounded-lg shadow-2xl p-6 m-4 max-w-md w-full">
+            <div className="text-center">
+              {/* Icon */}
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-warning/20 mb-4">
+                <FaSignOutAlt className="h-6 w-6 text-warning" />
+              </div>
+              
+              {/* Title */}
+              <h3 className="text-lg font-semibold text-base-content mb-2">
+                Confirm Sign Out
+              </h3>
+              
+              {/* Message */}
+              <p className="text-sm text-base-content/70 mb-6">
+                Are you sure you want to sign out? You'll need to log in again to access your resume.
+              </p>
+              
+              {/* Buttons */}
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={handleLogoutCancel}
+                  className="btn btn-outline btn-sm px-6"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleLogoutConfirm}
+                  className="btn btn-warning btn-sm px-6"
+                >
+                  <FaSignOutAlt className="mr-2" />
+                  Sign Out
+                </button>
               </div>
             </div>
           </div>
