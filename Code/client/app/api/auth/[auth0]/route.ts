@@ -1,4 +1,4 @@
-import { handleAuth, handleLogin, handleLogout } from '@auth0/nextjs-auth0';
+import { handleAuth, handleLogin, handleLogout, handleCallback, handleProfile } from '@auth0/nextjs-auth0';
 
 const authHandler = handleAuth({
     login: handleLogin({
@@ -7,6 +7,8 @@ const authHandler = handleAuth({
     logout: handleLogout({
         returnTo: process.env.AUTH0_BASE_URL || "http://localhost:3000",
     }),
+    callback: handleCallback(),
+    profile: handleProfile(),
 });
 
 export const GET = authHandler;
