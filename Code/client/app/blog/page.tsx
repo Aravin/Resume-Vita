@@ -1,4 +1,10 @@
 import Link from 'next/link';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Blog - ResumeVita.com",
+  description: "Expert insights on resume building, job searching, and career development. Learn how to create professional resumes and advance your career.",
+};
 
 interface BlogPost {
   slug: string;

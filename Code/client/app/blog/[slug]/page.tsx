@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { Metadata } from 'next';
 
 interface BlogPost {
   slug: string;
@@ -183,6 +184,22 @@ interface Props {
   params: Promise<{
     slug: string;
   }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const post = blogPosts[slug];
+  
+  if (!post) {
+    return {
+      title: "Post Not Found - ResumeVita.com",
+    };
+  }
+  
+  return {
+    title: `${post.title} - ResumeVita.com Blog`,
+    description: post.content.substring(0, 160) + "...",
+  };
 }
 
 export default async function BlogPost({ params }: Props) {
