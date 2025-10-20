@@ -10,6 +10,19 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const [isLoading, setIsLoading] = useState(true);
   const { getSignedUrl } = useSignedUrl();
 
+  // Set document title based on state
+  useEffect(() => {
+    if (isLoading) {
+      document.title = "Loading Resume - ResumeVita.com";
+    } else if (error) {
+      document.title = "Resume Not Found - ResumeVita.com";
+    } else if (!signedUrl) {
+      document.title = "Unable to Load Resume - ResumeVita.com";
+    } else {
+      document.title = "Public Resume - ResumeVita.com";
+    }
+  }, [isLoading, error, signedUrl]);
+
   useEffect(() => {
     const initializeParams = async () => {
       const resolvedParams = await params;

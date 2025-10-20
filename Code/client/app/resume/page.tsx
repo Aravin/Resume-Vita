@@ -38,6 +38,11 @@ export default function Page() {
   const [imageUrl, setImageUrl] = useState<string>('');
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const { getSignedUrl, isLoading: isSignedUrlLoading, error: signedUrlError } = useSignedUrl();
+
+  // Set document title - must be before any conditional returns
+  React.useEffect(() => {
+    document.title = "Resume Dashboard - ResumeVita.com";
+  }, []);
   
   const userId = useMemo(() => {
     if (!user?.sub) return null;

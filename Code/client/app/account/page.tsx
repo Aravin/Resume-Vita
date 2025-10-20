@@ -8,6 +8,11 @@ import Loader from "../../components/Loader";
 export default function Page() {
   const { user, error, isLoading } = useUser();
 
+  // Set document title
+  React.useEffect(() => {
+    document.title = "Account & Settings - ResumeVita.com";
+  }, []);
+
   if (isLoading)
     return (
       <div>

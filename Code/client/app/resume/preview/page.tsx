@@ -65,6 +65,12 @@ export default function Page() {
   const [loading, setLoader] = useState(true);
   const [color, setColor] = useState<keyof typeof colorClasses>("black");
   const [template, setTemplate] = useState<'default' | 'modern'>('default');
+
+  // Set document title
+  useEffect(() => {
+    document.title = "Resume Preview - ResumeVita.com";
+  }, []);
+
   const { user, error: authError, isLoading: authLoading } = useUser();
   const { getSignedUrl, isLoading: isSignedUrlLoading, error: signedUrlError } = useSignedUrl();
   
