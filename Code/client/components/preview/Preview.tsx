@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FaFilePdf, FaEdit } from "react-icons/fa";
 import axios from "axios";
 import useFetch from "../../hooks/useFetch";
+import { useSignedUrl } from "../../hooks/useSignedUrl";
 import { useEffect, useState, useMemo } from "react";
 import Loader from "../Loader";
 
@@ -16,6 +17,7 @@ export default function Preview() {
   const [loading, setLoader] = useState(true);
   const [color, setColor] = useState("grey");
   const { user, error: authError, isLoading: authLoading } = useUser();
+  const { getSignedUrl } = useSignedUrl();
   
   const userId = useMemo(() => {
     if (!user?.sub) return null;
@@ -39,12 +41,16 @@ export default function Preview() {
     }
   }, [data]);
 
-  const handleClick = (e: any) => {
+  const handleClick = async (e: any) => {
     e.preventDefault();
 
-    if (!document) return;
+    if (!document || !userId) return;
 
     const html = document.querySelector("#preview")?.cloneNode(true);
+    if (!html) {
+      console.error('Preview element not found');
+      return;
+    }
 
     const body = {
       html: new XMLSerializer().serializeToString(html as Node),
@@ -54,20 +60,36 @@ export default function Preview() {
 
     setLoader(true);
 
-    // save to database - permanent
-    axios
-      .post(process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + "/pdf", body)
-      .then((response) => {
-        var a = document.createElement("a");
-        a.href = `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.pdf`;
-        a.download = "ResumeVita";
-        a.target = "_blank";
-        a.dispatchEvent(new MouseEvent("click"));
-        setLoader(false);
-      })
-      .catch((error) => {
-        setLoader(true);
-      });
+    try {
+      // Generate PDF on backend
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT}/pdf`, body);
+      
+      // Wait for PDF processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Get signed URL for download
+      const signedUrl = await getSignedUrl(userId, 'pdf');
+      
+      // Create download link
+      const link = document.createElement("a");
+      link.href = signedUrl;
+      link.download = "ResumeVita.pdf";
+      link.target = "_blank";
+      link.style.display = 'none';
+      
+      document.body.appendChild(link);
+      link.click();
+      
+      setTimeout(() => {
+        document.body.removeChild(link);
+      }, 100);
+      
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      alert('Failed to generate PDF. Please try again later.');
+    } finally {
+      setLoader(false);
+    }
   };
 
   if (authLoading || fetching)

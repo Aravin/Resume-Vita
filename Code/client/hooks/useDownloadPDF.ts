@@ -31,53 +31,19 @@ export const useDownloadPDF = () => {
       // Get signed URL for download
       const signedUrl = await getSignedUrl(userId, 'pdf');
       
-      // Try blob download first (better for avoiding popup blockers)
-      try {
-        const response = await fetch(signedUrl);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
-        }
-        
-        const blob = await response.blob();
-        
-        if (blob.size === 0) {
-          throw new Error('Downloaded file is empty');
-        }
-        
-        // Create blob URL and trigger download
-        const blobUrl = window.URL.createObjectURL(blob);
-        
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = fileName;
-        link.style.display = 'none';
-        
-        // Add to DOM, click, and remove
-        document.body.appendChild(link);
-        link.click();
-        
-        // Clean up after a short delay
-        setTimeout(() => {
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(blobUrl);
-        }, 100);
-        
-      } catch (blobError) {
-        // Fallback: Direct download using signed URL
-        const link = document.createElement("a");
-        link.href = signedUrl;
-        link.download = fileName;
-        link.target = "_blank";
-        link.style.display = 'none';
-        
-        document.body.appendChild(link);
-        link.click();
-        
-        setTimeout(() => {
-          document.body.removeChild(link);
-        }, 100);
-      }
+      // Use direct download to avoid CORS issues
+      const link = document.createElement("a");
+      link.href = signedUrl;
+      link.download = fileName;
+      link.target = "_blank";
+      link.style.display = 'none';
+      
+      document.body.appendChild(link);
+      link.click();
+      
+      setTimeout(() => {
+        document.body.removeChild(link);
+      }, 100);
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -108,59 +74,22 @@ export const useDownloadPDF = () => {
       // Wait a moment for PDF processing to complete
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Get signed URL for download (with cache busting)
+      // Get signed URL for download
       const signedUrl = await getSignedUrl(userId, 'pdf');
       
-      // Try blob download first (better for avoiding popup blockers)
-      try {
-        // Add cache busting parameter to ensure fresh PDF
-        const cacheBustedUrl = `${signedUrl}${signedUrl.includes('?') ? '&' : '?'}t=${Date.now()}`;
-        const response = await fetch(cacheBustedUrl);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
-        }
-        
-        const blob = await response.blob();
-        
-        if (blob.size === 0) {
-          throw new Error('Downloaded file is empty');
-        }
-        
-        // Create blob URL and trigger download
-        const blobUrl = window.URL.createObjectURL(blob);
-        
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = fileName;
-        link.style.display = 'none';
-        
-        // Add to DOM, click, and remove
-        document.body.appendChild(link);
-        link.click();
-        
-        // Clean up after a short delay
-        setTimeout(() => {
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(blobUrl);
-        }, 100);
-        
-      } catch (blobError) {
-        // Fallback: Direct download using signed URL with cache busting
-        const cacheBustedUrl = `${signedUrl}${signedUrl.includes('?') ? '&' : '?'}t=${Date.now()}`;
-        const link = document.createElement("a");
-        link.href = cacheBustedUrl;
-        link.download = fileName;
-        link.target = "_blank";
-        link.style.display = 'none';
-        
-        document.body.appendChild(link);
-        link.click();
-        
-        setTimeout(() => {
-          document.body.removeChild(link);
-        }, 100);
-      }
+      // Use direct download to avoid CORS issues
+      const link = document.createElement("a");
+      link.href = signedUrl;
+      link.download = fileName;
+      link.target = "_blank";
+      link.style.display = 'none';
+      
+      document.body.appendChild(link);
+      link.click();
+      
+      setTimeout(() => {
+        document.body.removeChild(link);
+      }, 100);
       
     } catch (error) {
       console.error('PDF generation error:', error);
