@@ -19,7 +19,7 @@ export async function generatePDF(req: Request, res: Response) {
 
         console.log(`Starting PDF generation for user: ${user}`);
 
-        // open the browser with optimized options for serverless environment
+        // open the browser with standard Cloud Run configuration
         browser = await puppeteer.launch({
             args: [
                 '--no-sandbox',
@@ -27,22 +27,16 @@ export async function generatePDF(req: Request, res: Response) {
                 '--disable-dev-shm-usage',
                 '--disable-accelerated-2d-canvas',
                 '--no-first-run',
-                '--no-zygote',
-                '--single-process',
                 '--disable-gpu',
                 '--disable-web-security',
                 '--disable-features=VizDisplayCompositor',
                 '--disable-extensions',
-                '--disable-plugins',
-                '--disable-images',
-                '--disable-javascript',
-                '--memory-pressure-off',
-                '--max_old_space_size=4096'
+                '--disable-plugins'
             ],
             headless: true,
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-            timeout: 30000, // 30 second timeout for browser launch
-            protocolTimeout: 60000 // 60 second timeout for protocol operations
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
+            timeout: 60000,
+            protocolTimeout: 120000
         });
 
         const fullPdf = header + pdfBody + footer;
@@ -55,18 +49,14 @@ export async function generatePDF(req: Request, res: Response) {
             ContentType: 'application/xhtml+xml',
         };
 
-        // create a new page with timeout handling
+        // create a new page
         page = await browser.newPage();
         
-        // Set page timeout
-        page.setDefaultTimeout(30000);
-        page.setDefaultNavigationTimeout(30000);
-
-        // Set viewport to A4 proportions (width: 800px, height: 1131px ≈ 800 * 1.414)
+        // Set viewport to A4 proportions
         await page.setViewport({ 
             width: 800, 
             height: 1131,
-            deviceScaleFactor: 2 // For higher quality image
+            deviceScaleFactor: 2
         });
 
         // Set content with improved error handling
@@ -78,22 +68,17 @@ export async function generatePDF(req: Request, res: Response) {
         // Wait a bit for any dynamic content to load
         await page.waitForTimeout(1000);
 
-        // Generate PDF with timeout
-        const pdfBuffer = await Promise.race([
-            page.pdf({
-                format: 'a4',
-                printBackground: true,
-                margin: {
-                    top: '0.5in',
-                    right: '0.5in',
-                    bottom: '0.5in',
-                    left: '0.5in'
-                }
-            }),
-            new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('PDF generation timeout')), 30000)
-            )
-        ]) as Buffer;
+        // Generate PDF
+        const pdfBuffer = await page.pdf({
+            format: 'a4',
+            printBackground: true,
+            margin: {
+                top: '0.5in',
+                right: '0.5in',
+                bottom: '0.5in',
+                left: '0.5in'
+            }
+        });
 
         const PdfParams = {
             Bucket: appConfig.aws.storageBucket,
@@ -102,17 +87,12 @@ export async function generatePDF(req: Request, res: Response) {
             ContentType: 'application/pdf',
         };
 
-        // Generate screenshot with timeout
-        const imgBuffer = await Promise.race([
-            page.screenshot({
-                type: 'webp',
-                fullPage: true,
-                omitBackground: false
-            }),
-            new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Screenshot generation timeout')), 30000)
-            )
-        ]) as Buffer;
+        // Generate screenshot
+        const imgBuffer = await page.screenshot({
+            type: 'webp',
+            fullPage: true,
+            omitBackground: false
+        });
 
         const ImgParams = {
             Bucket: appConfig.aws.storageBucket,

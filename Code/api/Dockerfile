@@ -34,9 +34,10 @@ RUN yarn install --production --frozen-lockfile && yarn cache clean
 # Expose port
 EXPOSE 8080
 
-# Set environment variables for Puppeteer
+# Set environment variables for Puppeteer and memory optimization
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV NODE_OPTIONS="--max-old-space-size=768 --expose-gc"
 
 # Set default port (can be overridden by Cloud Run)
 ENV PORT=8080
