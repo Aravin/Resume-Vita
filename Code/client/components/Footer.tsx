@@ -10,6 +10,7 @@ export default function Footer() {
             href="/api/auth/login"
             className="link link-hover"
             rel="noreferrer"
+            prefetch={false}
           >
             Invoice Generation
           </Link>
@@ -18,6 +19,7 @@ export default function Footer() {
             target="_blank"
             className="link link-hover"
             rel="noreferrer"
+            prefetch={false}
           >
             Public Invoice
           </Link>
@@ -26,6 +28,7 @@ export default function Footer() {
             target="_blank"
             className="link link-hover"
             rel="noreferrer"
+            prefetch={false}
           >
             Cover Letter
           </Link>
@@ -34,6 +37,7 @@ export default function Footer() {
             target="_blank"
             className="link link-hover"
             rel="noreferrer"
+            prefetch={false}
           >
             E-Resume
           </Link>

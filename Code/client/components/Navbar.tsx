@@ -107,6 +107,7 @@ export default function Navbar() {
                     className={`btn btn-ghost text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-lg ${
                       path === nav.href ? "bg-white/20 scale-105" : ""
                     }`}
+                    prefetch={nav.href.includes('/api/auth/') ? false : undefined}
                   >
                     {nav.name}
                   </Link>
