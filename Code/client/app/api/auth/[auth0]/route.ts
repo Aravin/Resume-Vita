@@ -1,15 +1,13 @@
-import { handleAuth } from '@auth0/nextjs-auth0';
-import { NextRequest } from 'next/server';
+import { handleAuth, handleLogin, handleLogout } from '@auth0/nextjs-auth0';
 
-// Create a wrapper function to handle the request properly
-async function authHandler(request: NextRequest) {
-  try {
-    return await handleAuth()(request);
-  } catch (error) {
-    console.error('Auth0 handler error:', error);
-    return new Response('Authentication error', { status: 500 });
-  }
-}
+const authHandler = handleAuth({
+    login: handleLogin({
+        returnTo: "/resume",
+    }),
+    logout: handleLogout({
+        returnTo: process.env.AUTH0_BASE_URL || "http://localhost:3000",
+    }),
+});
 
 export const GET = authHandler;
 export const POST = authHandler;
