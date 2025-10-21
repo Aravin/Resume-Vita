@@ -13,9 +13,6 @@ export const metadata: Metadata = {
     "Generate a resume, download as PDF, download as Word and share directly to your friends or recruiter. This is free and open source service.",
 };
 
-// Force dynamic rendering to prevent build-time issues
-export const dynamic = 'force-dynamic';
-
 export default function Page() {
   return (
     <>

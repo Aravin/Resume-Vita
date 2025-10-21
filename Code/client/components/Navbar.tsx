@@ -1,12 +1,13 @@
 "use client";
 
-import { useUser } from "@auth0/nextjs-auth0/client";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { FaKey, FaSignOutAlt, FaFileAlt, FaCog, FaBlog, FaHome, FaLayerGroup, FaBars, FaTimes } from "react-icons/fa";
 import ThemeToggle from "./ThemeToggle";
+import { useSafeUser } from "../hooks/useSafeUser";
+import { trackLogin, trackLogout } from "../utils/gtag";
 
 interface NavigationItem {
   name: React.ReactElement;
@@ -32,11 +33,14 @@ function classNames(...classes: string[]) {
 }
 
 export default function Navbar() {
-  const { user, error, isLoading } = useUser();
+  // Use safe user hook to prevent SSR issues
+  const { user, error, isLoading } = useSafeUser();
+  
   const path = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
+  // Move useMemo to the top to follow Rules of Hooks
   const navItems = useMemo(() => {
     // During loading, show default navigation to prevent hydration mismatch
     if (isLoading) {
@@ -45,12 +49,17 @@ export default function Navbar() {
     return user ? authenticatedNavigation : defaultNavigation;
   }, [user, isLoading]);
 
+  const handleLoginClick = () => {
+    trackLogin('google'); // Track login attempt
+  };
+
   const handleLogoutClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setShowLogoutConfirm(true);
   };
 
   const handleLogoutConfirm = () => {
+    trackLogout(); // Track logout event
     window.location.href = "/api/auth/logout?returnTo=/";
   };
 
@@ -107,6 +116,8 @@ export default function Navbar() {
                     className={`btn btn-ghost text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-lg ${
                       path === nav.href ? "bg-white/20 scale-105" : ""
                     }`}
+                    prefetch={nav.href.includes('/api/auth/') ? false : undefined}
+                    onClick={nav.href.includes('/api/auth/login') ? handleLoginClick : undefined}
                   >
                     {nav.name}
                   </Link>
@@ -173,7 +184,12 @@ export default function Navbar() {
                         className={`flex items-center w-full px-4 py-3 rounded-lg text-left transition-all duration-300 hover:bg-primary hover:text-white ${
                           path === nav.href ? "bg-primary text-white shadow-md" : "hover:shadow-sm"
                         }`}
-                        onClick={() => setIsMobileMenuOpen(false)}
+                        onClick={() => {
+                          if (nav.href.includes('/api/auth/login')) {
+                            handleLoginClick();
+                          }
+                          setIsMobileMenuOpen(false);
+                        }}
                       >
                         <span className="flex items-center space-x-3">
                           {nav.name}

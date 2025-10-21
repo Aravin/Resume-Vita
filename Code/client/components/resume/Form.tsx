@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useSafeUser } from "../../hooks/useSafeUser";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -149,7 +149,7 @@ const renderFormSection = (
 
 export default function ResumeForm() {
   const router = useRouter();
-  const { user, error, isLoading } = useUser();
+  const { user, error, isLoading } = useSafeUser();
   const userId = user?.sub?.split("|")[1];
   const [resume, setResume] = useState(resumeDefaultValues);
   const [localResume, setLocalResume] = useLocalStorage("resumeData", {} as any);

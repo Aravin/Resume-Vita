@@ -1,5 +1,6 @@
 import { useSignedUrl } from "../hooks/useSignedUrl";
 import axios from "axios";
+import { trackPDFDownload } from "../utils/gtag";
 
 interface DownloadOptions {
   userId: string;
@@ -40,6 +41,9 @@ export const useDownloadPDF = () => {
       
       document.body.appendChild(link);
       link.click();
+      
+      // Track PDF download
+      trackPDFDownload('dashboard');
       
       setTimeout(() => {
         document.body.removeChild(link);
@@ -86,6 +90,9 @@ export const useDownloadPDF = () => {
       
       document.body.appendChild(link);
       link.click();
+      
+      // Track PDF download
+      trackPDFDownload('preview');
       
       setTimeout(() => {
         document.body.removeChild(link);
