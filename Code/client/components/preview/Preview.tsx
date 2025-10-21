@@ -1,4 +1,4 @@
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useSafeUser } from "../../hooks/useSafeUser";
 import Link from "next/link";
 import { FaFilePdf, FaEdit } from "react-icons/fa";
 import axios from "axios";
@@ -16,7 +16,7 @@ interface ResumeData {
 export default function Preview() {
   const [loading, setLoader] = useState(true);
   const [color, setColor] = useState("grey");
-  const { user, error: authError, isLoading: authLoading } = useUser();
+  const { user, error: authError, isLoading: authLoading } = useSafeUser();
   const { getSignedUrl } = useSignedUrl();
   
   const userId = useMemo(() => {

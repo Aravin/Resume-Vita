@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useSafeUser } from "../../hooks/useSafeUser";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
@@ -34,7 +34,7 @@ interface ResumeData {
 }
 
 export default function Page() {
-  const { user, error: authError, isLoading: authLoading } = useUser();
+  const { user, error: authError, isLoading: authLoading } = useSafeUser();
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [imageUrl, setImageUrl] = useState<string>('');
   const [downloadError, setDownloadError] = useState<string | null>(null);

@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useSafeUser } from "../../hooks/useSafeUser";
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
 import Loader from "../../components/Loader";
 
 export default function Page() {
-  const { user, error, isLoading } = useUser();
+  const { user, error, isLoading } = useSafeUser();
 
   // Set document title
   React.useEffect(() => {

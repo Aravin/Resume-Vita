@@ -1,17 +1,15 @@
 "use client";
 
-import { UserProvider } from "@auth0/nextjs-auth0/client";
+// import { UserProvider } from "@auth0/nextjs-auth0/client";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { SafeUserContext } from "../hooks/useSafeUser";
 
 export default function ClientProviders({ children }: { children: React.ReactNode }) {
+  // Temporarily disable UserProvider to prevent SSR errors
   return (
-    <UserProvider>
+    <SafeUserContext.Provider value={{ user: null, error: null, isLoading: false }}>
       {children}
       <ProgressBar />
-      {process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS && (
-        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS} />
-      )}
-    </UserProvider>
+    </SafeUserContext.Provider>
   );
 }

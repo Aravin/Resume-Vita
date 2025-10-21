@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useSafeUser } from "../../../hooks/useSafeUser";
 import Link from "next/link";
 import { FaFilePdf, FaEdit } from "react-icons/fa";
 import axios from "axios";
@@ -73,7 +73,7 @@ export default function Page() {
     document.title = "Resume Preview - ResumeVita.com";
   }, []);
 
-  const { user, error: authError, isLoading: authLoading } = useUser();
+  const { user, error: authError, isLoading: authLoading } = useSafeUser();
   const { getSignedUrl, isLoading: isSignedUrlLoading, error: signedUrlError } = useSignedUrl();
   const { downloadExistingPDF, generateAndDownloadPDF, isSignedUrlLoading: isDownloadLoading } = useDownloadPDF();
   
