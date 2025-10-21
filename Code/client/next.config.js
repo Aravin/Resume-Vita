@@ -28,4 +28,6 @@ module.exports = {
   compiler: {
     styledComponents: true,
   },
+  // Exclude Auth0 routes from static analysis during build
+  serverExternalPackages: ['@auth0/nextjs-auth0'],
 }

@@ -223,7 +223,7 @@ export default function Navbar() {
               
               {/* Message */}
               <p className="text-sm text-base-content/70 mb-6">
-                Are you sure you want to sign out? You'll need to log in again to access your resume.
+                Are you sure you want to sign out? You&apos;ll need to log in again to access your resume.
               </p>
               
               {/* Buttons */}

@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: "ResumeVita.com Features",
 };
 
+// Force dynamic rendering to prevent build-time issues
+export const dynamic = 'force-dynamic';
+
 export default function Page() {
   return (
     <>

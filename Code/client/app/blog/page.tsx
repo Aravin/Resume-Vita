@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   description: "Expert insights on resume building, job searching, and career development. Learn how to create professional resumes and advance your career.",
 };
 
+// Force dynamic rendering to prevent build-time issues
+export const dynamic = 'force-dynamic';
+
 interface BlogPost {
   slug: string;
   title: string;

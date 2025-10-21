@@ -2,6 +2,9 @@ import "../styles/globals.css";
 import Layout from "../components/Layout";
 import ClientProviders from "../components/ClientProviders";
 
+// Force dynamic rendering to prevent build-time issues
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
   children,
 }: {
