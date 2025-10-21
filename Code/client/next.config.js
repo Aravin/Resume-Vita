@@ -30,4 +30,6 @@ module.exports = {
   },
   // Exclude Auth0 routes from static analysis during build
   serverExternalPackages: ['@auth0/nextjs-auth0'],
+  // Skip trailing slash redirect (moved from experimental)
+  skipTrailingSlashRedirect: true,
 }
