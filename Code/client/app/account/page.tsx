@@ -1,5 +1,9 @@
 "use client";
 
+// Prevent static generation for pages that require authentication
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+
 import React from "react";
 import { useSafeUser } from "../../hooks/useSafeUser";
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";

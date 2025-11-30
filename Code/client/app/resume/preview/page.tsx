@@ -1,5 +1,9 @@
 "use client";
 
+// Prevent static generation for pages that require authentication
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+
 import { useSafeUser } from "../../../hooks/useSafeUser";
 import Link from "next/link";
 import { FaFilePdf, FaEdit } from "react-icons/fa";

@@ -1,8 +1,11 @@
 import "../styles/globals.css";
 import Layout from "../components/Layout";
-import ClientProviders from "../components/ClientProviders";
+import ClientProvidersWrapper from "../components/ClientProvidersWrapper";
 import Script from "next/script";
 import { initGoogleAnalytics } from "../utils/gtag";
+
+// Prevent static generation to avoid SSR issues with Auth0
+export const dynamic = 'force-dynamic';
 
 export default function RootLayout({
   children,
@@ -32,9 +35,9 @@ export default function RootLayout({
         )}
       </head>
       <body>
-        <ClientProviders>
+        <ClientProvidersWrapper>
           <Layout>{children}</Layout>
-        </ClientProviders>
+        </ClientProvidersWrapper>
       </body>
     </html>
   );

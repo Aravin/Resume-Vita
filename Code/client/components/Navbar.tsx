@@ -21,11 +21,12 @@ const defaultNavigation: NavigationItem[] = [
   { name: (<><FaKey className="inline-block mr-2" /> Login</>), href: "/api/auth/login?returnTo=/resume" },
 ];
 
-const authenticatedNavigation: NavigationItem[] = [
+// Base logout URL - will be updated with full URL in component
+const getAuthenticatedNavigation = (): NavigationItem[] => [
   { name: (<><FaFileAlt className="inline-block mr-2" /> Your Resume</>), href: "/resume" },
   { name: (<><FaCog className="inline-block mr-2" /> Account & Settings</>), href: "/account" },
   { name: (<><FaBlog className="inline-block mr-2" /> Blog</>), href: "/blog" },
-  { name: (<><FaSignOutAlt className="inline-block mr-2" /> Sign out</>), href: "/api/auth/logout?returnTo=/", isLogout: true },
+  { name: (<><FaSignOutAlt className="inline-block mr-2" /> Sign out</>), href: "/api/auth/logout", isLogout: true },
 ];
 
 function classNames(...classes: string[]) {
@@ -34,6 +35,7 @@ function classNames(...classes: string[]) {
 
 export default function Navbar() {
   // Use safe user hook to prevent SSR issues
+  // During SSR, this will return safe defaults
   const { user, error, isLoading } = useSafeUser();
   
   const path = usePathname();
@@ -46,7 +48,7 @@ export default function Navbar() {
     if (isLoading) {
       return defaultNavigation;
     }
-    return user ? authenticatedNavigation : defaultNavigation;
+    return user ? getAuthenticatedNavigation() : defaultNavigation;
   }, [user, isLoading]);
 
   const handleLoginClick = () => {
@@ -60,7 +62,8 @@ export default function Navbar() {
 
   const handleLogoutConfirm = () => {
     trackLogout(); // Track logout event
-    window.location.href = "/api/auth/logout?returnTo=/";
+    const returnTo = encodeURIComponent(window.location.origin);
+    window.location.href = `/api/auth/logout?returnTo=${returnTo}`;
   };
 
   const handleLogoutCancel = () => {

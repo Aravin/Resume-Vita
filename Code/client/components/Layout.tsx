@@ -1,5 +1,12 @@
-import Navbar from "./Navbar";
+"use client";
+
+import dynamic from "next/dynamic";
 import Footer from "./Footer";
+
+// Dynamically import Navbar to prevent SSR execution
+const Navbar = dynamic(() => import("./Navbar"), {
+  ssr: false,
+});
 
 export default function Layout({ children }: any) {
   return (
