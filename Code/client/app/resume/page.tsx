@@ -41,6 +41,7 @@ export default function Page() {
   const { user, error: authError, isLoading: authLoading } = useSafeUser();
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [imageUrl, setImageUrl] = useState<string>('');
+  const [imageError, setImageError] = useState<boolean>(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const { getSignedUrl, isLoading: isSignedUrlLoading, error: signedUrlError } = useSignedUrl();
   const { downloadExistingPDF, isSignedUrlLoading: isDownloadLoading } = useDownloadPDF();
@@ -64,14 +65,27 @@ export default function Page() {
   // Load signed URL for image preview
   React.useEffect(() => {
     if (userId && data?.isPDFGenerated === true) {
+      setIsImageLoading(true);
+      setImageError(false);
       getSignedUrl(userId, 'webp')
-        .then(url => setImageUrl(url))
+        .then(url => {
+          setImageUrl(url);
+          setImageError(false);
+          setIsImageLoading(false);
+          // Image component will handle its own loading state
+        })
         .catch(error => {
-          // Fallback to direct URL if signed URL fails
-          const s3BaseUrl = process.env.NEXT_PUBLIC_S3_BUCKET || '';
-          const s3Url = s3BaseUrl.startsWith('http') ? s3BaseUrl : `https://${s3BaseUrl}`;
-          setImageUrl(`${s3Url}/${userId}/${userId}.webp?t=${Date.now()}`);
+          console.error('Failed to get signed URL:', error);
+          setIsImageLoading(false);
+          setImageError(true);
+          setImageUrl('');
+          // Don't set a fallback URL - it won't work without authentication
         });
+    } else {
+      // Reset image URL when conditions aren't met
+      setImageUrl('');
+      setIsImageLoading(false);
+      setImageError(false);
     }
   }, [userId, data?.isPDFGenerated, getSignedUrl]);
 
@@ -239,33 +253,38 @@ export default function Page() {
                     <Link href="/resume/preview" aria-label="Preview resume">
                       <div className="relative w-[240px] h-[300px] overflow-hidden rounded-sm shadow-sm">
                         {isImageLoading && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+                          <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
                             <Loader />
                           </div>
                         )}
-                        <Image
-                          className="cursor-pointer hover:opacity-50 transition-opacity object-cover object-top"
-                          src={imageUrl || `${process.env.NEXT_PUBLIC_S3_BUCKET}/${userId}/${userId}.webp?t=${Date.now()}`}
-                          width={240}
-                          height={339}
-                          alt="PDF Preview"
-                          priority
-                          loading="eager"
-                          onLoadingComplete={() => setIsImageLoading(false)}
-                          onError={(e) => {
-                            setIsImageLoading(false);
-                            const img = e.target as HTMLImageElement;
-                            img.style.display = 'none';
-                            const fallback = img.parentElement?.querySelector('.image-fallback');
-                            if (fallback) fallback.classList.remove('hidden');
-                          }}
-                        />
-                        <div className="image-fallback hidden absolute inset-0 flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg">
-                          <div className="text-center p-4">
-                            <div className="text-gray-500 mb-2">Preview not available</div>
-                            <div className="text-sm text-gray-400">Click to generate preview</div>
-                          </div>
-                        </div>
+                        {imageUrl && !imageError ? (
+                          <Image
+                            className="cursor-pointer hover:opacity-50 transition-opacity object-cover object-top"
+                            src={imageUrl}
+                            width={240}
+                            height={339}
+                            alt="PDF Preview"
+                            priority
+                            loading="eager"
+                            onLoadingComplete={() => {
+                              setImageError(false);
+                            }}
+                            onError={() => {
+                              setIsImageLoading(false);
+                              setImageError(true);
+                              setImageUrl('');
+                            }}
+                          />
+                        ) : (
+                          !isImageLoading && (
+                            <div className="image-fallback absolute inset-0 flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg">
+                              <div className="text-center p-4">
+                                <div className="text-gray-500 mb-2">Preview not available</div>
+                                <div className="text-sm text-gray-400">Click to generate preview</div>
+                              </div>
+                            </div>
+                          )
+                        )}
                       </div>
                     </Link>
                   </div>

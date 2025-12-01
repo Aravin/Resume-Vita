@@ -108,14 +108,24 @@ yarn start
 
 1. Create an Auth0 account at [auth0.com](https://auth0.com)
 2. Create a new Application (Regular Web Application)
-3. Configure the following settings:
-   - **Allowed Callback URLs**: `http://localhost:3000/api/auth/callback` (for development)
-   - **Allowed Logout URLs**: `http://localhost:3000` (for development)
-   - **Allowed Web Origins**: `http://localhost:3000` (for development)
+3. Configure the following settings in your Auth0 Dashboard:
+
+   **For Development:**
+   - **Allowed Callback URLs**: `http://localhost:3000/auth/callback`
+   - **Allowed Logout URLs**: `http://localhost:3000`
+   - **Allowed Web Origins**: `http://localhost:3000`
+
+   **For Production:**
+   - **Allowed Callback URLs**: `https://yourdomain.com/auth/callback`
+   - **Allowed Logout URLs**: `https://yourdomain.com`
+   - **Allowed Web Origins**: `https://yourdomain.com`
+
+   **Important:** Make sure the callback URL matches exactly what's configured in your code (`/auth/callback`). The redirect URI is constructed as: `{AUTH0_BASE_URL}/auth/callback`
+
 4. Copy the Domain, Client ID, and Client Secret to your `.env.local` file
 5. Generate a secret for `AUTH0_SECRET` using: `openssl rand -hex 32`
 
-For production, update the callback, logout, and web origins URLs to your production domain.
+**Note:** If you're using social connections (like LinkedIn), make sure the callback URLs are also added in the social connection settings in Auth0.
 
 ## Project Structure
 
