@@ -1,5 +1,7 @@
 // Error tracking utility for logging errors with detailed information
 
+import { trackEvent } from './gtag';
+
 interface ErrorDetails {
   message: string;
   stack?: string;
@@ -17,12 +19,14 @@ const DISCORD_URL = 'https://discord.gg/ug5aW9FT';
 
 /**
  * Logs error details to console and can be extended to send to error tracking service
+ * @param fatal - Set to true for critical errors that break the app (default: false)
  */
 export const logError = (error: Error | unknown, context?: {
   statusCode?: number;
   path?: string;
   userId?: string;
   additionalInfo?: Record<string, any>;
+  fatal?: boolean;
 }) => {
   const errorDetails: ErrorDetails = {
     message: error instanceof Error ? error.message : String(error),
@@ -41,10 +45,21 @@ export const logError = (error: Error | unknown, context?: {
     console.error('Error Details:', errorDetails);
   }
 
+  // Track error in Google Analytics
+  if (typeof window !== 'undefined') {
+    trackEvent('exception', {
+      description: errorDetails.message,
+      fatal: context?.fatal || false, // Set to true for critical errors that break the app
+      error_type: errorDetails.errorType || 'Unknown',
+      status_code: errorDetails.statusCode || 'N/A',
+      path: errorDetails.path || 'N/A',
+      ...(errorDetails.userId && { user_id: errorDetails.userId }),
+    });
+  }
+
   // In production, you can send this to an error tracking service
   // Example: Sentry, LogRocket, etc.
   if (process.env.NODE_ENV === 'production') {
-    // TODO: Integrate with error tracking service
     console.error('Error occurred:', errorDetails);
   }
 

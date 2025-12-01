@@ -84,6 +84,35 @@ NEXT_PUBLIC_S3_BUCKET=https://your-bucket-name.s3.region.amazonaws.com
 NEXT_PUBLIC_GOOGLE_ANALYTICS=G-XXXXXXXXXX
 ```
 
+**Setting Up Daily Error Email Reports in Google Analytics 4 (GA4):**
+
+**Method 1: Scheduled Email Reports (Recommended)**
+1. Go to your [Google Analytics Dashboard](https://analytics.google.com)
+2. Navigate to **Reports** → **Engagement** → **Events**
+3. Click the **"exception"** event to view error details
+4. Click the **Share** icon (top right) → **Schedule email**
+5. Configure:
+   - **Email to**: Your email address
+   - **Frequency**: Daily
+   - **Subject**: "Daily Error Report - Resume Vita"
+6. Click **Schedule**
+
+**Method 2: Custom Insights (For Anomaly Detection)**
+1. Go to **Home** page in GA4
+2. Scroll to **"View all insights"** section
+3. Click **"Create"** → **"Create new"**
+4. Configure:
+   - **Name**: "Error Anomaly Detection"
+   - **Condition**: Exception event count increases significantly
+   - **Frequency**: Daily
+   - **Email**: Your email address
+5. Click **Save**
+
+**Viewing Errors in Real-time:**
+- Go to **Reports** → **Realtime** → **Events**
+- Filter by event name: "exception"
+- Or create a custom report: **Explore** → **Free Form** → Add "exception" event
+
 ### Running the Development Server
 
 ```bash
@@ -172,8 +201,14 @@ Errors are automatically logged with detailed context including:
 - User context (when available)
 - Timestamps
 
+**Google Analytics Integration:**
+- All errors are automatically tracked in Google Analytics as "exception" events
+- Error details include: error type, status code, path, and user ID (when available)
+- View errors in Google Analytics under **Events** → **exception**
+- Set up custom alerts to receive daily email reports (see Google Analytics setup below)
+
 Error logging is implemented in:
-- `utils/errorTracking.ts` - Core error tracking utilities
+- `utils/errorTracking.ts` - Core error tracking utilities with GA integration
 - API routes - Backend error logging
 - Custom hooks (`useFetch`, `useSignedUrl`) - Frontend error logging
 
