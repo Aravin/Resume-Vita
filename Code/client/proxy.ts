@@ -10,7 +10,16 @@ const auth0 = new Auth0Client({
   },
 });
 
-export default async function middleware(req: NextRequest) {
+// Next.js 16: middleware.ts is deprecated, use proxy.ts instead
+// The proxy function runs in nodejs runtime
+export async function proxy(request: Request): Promise<Response> {
+  // Convert Request to NextRequest for Auth0 compatibility
+  const req = new NextRequest(request);
+  
+  return handleRequest(req);
+}
+
+async function handleRequest(req: NextRequest) {
   // Handle Auth0 routes first
   const authResponse = await auth0.middleware(req);
   if (authResponse) {
@@ -52,3 +61,4 @@ export const config = {
     "/auth/:path*"
   ],
 };
+
