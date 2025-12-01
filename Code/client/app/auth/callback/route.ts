@@ -3,6 +3,7 @@ import { Auth0Client } from '@auth0/nextjs-auth0/server';
 
 const auth0 = new Auth0Client({
   signInReturnToPath: '/resume',
+  logoutStrategy: 'v2', // Use v2 logout endpoint (suppresses RP-initiated logout warning)
   routes: {
     callback: '/auth/callback',
     login: '/api/auth/login',
