@@ -26,9 +26,12 @@ export const initGoogleAnalytics = (measurementId: string) => {
 // Track page views
 export const trackPageView = (url: string) => {
   if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('config', process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS!, {
-      page_path: url,
-    });
+    const gaId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS;
+    if (gaId) {
+      window.gtag('config', gaId, {
+        page_path: url,
+      });
+    }
   }
 };
 

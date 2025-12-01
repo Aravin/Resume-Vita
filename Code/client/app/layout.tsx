@@ -2,7 +2,8 @@ import "../styles/globals.css";
 import Layout from "../components/Layout";
 import ClientProvidersWrapper from "../components/ClientProvidersWrapper";
 import Script from "next/script";
-import { initGoogleAnalytics } from "../utils/gtag";
+import { Suspense } from "react";
+import GoogleAnalytics from "../components/GoogleAnalytics";
 
 // Prevent static generation to avoid SSR issues with Auth0
 export const dynamic = 'force-dynamic';
@@ -25,17 +26,33 @@ export default function RootLayout({
         {gaId && (
           <>
             <Script
+              id="google-analytics-dataLayer"
+              strategy="beforeInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  window.gtag = function(){window.dataLayer.push(Array.prototype.slice.call(arguments));}
+                  window.gtag('js', new Date());
+                  window.gtag('config', '${gaId}', {
+                    page_path: window.location.pathname + (window.location.search || ''),
+                  });
+                `,
+              }}
+            />
+            <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
               strategy="afterInteractive"
             />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`(${initGoogleAnalytics.toString()})('${gaId}');`}
-            </Script>
           </>
         )}
       </head>
       <body>
         <ClientProvidersWrapper>
+          {gaId && (
+            <Suspense fallback={null}>
+              <GoogleAnalytics gaId={gaId} />
+            </Suspense>
+          )}
           <Layout>{children}</Layout>
         </ClientProvidersWrapper>
       </body>
