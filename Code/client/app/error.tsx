@@ -1,38 +1,44 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
-import { GITHUB_REPO_URL, DISCORD_URL } from '../utils/errorTracking';
+import { logError, formatErrorMessage, getGitHubIssueUrl, DISCORD_URL } from '../utils/errorTracking';
 
-export default function NotFound() {
-  // Compute the GitHub issue URL synchronously during render
-  const url = typeof window !== 'undefined' ? window.location.href : 'N/A';
-  const githubIssueUrl = `${GITHUB_REPO_URL}/issues/new?title=${encodeURIComponent('404 Page Not Found')}&body=${encodeURIComponent(`## Page Not Found
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    // Log the error
+    logError(error, {
+      path: typeof window !== 'undefined' ? window.location.pathname : undefined,
+    });
+  }, [error]);
 
-**URL:** ${url}
-
-**Timestamp:** ${new Date().toISOString()}
-
-## Description
-I encountered a 404 error on the above URL.
-
-## Expected Behavior
-The page should exist and be accessible.
-
-## Additional Context
-(Please provide any additional context about how you reached this page)
-`)}`;
+  const errorMessage = formatErrorMessage(error);
+  const githubIssueUrl = getGitHubIssueUrl(error, {
+    path: typeof window !== 'undefined' ? window.location.pathname : undefined,
+  });
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-100 px-4">
       <div className="max-w-2xl w-full text-center">
         <div className="mb-8">
-          <h1 className="text-6xl font-bold text-warning mb-4">404</h1>
+          <h1 className="text-6xl font-bold text-error mb-4">Oops!</h1>
           <h2 className="text-3xl font-semibold text-base-content mb-4">
-            Page Not Found
+            Something went wrong
           </h2>
           <p className="text-lg text-base-content/70 mb-6">
-            The page you're looking for doesn't exist or has been moved.
+            {errorMessage}
           </p>
+          {error.digest && (
+            <p className="text-sm text-base-content/50 mb-4">
+              Error ID: {error.digest}
+            </p>
+          )}
         </div>
 
         <div className="card bg-base-200 shadow-xl mb-6">
@@ -82,17 +88,18 @@ The page should exist and be accessible.
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/" className="btn btn-primary">
+          <button
+            onClick={reset}
+            className="btn btn-primary"
+          >
+            Try Again
+          </button>
+          <Link href="/" className="btn btn-outline">
             Go Home
           </Link>
-          <button
-            onClick={() => window.history.back()}
-            className="btn btn-outline"
-          >
-            Go Back
-          </button>
         </div>
       </div>
     </div>
   );
 }
+

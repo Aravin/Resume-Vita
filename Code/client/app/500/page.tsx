@@ -1,37 +1,43 @@
 'use client';
 
 import Link from 'next/link';
-import { GITHUB_REPO_URL, DISCORD_URL } from '../utils/errorTracking';
+import { GITHUB_REPO_URL, DISCORD_URL } from '../../utils/errorTracking';
 
-export default function NotFound() {
-  // Compute the GitHub issue URL synchronously during render
-  const url = typeof window !== 'undefined' ? window.location.href : 'N/A';
-  const githubIssueUrl = `${GITHUB_REPO_URL}/issues/new?title=${encodeURIComponent('404 Page Not Found')}&body=${encodeURIComponent(`## Page Not Found
-
-**URL:** ${url}
+export default function ServerError() {
+  const githubIssueUrl = `${GITHUB_REPO_URL}/issues/new?title=${encodeURIComponent('500 Internal Server Error')}&body=${encodeURIComponent(`## Internal Server Error
 
 **Timestamp:** ${new Date().toISOString()}
 
+**URL:** (Please provide the URL where you encountered this error)
+
 ## Description
-I encountered a 404 error on the above URL.
+I encountered a 500 internal server error.
+
+## Steps to Reproduce
+1. 
+2. 
+3. 
 
 ## Expected Behavior
-The page should exist and be accessible.
+
+
+## Actual Behavior
+
 
 ## Additional Context
-(Please provide any additional context about how you reached this page)
+(Please provide any additional context)
 `)}`;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-100 px-4">
       <div className="max-w-2xl w-full text-center">
         <div className="mb-8">
-          <h1 className="text-6xl font-bold text-warning mb-4">404</h1>
+          <h1 className="text-6xl font-bold text-error mb-4">500</h1>
           <h2 className="text-3xl font-semibold text-base-content mb-4">
-            Page Not Found
+            Internal Server Error
           </h2>
           <p className="text-lg text-base-content/70 mb-6">
-            The page you're looking for doesn't exist or has been moved.
+            Something went wrong on our end. We're working to fix it.
           </p>
         </div>
 
@@ -86,7 +92,11 @@ The page should exist and be accessible.
             Go Home
           </Link>
           <button
-            onClick={() => window.history.back()}
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.history.back();
+              }
+            }}
             className="btn btn-outline"
           >
             Go Back
@@ -96,3 +106,4 @@ The page should exist and be accessible.
     </div>
   );
 }
+

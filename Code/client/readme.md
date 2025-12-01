@@ -144,6 +144,48 @@ yarn start
 - 🎯 ATS (Applicant Tracking System) optimization
 - 📊 ATS score analysis
 - 🎨 Multiple resume templates
+- 🛡️ Comprehensive error handling with detailed logging and user-friendly error pages
+
+## Error Handling
+
+The application includes comprehensive error handling to improve user experience and help with debugging:
+
+### Error Pages
+
+- **404 Page** (`/app/not-found.tsx`) - Displays when a page is not found
+- **500 Page** (`/app/500/page.tsx`) - Displays for server errors
+- **Error Boundary** (`/app/error.tsx`) - Catches client-side errors
+- **Global Error Boundary** (`/app/global-error.tsx`) - Catches critical errors
+
+All error pages include:
+- Clear error messages
+- Links to report issues on GitHub (with pre-filled error details)
+- Links to get help on Discord
+- Options to retry or navigate home
+
+### Error Tracking
+
+Errors are automatically logged with detailed context including:
+- Error message and stack trace
+- HTTP status codes
+- Request paths
+- User context (when available)
+- Timestamps
+
+Error logging is implemented in:
+- `utils/errorTracking.ts` - Core error tracking utilities
+- API routes - Backend error logging
+- Custom hooks (`useFetch`, `useSignedUrl`) - Frontend error logging
+
+### Reporting Issues
+
+When users encounter errors, they can:
+1. **Report on GitHub** - Click the "Report Issue on GitHub" button which opens a new issue with pre-filled error details
+2. **Get Help on Discord** - Join the Discord community for support
+
+### Error Display Component
+
+The `ErrorDisplay` component (`/components/common/ErrorDisplay.tsx`) provides a reusable way to display errors consistently across the application with GitHub and Discord support links.
 
 ## Learn More
 
