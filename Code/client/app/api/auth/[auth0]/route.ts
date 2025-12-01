@@ -10,19 +10,23 @@ const auth0 = new Auth0Client({
   },
 });
 
-// In Auth0 v4, the middleware handles all auth routes
+// In Auth0 v4, the middleware (proxy) handles all auth routes
 // This route handler exists because Next.js requires it for dynamic routes
 // The middleware will intercept and handle these requests before they reach here
+// But if a request reaches here, handle it explicitly
 export async function GET(req: NextRequest) {
-  // This should rarely be called as middleware handles auth routes
-  // But if it is, handle login specifically
   const url = new URL(req.url);
-  if (url.pathname.includes('/login')) {
+  const pathname = url.pathname;
+  
+  // Handle login
+  if (pathname.includes('/login')) {
     const returnTo = url.searchParams.get('returnTo') || '/resume';
     return auth0.startInteractiveLogin({ returnTo });
   }
   
-  // For other routes, return 404 (middleware should have handled them)
+  // For logout and other routes, the middleware should have handled them
+  // If we reach here, it means the middleware didn't handle it
+  // Return 404 as fallback
   return NextResponse.json({ error: 'Not found' }, { status: 404 });
 }
 

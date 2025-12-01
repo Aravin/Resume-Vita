@@ -20,24 +20,41 @@ export async function proxy(request: Request): Promise<Response> {
 }
 
 async function handleRequest(req: NextRequest) {
-  // Handle Auth0 routes first
+  const pathname = req.nextUrl.pathname;
+  
+  // Handle Auth0 routes first (login, logout, callback, etc.)
+  // The middleware automatically handles all configured Auth0 routes
   const authResponse = await auth0.middleware(req);
+  
+  // If middleware returns a response, check if it's a valid response to return
   if (authResponse) {
-    // Check if it's a valid response (not NextResponse.next())
-    // If it's a redirect or has content, it's valid
+    // Check if it's a redirect (3xx status) - logout, login, callback all redirect
     if (authResponse.status >= 300 && authResponse.status < 400) {
-      return authResponse; // Valid redirect
-    }
-    // If it has a body or content-type, it's valid
-    const contentType = authResponse.headers.get('content-type');
-    if (contentType || authResponse.body) {
       return authResponse;
     }
-    // Otherwise, it might be next(), continue to route protection
+    
+    // Check if response has a Location header (redirect)
+    const location = authResponse.headers.get('location');
+    if (location) {
+      return authResponse;
+    }
+    
+    // Check if response has content-type (API response)
+    const contentType = authResponse.headers.get('content-type');
+    if (contentType) {
+      return authResponse;
+    }
+    
+    // For Auth0 routes (login, logout, callback), if middleware returned something,
+    // it should be a valid response - return it
+    if (pathname.startsWith('/api/auth/') || pathname.startsWith('/auth/')) {
+      // If it's an Auth0 route and middleware returned a response, return it
+      // This handles cases where logout might return a response that doesn't match above checks
+      return authResponse;
+    }
   }
 
   // Check if route requires authentication
-  const pathname = req.nextUrl.pathname;
   const protectedPaths = ['/account', '/resume'];
   const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path));
 
