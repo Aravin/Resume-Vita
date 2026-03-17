@@ -14,6 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const gaId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS;
+  // GA4 IDs are G-XXXXXXXXXX; legacy UA IDs are UA-XXXXXXXXX-X
+  const isValidGaId = gaId && /^(G-[A-Z0-9]+|UA-\d+-\d+)$/.test(gaId.trim());
 
   return (
     <html lang="en" data-theme="emerald">
@@ -22,8 +24,8 @@ export default function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1.0"
         />
-        {/* Google Analytics */}
-        {gaId && (
+        {/* Google Analytics - only load when Measurement ID is valid (e.g. G-XXXXXXXXXX) */}
+        {isValidGaId && (
           <>
             <Script
               id="google-analytics-dataLayer"
@@ -48,7 +50,7 @@ export default function RootLayout({
       </head>
       <body>
         <ClientProvidersWrapper>
-          {gaId && (
+          {isValidGaId && gaId && (
             <Suspense fallback={null}>
               <GoogleAnalytics gaId={gaId} />
             </Suspense>
