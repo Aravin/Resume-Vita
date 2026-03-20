@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { appConfig } from './config';
 import { router } from './router';
-import { db } from './helpers/db';
+import { getMongoClient } from './helpers/db';
 
 // initialize the express app
 const app = express();
@@ -12,9 +12,12 @@ app
     .use(cors())
     .use('/public', express.static(__dirname + '/public'))
     .use(async (req, res, next) => {
-        // initialize the db
-        res.locals.db = db;
-        next()
+        try {
+          res.locals.db = await getMongoClient();
+          next();
+        } catch (e) {
+          next(e);
+        }
       })
     .use(express.json())
     .use('/v1', router);
