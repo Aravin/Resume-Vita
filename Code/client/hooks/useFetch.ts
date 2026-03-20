@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { logError } from '../utils/errorTracking';
 
 interface FetchState<T> {
   data: T | null;
@@ -55,29 +54,9 @@ const useFetch = <T>(url: string | null) => {
             }
             return;
           }
-          
-          // Try to get error details from response
-          let errorMessage = `HTTP error! status: ${response.status} - ${response.statusText}`;
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorData.error || errorMessage;
-          } catch {
-            // If response is not JSON, use default message
-          }
-          
-          const error = new Error(errorMessage);
-          
-          // Log error with context
-          logError(error, {
-            statusCode: response.status,
-            path: url,
-            additionalInfo: {
-              responseStatus: response.status,
-              responseStatusText: response.statusText,
-            },
-          });
-          
-          throw error;
+          throw new Error(
+            `HTTP error! status: ${response.status} - ${response.statusText}`
+          );
         }
 
         const data = await response.json();
@@ -92,18 +71,9 @@ const useFetch = <T>(url: string | null) => {
         }
 
         if (isMounted) {
-          const errorObj = error instanceof Error ? error : new Error(String(error));
-          const errorMessage = errorObj.message || 'An error occurred while fetching data';
-          
-          // Log error if not already logged above
-          if (!errorObj.message.includes('HTTP error')) {
-            logError(errorObj, {
-              path: url,
-              additionalInfo: {
-                errorType: errorObj.constructor.name,
-              },
-            });
-          }
+          const errorMessage = error instanceof Error 
+            ? error.message 
+            : 'An error occurred while fetching data';
           
           setState({
             data: null,

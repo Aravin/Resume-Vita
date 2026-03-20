@@ -2,13 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
-import ErrorDisplay from "@/components/common/ErrorDisplay";
-import { logError } from "@/utils/errorTracking";
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const [id, setId] = useState<string | null>(null);
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { getSignedUrl } = useSignedUrl();
 
@@ -43,22 +41,11 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
         const url = await getSignedUrl(id);
         setSignedUrl(url);
       } catch (err) {
-        const errorObj = err instanceof Error ? err : new Error(String(err));
-        logError(errorObj, {
-          path: `/public/${id}`,
-          additionalInfo: { userId: id },
-        });
-        
-        // Check for 404 errors - either by message content or status code
-        const isNotFound = 
-          errorObj.message.includes('PDF not found') ||
-          errorObj.message.includes('not found') ||
-          errorObj.message.includes('does not exist');
-        
-        if (isNotFound) {
-          setError(new Error('Resume not found or no longer available.'));
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+        if (errorMessage.includes('PDF not found')) {
+          setError('Resume not found or no longer available.');
         } else {
-          setError(errorObj);
+          setError('Unable to load the resume. Please try again later.');
         }
       } finally {
         setIsLoading(false);
@@ -80,55 +67,26 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
   if (error) {
     return (
-      <div className="fixed inset-0 bg-white" style={{ zIndex: 9999 }}>
-        <ErrorDisplay
-          error={error}
-          title={error.message.includes('not found') ? 'Resume Not Found' : 'Unable to Load Resume'}
-          context={{ path: `/public/${id}` }}
-          onRetry={() => {
-            setError(null);
-            setIsLoading(true);
-            if (id) {
-              getSignedUrl(id)
-                .then(url => {
-                  setSignedUrl(url);
-                  setIsLoading(false);
-                })
-                .catch(err => {
-                  const errorObj = err instanceof Error ? err : new Error(String(err));
-                  setError(errorObj);
-                  setIsLoading(false);
-                });
-            }
-          }}
-        />
+      <div className="fixed inset-0 flex items-center justify-center bg-white" style={{ zIndex: 9999 }}>
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold text-error mb-4">{error}</h1>
+          <p className="text-gray-600">
+            If you believe this is an error, please contact the resume owner.
+          </p>
+        </div>
       </div>
     );
   }
 
   if (!signedUrl) {
     return (
-      <div className="fixed inset-0 bg-white" style={{ zIndex: 9999 }}>
-        <ErrorDisplay
-          error="Unable to load resume. Please try again later."
-          title="Loading Error"
-          context={{ path: `/public/${id}` }}
-          onRetry={() => {
-            if (id) {
-              setIsLoading(true);
-              getSignedUrl(id)
-                .then(url => {
-                  setSignedUrl(url);
-                  setIsLoading(false);
-                })
-                .catch(err => {
-                  const errorObj = err instanceof Error ? err : new Error(String(err));
-                  setError(errorObj);
-                  setIsLoading(false);
-                });
-            }
-          }}
-        />
+      <div className="fixed inset-0 flex items-center justify-center bg-white" style={{ zIndex: 9999 }}>
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold text-error mb-4">Unable to load resume</h1>
+          <p className="text-gray-600">
+            Please try again later.
+          </p>
+        </div>
       </div>
     );
   }

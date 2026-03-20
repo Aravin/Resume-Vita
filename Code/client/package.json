@@ -21,11 +21,11 @@
 	},
 	"private": true,
 	"resolutions": {
-		"eslint-plugin-react-hooks": "7.0.0"
+		"baseline-browser-mapping": "^2.8.32"
 	},
 	"scripts": {
 		"dev": "next dev",
-		"build": "next build",
+		"build": "next build --webpack",
 		"start": "next start",
 		"lint": "next lint",
 		"test": "jest",
@@ -47,12 +47,12 @@
 		"axios": "^1.7.9",
 		"daisyui": "^4.12.24",
 		"nanoid": "^5.0.9",
-		"next": "^16.0.7",
+		"next": "^16.0.0",
 		"next-nprogress-bar": "^2.4.3",
 		"postcss": "^8.5.1",
-		"react": "^19.2.1",
+		"react": "^19.2.0",
 		"react-confirm-alert": "^3.0.6",
-		"react-dom": "^19.2.1",
+		"react-dom": "^19.2.0",
 		"react-draggable": "^4.4.7",
 		"react-hook-form": "^7.54.2",
 		"react-icons": "^5.4.0",
