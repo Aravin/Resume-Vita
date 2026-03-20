@@ -1,15 +1,11 @@
-import Link from "next/link";
+import { ErrorScreen } from "../../components/errors/ErrorScreen";
 
-export default function ServerError() {
+export default function ServerErrorPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">500</h1>
-        <p className="text-xl text-gray-600 mb-8">Something went wrong</p>
-        <Link href="/" className="btn btn-primary">
-          Go Home
-        </Link>
-      </div>
-    </div>
+    <ErrorScreen
+      title="Server error"
+      description="We couldn’t complete this request. Please try again in a moment. If the problem continues, contact us below or open an issue on GitHub."
+      code="500"
+    />
   );
 }
