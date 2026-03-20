@@ -23,12 +23,15 @@ export async function readResume(req: Request, res: Response) {
             return res.sendStatus(404);
         }
 
+        const resume = response.resume ?? {};
+
         // Calculate ATS score using the resume data from the response
-        const atsScore = calculateATSScore(response.resume);
+        const atsScore = calculateATSScore(resume);
 
         // Add ATS score to response
         res.send({
             ...response,
+            resume,
             atsScore
         });
     }

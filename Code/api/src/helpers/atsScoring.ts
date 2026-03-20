@@ -62,7 +62,12 @@ const REQUIREMENTS = {
 // Action verbs to check in experience
 const EXPERIENCE_ACTION_VERBS = new Set(['developed', 'managed', 'created']);
 
-export function calculateATSScore(resume: ResumeContent): ATSScore {
+export function calculateATSScore(resume: ResumeContent | null | undefined): ATSScore {
+  const safe: ResumeContent =
+    resume !== null && resume !== undefined && typeof resume === 'object' && !Array.isArray(resume)
+      ? resume
+      : {};
+
   const improvements = {
     keywords: [] as string[],
     format: [] as string[],
@@ -70,24 +75,24 @@ export function calculateATSScore(resume: ResumeContent): ATSScore {
   };
 
   // Pre-compute commonly used values
-  const hasEmployments = Array.isArray(resume.employments) && resume.employments.length > 0;
-  const hasSkills = Array.isArray(resume.skills) && resume.skills.length > 0;
-  const hasEducation = Array.isArray(resume.educations) && resume.educations.length > 0;
-  const resumeText = JSON.stringify(resume).toLowerCase();
+  const hasEmployments = Array.isArray(safe.employments) && safe.employments.length > 0;
+  const hasSkills = Array.isArray(safe.skills) && safe.skills.length > 0;
+  const hasEducation = Array.isArray(safe.educations) && safe.educations.length > 0;
+  const resumeText = JSON.stringify(safe).toLowerCase();
 
   // 1. Keywords scoring (30% of total)
   const keywordsResult = calculateKeywordScore(resumeText, improvements);
 
   // 2. Format scoring (30% of total)
   const formatResult = calculateFormatScore(
-    resume,
+    safe,
     { hasEmployments, hasSkills, hasEducation },
     improvements
   );
 
   // 3. Content quality scoring (40% of total)
   const contentResult = calculateContentScore(
-    resume,
+    safe,
     { hasEmployments, hasSkills, hasEducation },
     improvements
   );
@@ -190,11 +195,11 @@ function calculateContentScore(
     summaryQuality: summary.length >= REQUIREMENTS.SUMMARY_MIN_LENGTH,
     experienceDetail: cached.hasEmployments ? checkExperienceDetail(resume.employments!) : false,
     skillsVariety: cached.hasSkills && (resume.skills?.length ?? 0) >= REQUIREMENTS.MIN_SKILLS_COUNT,
-    dateCompleteness: cached.hasEmployments && resume.employments!.every(emp => 
-      emp.startDate && (emp.endDate || emp.isCurrent)
+    dateCompleteness: cached.hasEmployments && (resume.employments ?? []).every(emp =>
+      Boolean(emp && emp.startDate && (emp.endDate || emp.isCurrent))
     ),
-    educationDetail: cached.hasEducation && resume.educations!.every(edu => 
-      edu.institution && edu.subject && edu.startDate
+    educationDetail: cached.hasEducation && (resume.educations ?? []).every(edu =>
+      Boolean(edu && edu.institution && edu.subject && edu.startDate)
     )
   };
 
@@ -229,8 +234,9 @@ function calculateContentScore(
 
 function checkExperienceDetail(employments: NonNullable<ResumeContent['employments']>): boolean {
   return employments.every(emp => {
+    if (!emp || typeof emp !== 'object') return false;
     const summary = emp.summary?.trim().toLowerCase() || '';
-    return summary.length >= REQUIREMENTS.EXPERIENCE_MIN_LENGTH && 
+    return summary.length >= REQUIREMENTS.EXPERIENCE_MIN_LENGTH &&
            Array.from(EXPERIENCE_ACTION_VERBS).some(verb => summary.includes(verb));
   });
 }

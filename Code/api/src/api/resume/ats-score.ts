@@ -47,14 +47,15 @@ export async function getATSScore(req: Request, res: Response) {
 
         const query = { user: params.userId };
 
-        const resume = await collection.findOne(query);
+        const doc = await collection.findOne(query);
 
-        if (!resume) {
+        if (!doc) {
             return res.sendStatus(404);
         }
 
-        // Calculate ATS score
-        const atsScore = calculateATSScore(resume as ResumeContent);
+        const resumePayload = (doc as { resume?: ResumeContent }).resume ?? {};
+
+        const atsScore = calculateATSScore(resumePayload);
 
         res.send({ atsScore });
     }
