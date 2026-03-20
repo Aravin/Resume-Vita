@@ -24,31 +24,30 @@ export default function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1.0"
         />
-        {/* Google Analytics - only load when Measurement ID is valid (e.g. G-XXXXXXXXXX) */}
+      </head>
+      <body>
+        {/* GA4: load gtag.js first, then inline init (same order as Google / Next.js docs).
+            Use the official dataLayer stub — push(arguments), not push([...]), or hits may never send. */}
         {isValidGaId && (
           <>
-            <Script
-              id="google-analytics-dataLayer"
-              strategy="beforeInteractive"
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  window.gtag = function(){window.dataLayer.push(Array.prototype.slice.call(arguments));}
-                  window.gtag('js', new Date());
-                  window.gtag('config', '${gaId}', {
-                    page_path: window.location.pathname + (window.location.search || ''),
-                  });
-                `,
-              }}
-            />
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
               strategy="afterInteractive"
             />
+            <Script id="google-analytics-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaId}', {
+                  send_page_view: true,
+                  page_path: window.location.pathname + (window.location.search || ''),
+                  page_location: window.location.href,
+                });
+              `}
+            </Script>
           </>
         )}
-      </head>
-      <body>
         <ClientProvidersWrapper>
           {isValidGaId && gaId && (
             <Suspense fallback={null}>

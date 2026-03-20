@@ -28,8 +28,10 @@ export const trackPageView = (url: string) => {
   if (typeof window !== 'undefined' && window.gtag) {
     const gaId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS;
     if (gaId) {
+      const path = url.startsWith('/') ? url : `/${url}`;
       window.gtag('config', gaId, {
-        page_path: url,
+        page_path: path,
+        page_location: `${window.location.origin}${path}`,
       });
     }
   }
