@@ -1,24 +1,31 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
 export default function CallToAction() {
   return <>
-    <section className="py-8 leading-7 bg-white sm:py-12 md:py-16 lg:py-24">
-      <div className="max-w-6xl px-4 px-10 mx-auto border-solid lg:px-12">
-        <div className="flex flex-col items-start leading-7 border-0 border-gray-200 lg:items-center lg:flex-row">
-          <div className="box-border flex-1 text-center border-solid sm:text-left">
-            <h2 className="m-0 text-4xl font-semibold leading-tight tracking-tight text-left border-0 border-gray-200 sm:text-5xl">
+    <section className="bg-muted/35 py-8 leading-7 sm:py-12 md:py-16 lg:py-24 dark:bg-muted/20">
+      <div className="mx-auto max-w-6xl px-4 px-10 lg:px-12">
+        <div className="flex flex-col items-start rounded-[2rem] border border-border/70 bg-card/85 p-8 shadow-lg lg:flex-row lg:items-center lg:p-12 dark:bg-card/75">
+          <div className="box-border flex-1 text-center sm:text-left">
+            <h2 className="m-0 text-left text-4xl font-bold leading-tight text-foreground sm:text-5xl">
               Boost Your Productivity
             </h2>
-            <p className="mt-2 text-xl text-left border-0 border-gray-200 sm:text-2xl">
+            <p className="mt-2 text-left text-xl text-muted-foreground sm:text-2xl">
               Our service will help you maximize and boost your productivity.
             </p>
           </div>
-          <a href="/resume" className="inline-flex items-center justify-center w-full px-5 py-4 mt-6 ml-0 text-base leading-none text-white no-underline bg-primary border border-green-600 border-solid rounded cursor-pointer md:w-auto lg:mt-0 hover:bg-primary-focus hover:border-green-700 hover:text-white focus-within:bg-primary-focus focus-within:border-green-700 focus-within:text-white sm:text-lg lg:ml-6 md:text-xl">
+          <Link
+            href="/resume"
+            className={cn(buttonVariants({ size: "lg" }), "mt-6 w-full md:w-auto lg:ml-6 lg:mt-0")}
+          >
             Get Started
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" className="ml-2 h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
-          </a>
+          </Link>
         </div>
       </div>
     </section>

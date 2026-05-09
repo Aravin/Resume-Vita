@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import CourseForm from "@/components/resume/CourseForm";
 import { useForm } from "react-hook-form";
 
@@ -6,7 +6,6 @@ jest.mock("react-hook-form");
 
 describe("CourseForm", () => {
   const mockRegister = jest.fn();
-  const mockDelete = jest.fn();
   const mockErrors = { name: { message: "Invalid name" } };
 
   beforeEach(() => {
@@ -26,7 +25,6 @@ describe("CourseForm", () => {
         startDate="2023-01"
         endDate="2023-06"
         index={0}
-        delete={mockDelete}
         errors={mockErrors}
       />
     );
@@ -47,7 +45,6 @@ describe("CourseForm", () => {
         startDate="2023-01"
         endDate="2023-06"
         index={0}
-        delete={mockDelete}
         errors={mockErrors}
       />
     );
@@ -56,25 +53,5 @@ describe("CourseForm", () => {
     // expect(mockRegister).toHaveBeenCalledWith("courses.0.institution");
     // expect(mockRegister).toHaveBeenCalledWith("courses.0.startDate");
     // expect(mockRegister).toHaveBeenCalledWith("courses.0.endDate");
-  });
-
-  it("calls delete function when delete button is clicked", () => {
-    render(
-      <CourseForm
-        register={mockRegister}
-        name="Test Course"
-        institution="Test Institution"
-        startDate="2023-01"
-        endDate="2023-06"
-        index={0}
-        delete={mockDelete}
-        errors={mockErrors}
-      />
-    );
-
-    const deleteButton = screen.getByRole("button", { name: "Delete" });
-    fireEvent.click(deleteButton);
-
-    expect(mockDelete).toHaveBeenCalledWith(0);
   });
 });

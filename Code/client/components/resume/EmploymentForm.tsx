@@ -1,5 +1,9 @@
 import { nanoid } from "nanoid";
 import { UseFormRegister } from "react-hook-form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 interface EmploymentType {
   register: UseFormRegister<any>;
@@ -15,6 +19,7 @@ interface EmploymentType {
 }
 
 export default function EmploymentForm(prop: EmploymentType) {
+  const invalidFieldClassName = "border-destructive ring-destructive/20";
   return (
     <div key={nanoid()} className="flex justify-between mb-12 mt-6">
       <div className="flex-1 xcollapse xcollapse-arrow rounded">
@@ -24,106 +29,84 @@ export default function EmploymentForm(prop: EmploymentType) {
             ? `${prop.title} at ${prop.company}`
             : `Employment # ${prop.index + 1}`}
         </div>
-        <div className="xcollapse-content">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">Job Title*</span>
-              </label>
-              <input
+        <div className="xcollapse-content space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Job Title*</Label>
+              <Input
                 type="text"
-                className={`input input-bordered font-medium ${
-                  prop.errors?.title && "input-error"
-                }`}
+                className={cn(prop.errors?.title && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.title)}
                 placeholder="e.g. Software Engineer"
                 defaultValue={prop.title}
                 {...prop.register(`employments.${prop.index}.title`)}
               />
             </div>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">Company Name*</span>
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Company Name*</Label>
+              <Input
                 type="text"
-                className={`input input-bordered font-medium ${
-                  prop.errors?.company && "input-error"
-                }`}
+                className={cn(prop.errors?.company && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.company)}
                 defaultValue={prop.company}
                 {...prop.register(`employments.${prop.index}.company`)}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">Start Date*</span>
-              </label>
-              <input
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Start Date*</Label>
+              <Input
                 type="month"
-                className={`input input-bordered font-medium ${
-                  prop.errors?.startDate ? "input-error" : ""
-                }`}
+                className={cn(prop.errors?.startDate && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.startDate)}
                 defaultValue={prop.startDate}
                 {...prop.register(`employments.${prop.index}.startDate`)}
               />
             </div>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">End Date*</span>
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">End Date*</Label>
+              <Input
                 type="month"
-                className={`input input-bordered font-medium ${
-                  prop.errors?.endDate ? "input-error" : ""
-                }`}
+                className={cn(prop.errors?.endDate && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.endDate)}
                 defaultValue={prop.endDate}
                 {...prop.register(`employments.${prop.index}.endDate`)}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">Location</span>
-              </label>
-              <input
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Location</Label>
+              <Input
                 type="text"
-                className={`input input-bordered font-medium ${
-                  prop.errors?.location && "input-error"
-                }`}
+                className={cn(prop.errors?.location && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.location)}
                 placeholder="eg. Chennai"
                 defaultValue={prop.location}
                 {...prop.register(`employments.${prop.index}.location`, {})}
               />
             </div>
-            <div className="form-control">
-              <label className="cursor-pointer label">
-                <span className="label-text text-gray-500">
-                  Is Present Company?
-                </span>
-              </label>
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Is Present Company?</Label>
               <input
                 type="checkbox"
-                className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+                className="h-5 w-5 rounded border-border text-primary focus:ring-2 focus:ring-ring/50"
                 {...prop.register(`employments.${prop.index}.isCurrent`)}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-2 sm:gap-6">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">Summary*</span>
-              </label>
-              <textarea
-                className={`textarea h-24 textarea-bordered font-medium ${
-                  prop.errors?.summary && "input-error"
-                }`}
+          <div className="grid grid-cols-1 gap-6">
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Summary*</Label>
+              <Textarea
+                className={cn("h-24", prop.errors?.summary && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.summary)}
                 defaultValue={prop.summary}
                 {...prop.register(`employments.${prop.index}.summary`, {
                   required: true,

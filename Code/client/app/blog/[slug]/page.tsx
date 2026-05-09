@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Metadata } from 'next';
+import { FaArrowLeft, FaBookOpen, FaClock } from 'react-icons/fa';
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface BlogPost {
   slug: string;
@@ -180,6 +183,68 @@ const blogPosts: Record<string, BlogPost> = {
   }
 };
 
+type ContentBlock =
+  | { type: 'heading2'; text: string }
+  | { type: 'heading3'; text: string }
+  | { type: 'paragraph'; text: string }
+  | { type: 'list'; items: string[]; ordered: boolean };
+
+function parseContent(content: string): ContentBlock[] {
+  const lines = content
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const blocks: ContentBlock[] = [];
+  let listBuffer: string[] = [];
+  let ordered = false;
+
+  const flushList = () => {
+    if (listBuffer.length > 0) {
+      blocks.push({ type: 'list', items: listBuffer, ordered });
+      listBuffer = [];
+      ordered = false;
+    }
+  };
+
+  for (const line of lines) {
+    if (line.startsWith('## ')) {
+      flushList();
+      blocks.push({ type: 'heading2', text: line.replace('## ', '').trim() });
+      continue;
+    }
+
+    if (line.startsWith('### ')) {
+      flushList();
+      blocks.push({ type: 'heading3', text: line.replace('### ', '').trim() });
+      continue;
+    }
+
+    if (line.startsWith('- ')) {
+      if (listBuffer.length === 0) {
+        ordered = false;
+      }
+      listBuffer.push(line.replace('- ', '').trim());
+      continue;
+    }
+
+    if (/^\d+\.\s/.test(line)) {
+      if (listBuffer.length === 0) {
+        ordered = true;
+      }
+      listBuffer.push(line.replace(/^\d+\.\s/, '').trim());
+      continue;
+    }
+
+    flushList();
+    blocks.push({ type: 'paragraph', text: line });
+  }
+
+  flushList();
+
+  return blocks;
+}
+
 interface Props {
   params: Promise<{
     slug: string;
@@ -210,55 +275,81 @@ export default async function BlogPost({ params }: Props) {
     notFound();
   }
 
+  const contentBlocks = parseContent(post.content);
+
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <Link 
+    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+      <Link
         href="/blog"
-        className="text-blue-600 hover:text-blue-800 mb-8 inline-block"
+        className={cn(buttonVariants({ variant: 'ghost' }), 'mb-8 inline-flex px-0 text-primary hover:bg-transparent hover:text-primary/80')}
       >
-        ← Back to Blog
+        <FaArrowLeft className="mr-2 h-4 w-4" />
+        Back to Blog
       </Link>
-      
-      <article className="prose lg:prose-xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+
+      <article className="overflow-hidden rounded-[2rem] border border-border/70 bg-card/90 shadow-sm dark:bg-card/80">
+        <header className="border-b border-border/70 bg-gradient-to-br from-emerald-500/10 via-card to-card px-6 py-10 md:px-10 md:py-12 dark:from-emerald-400/10 dark:via-card/90 dark:to-card/80">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
+            <FaBookOpen className="h-3.5 w-3.5" />
+            <span>Resume Vita Blog</span>
+          </div>
+          <h1 className="max-w-4xl text-4xl font-bold leading-tight text-foreground md:text-5xl">
             {post.title}
           </h1>
-          <div className="flex items-center text-gray-500">
+          <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <time dateTime={post.date}>{post.date}</time>
-            <span className="mx-2">•</span>
-            <span>{post.readTime}</span>
+            <span className="text-border">•</span>
+            <span className="inline-flex items-center gap-2">
+              <FaClock className="h-3.5 w-3.5" />
+              {post.readTime}
+            </span>
           </div>
-        </div>
+        </header>
 
-        <div className="mt-8">
-          {post.content.split('\n').map((paragraph, index) => {
-            if (paragraph.trim().startsWith('##')) {
+        <div className="px-6 py-10 md:px-10 md:py-12">
+          <div className="mx-auto max-w-3xl space-y-6">
+            {contentBlocks.map((block, index) => {
+              if (block.type === 'heading2') {
+                return (
+                  <h2 key={index} className="pt-4 text-2xl font-bold text-foreground md:text-3xl">
+                    {block.text}
+                  </h2>
+                );
+              }
+
+              if (block.type === 'heading3') {
+                return (
+                  <h3 key={index} className="pt-2 text-xl font-semibold text-foreground md:text-2xl">
+                    {block.text}
+                  </h3>
+                );
+              }
+
+              if (block.type === 'list') {
+                const ListTag = block.ordered ? 'ol' : 'ul';
+
+                return (
+                  <ListTag
+                    key={index}
+                    className={cn(
+                      'space-y-3 pl-6 text-base leading-8 text-muted-foreground',
+                      block.ordered ? 'list-decimal' : 'list-disc'
+                    )}
+                  >
+                    {block.items.map((item, itemIndex) => (
+                      <li key={`${index}-${itemIndex}`}>{item}</li>
+                    ))}
+                  </ListTag>
+                );
+              }
+
               return (
-                <h2 key={index} className="text-2xl font-bold mt-8 mb-4">
-                  {paragraph.replace('##', '').trim()}
-                </h2>
+                <p key={index} className="text-base leading-8 text-muted-foreground md:text-lg">
+                  {block.text}
+                </p>
               );
-            }
-            if (paragraph.trim().startsWith('###')) {
-              return (
-                <h3 key={index} className="text-xl font-bold mt-6 mb-3">
-                  {paragraph.replace('###', '').trim()}
-                </h3>
-              );
-            }
-            if (paragraph.trim().startsWith('-')) {
-              return (
-                <li key={index} className="ml-4">
-                  {paragraph.replace('-', '').trim()}
-                </li>
-              );
-            }
-            if (paragraph.trim()) {
-              return <p key={index}>{paragraph.trim()}</p>;
-            }
-            return null;
-          })}
+            })}
+          </div>
         </div>
       </article>
     </div>

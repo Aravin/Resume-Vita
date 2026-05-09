@@ -15,6 +15,16 @@ import useFetch from "../../hooks/useFetch";
 import { useSignedUrl } from "../../hooks/useSignedUrl";
 import { useDownloadPDF } from "../../hooks/useDownloadPDF";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 interface ResumeData {
   user: string;
@@ -138,8 +148,8 @@ export default function Page() {
     return (
       <div role="status" aria-label="Loading" className="flex flex-col items-center justify-center min-h-screen">
         <Loader />
-        <p className="mt-4 text-gray-500">Loading resume data...</p>
-        <p className="text-sm text-gray-400 mt-2">This may take a few moments</p>
+        <p className="mt-4 text-muted-foreground">Loading resume data...</p>
+        <p className="mt-2 text-sm text-muted-foreground/80">This may take a few moments</p>
       </div>
     );
   }
@@ -147,97 +157,127 @@ export default function Page() {
   const showCreateNew = !data;
   const showGeneratePDF = data && !data.isPDFGenerated;
   const showPDFOptions = data?.isPDFGenerated;
+  const getAtsStatusTone = (score: number) => {
+    if (score >= 80) {
+      return {
+        badge: "bg-emerald-500/12 text-emerald-700 dark:text-emerald-300",
+        stroke: "text-emerald-500",
+        panel: "border-emerald-500/20 bg-emerald-500/8",
+        progress: "bg-emerald-500",
+      };
+    }
+
+    if (score >= 60) {
+      return {
+        badge: "bg-amber-500/12 text-amber-700 dark:text-amber-300",
+        stroke: "text-amber-500",
+        panel: "border-amber-500/20 bg-amber-500/8",
+        progress: "bg-amber-500",
+      };
+    }
+
+    return {
+      badge: "bg-rose-500/12 text-rose-700 dark:text-rose-300",
+      stroke: "text-rose-500",
+      panel: "border-rose-500/20 bg-rose-500/8",
+      progress: "bg-rose-500",
+    };
+  };
 
   return (
     <>
       <Breadcrumbs currentPage="Resume Dashboard" />
 
-      <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
+      <div className="min-h-screen bg-muted/35 p-4 md:p-8 dark:bg-muted/20">
         {showCreateNew && (
           <div className="flex justify-center items-center min-h-[600px]">
-            <div className="card w-full max-w-2xl bg-base-100 shadow-xl">
-              <div className="card-body text-center">
+            <Card className="w-full max-w-2xl shadow-xl">
+              <CardContent className="p-6 text-center md:p-8">
                 <div className="mb-6">
-                  <div className="avatar placeholder mb-4">
-                    <div className="bg-primary text-primary-content rounded-full w-24">
+                  <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/20">
                       <AiFillFileAdd className="w-12 h-12" />
-                    </div>
                   </div>
-                  <h2 className="card-title justify-center text-2xl mb-2">No Resume Found</h2>
-                  <p className="text-base-content/70 text-lg">
+                  <CardTitle className="mb-2 justify-center text-2xl">No Resume Found</CardTitle>
+                  <CardDescription className="text-lg">
                     You haven&apos;t created a resume yet. Let&apos;s get started and create your professional resume!
-                  </p>
+                  </CardDescription>
                 </div>
                 
-                <div className="card-actions justify-center">
-                  <Link href="/resume/create" className="btn btn-primary btn-lg">
+                <div className="flex justify-center">
+                  <Link href="/resume/create" className={cn(buttonVariants({ size: "lg" }))}>
                     <AiFillFileAdd className="w-5 h-5 mr-2" />
                     Create Your First Resume
                   </Link>
                 </div>
                 
-                <div className="divider">Get Started</div>
+                <div className="my-6 flex items-center gap-4 text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                  <Separator className="flex-1" />
+                  <span>Get Started</span>
+                  <Separator className="flex-1" />
+                </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                  <div className="card bg-base-200">
-                    <div className="card-body p-4">
-                      <h3 className="card-title text-sm">Step 1: Create Resume</h3>
-                      <p className="text-xs text-base-content/70">Build your professional resume from scratch</p>
-                    </div>
-                  </div>
-                  <div className="card bg-base-200">
-                    <div className="card-body p-4">
-                      <h3 className="card-title text-sm">Step 2: Generate PDF</h3>
-                      <p className="text-xs text-base-content/70">Download your resume in PDF format</p>
-                    </div>
-                  </div>
+                  <Card className="bg-muted/60 shadow-none">
+                    <CardContent className="p-4 text-left">
+                      <CardTitle className="text-sm">Step 1: Create Resume</CardTitle>
+                      <CardDescription className="text-xs">Build your professional resume from scratch</CardDescription>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-muted/60 shadow-none">
+                    <CardContent className="p-4 text-left">
+                      <CardTitle className="text-sm">Step 2: Generate PDF</CardTitle>
+                      <CardDescription className="text-xs">Download your resume in PDF format</CardDescription>
+                    </CardContent>
+                  </Card>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         )}
 
         {showGeneratePDF && (
           <div className="flex justify-center items-center min-h-[600px]">
-            <div className="card w-full max-w-2xl bg-base-100 shadow-xl">
-              <div className="card-body text-center">
+            <Card className="w-full max-w-2xl shadow-xl">
+              <CardContent className="p-6 text-center md:p-8">
                 <div className="mb-6">
-                  <div className="avatar placeholder mb-4">
-                    <div className="bg-warning text-warning-content rounded-full w-24">
+                  <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-amber-500/15 text-amber-600 shadow-lg shadow-amber-500/10 dark:text-amber-300">
                       <AiFillEdit className="w-12 h-12" />
-                    </div>
                   </div>
-                  <h2 className="card-title justify-center text-2xl mb-2">Resume Created!</h2>
-                  <p className="text-base-content/70 text-lg">
+                  <CardTitle className="mb-2 justify-center text-2xl">Resume Created!</CardTitle>
+                  <CardDescription className="text-lg">
                     Your resume is ready, but the PDF hasn&apos;t been generated yet. Click below to edit and generate your PDF.
-                  </p>
+                  </CardDescription>
                 </div>
                 
-                <div className="card-actions justify-center">
-                  <Link href="/resume/create" className="btn btn-warning btn-lg">
+                <div className="flex justify-center">
+                  <Link href="/resume/create" className={cn(buttonVariants({ size: "lg" }), "bg-amber-500 text-black hover:bg-amber-400")}>
                     <AiFillEdit className="w-5 h-5 mr-2" />
                     Edit & Generate PDF
                   </Link>
                 </div>
                 
-                <div className="divider">What&apos;s Next?</div>
+                <div className="my-6 flex items-center gap-4 text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                  <Separator className="flex-1" />
+                  <span>What&apos;s Next?</span>
+                  <Separator className="flex-1" />
+                </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                  <div className="card bg-base-200">
-                    <div className="card-body p-4">
-                      <h3 className="card-title text-sm">Review Content</h3>
-                      <p className="text-xs text-base-content/70">Make sure all information is accurate</p>
-                    </div>
-                  </div>
-                  <div className="card bg-base-200">
-                    <div className="card-body p-4">
-                      <h3 className="card-title text-sm">Generate PDF</h3>
-                      <p className="text-xs text-base-content/70">Create your downloadable resume</p>
-                    </div>
-                  </div>
+                  <Card className="bg-muted/60 shadow-none">
+                    <CardContent className="p-4 text-left">
+                      <CardTitle className="text-sm">Review Content</CardTitle>
+                      <CardDescription className="text-xs">Make sure all information is accurate</CardDescription>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-muted/60 shadow-none">
+                    <CardContent className="p-4 text-left">
+                      <CardTitle className="text-sm">Generate PDF</CardTitle>
+                      <CardDescription className="text-xs">Create your downloadable resume</CardDescription>
+                    </CardContent>
+                  </Card>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         )}
 
@@ -246,14 +286,16 @@ export default function Page() {
             {/* Left Column */}
             <div className="space-y-4">
               {/* Preview Card */}
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="text-lg font-semibold mb-6">Resume Preview</h3>
+              <Card className="bg-card/90 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg">Resume Preview</CardTitle>
+                </CardHeader>
+                <CardContent>
                 <div className="flex justify-center">
-                  <div data-tip="Preview Resume" className="tooltip tooltip-bottom">
                     <Link href="/resume/preview" aria-label="Preview resume">
                       <div className="relative w-[240px] h-[300px] overflow-hidden rounded-sm shadow-sm">
                         {isImageLoading && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
+                          <div className="absolute inset-0 z-10 flex items-center justify-center bg-muted/60">
                             <Loader />
                           </div>
                         )}
@@ -277,33 +319,37 @@ export default function Page() {
                           />
                         ) : (
                           !isImageLoading && (
-                            <div className="image-fallback absolute inset-0 flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg">
+                            <div className="image-fallback absolute inset-0 flex items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted/40">
                               <div className="text-center p-4">
-                                <div className="text-gray-500 mb-2">Preview not available</div>
-                                <div className="text-sm text-gray-400">Click to generate preview</div>
+                                <div className="mb-2 text-muted-foreground">Preview not available</div>
+                                <div className="text-sm text-muted-foreground/80">Click to generate preview</div>
                               </div>
                             </div>
                           )
                         )}
                       </div>
                     </Link>
-                  </div>
                 </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Actions Card */}
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="text-lg font-semibold mb-6">Actions</h3>
+              <Card className="bg-card/90 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg">Actions</CardTitle>
+                </CardHeader>
+                <CardContent>
                 
                 {/* Download Error Display */}
                 {downloadError && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                    <div className="text-red-800 text-sm">
+                  <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 p-3">
+                    <div className="text-sm text-destructive">
                       <strong>Download Error:</strong> {downloadError}
                     </div>
-                    <button 
+                    <button
+                      type="button"
                       onClick={() => setDownloadError(null)}
-                      className="text-red-600 text-xs mt-1 hover:underline"
+                      className="mt-1 text-xs text-destructive hover:underline"
                     >
                       Dismiss
                     </button>
@@ -311,24 +357,24 @@ export default function Page() {
                 )}
                 
                 <div className="space-y-3">
-                  <Link href="/resume/create" passHref>
-                    <button className="btn btn-outline btn-primary w-full h-12 normal-case" aria-label="Edit resume">
-                      <FaEdit className="mr-2" /> Edit Resume
-                    </button>
+                  <Link href="/resume/create" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-12 w-full normal-case")} aria-label="Edit resume">
+                    <FaEdit className="mr-2" /> Edit Resume
                   </Link>
 
-                  <button
-                    className="btn btn-outline btn-accent w-full h-12 normal-case"
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-12 w-full normal-case"
                     onClick={handleDownload}
                     disabled={isDownloadLoading}
                     aria-label="Download resume"
                   >
                     <FaFilePdf className="mr-2" /> 
                     {isDownloadLoading ? 'Generating...' : 'Download Resume'}
-                  </button>
+                  </Button>
 
                   <a
-                    className="btn btn-outline btn-secondary w-full h-12 normal-case"
+                    className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "h-12 w-full normal-case")}
                     href={`/public/${userId}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -337,39 +383,44 @@ export default function Page() {
                     <FaFilePdf className="mr-2" /> Open Public Resume
                   </a>
                 </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Right Column - Enhanced ATS Score */}
             <div>
               {data?.atsScore && (
-                <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-gray-900">ATS Score Analysis</h3>
+                <Card className="bg-card/90 shadow-sm">
+                  <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+                    <div>
+                      <CardTitle className="text-xl">ATS Score Analysis</CardTitle>
+                      <CardDescription className="mt-2 max-w-xl">
+                        Review the overall score, spot weak areas quickly, and jump back into editing with focused improvements.
+                      </CardDescription>
+                    </div>
                     <div className="flex items-center gap-2">
-                      <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        data.atsScore.overall >= 80 ? 'bg-green-100 text-green-800' :
-                        data.atsScore.overall >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
+                      <div className={`rounded-full px-3 py-1 text-xs font-medium ${
+                        getAtsStatusTone(data.atsScore.overall).badge
                       }`}>
                         {data.atsScore.overall >= 80 ? 'Excellent' :
                          data.atsScore.overall >= 60 ? 'Good' : 'Needs Improvement'}
                       </div>
                     </div>
-                  </div>
+                  </CardHeader>
+                  <CardContent>
 
                   {/* Overall Score Circle */}
-                  <div className="flex items-center justify-center mb-8">
+                  <div className="mb-8 flex items-center justify-center">
                     <div className="relative w-32 h-32">
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="text-center">
-                          <span className="text-4xl font-bold text-gray-900">{data.atsScore.overall}%</span>
-                          <p className="text-sm text-gray-500 mt-1">Overall Score</p>
+                          <span className="text-4xl font-bold text-foreground">{data.atsScore.overall}%</span>
+                          <p className="mt-1 text-sm text-muted-foreground">Overall Score</p>
                         </div>
                       </div>
                       <svg className="transform -rotate-90 w-32 h-32">
                         <circle
-                          className="text-gray-200"
+                          className="text-border/70"
                           strokeWidth="8"
                           stroke="currentColor"
                           fill="transparent"
@@ -378,10 +429,7 @@ export default function Page() {
                           cy="64"
                         />
                         <circle
-                          className={`${
-                            data.atsScore.overall >= 80 ? 'text-green-500' :
-                            data.atsScore.overall >= 60 ? 'text-yellow-500' : 'text-red-500'
-                          }`}
+                          className={getAtsStatusTone(data.atsScore.overall).stroke}
                           strokeWidth="8"
                           strokeDasharray={`${2 * Math.PI * 56}`}
                           strokeDashoffset={`${2 * Math.PI * 56 * (1 - data.atsScore.overall / 100)}`}
@@ -397,7 +445,7 @@ export default function Page() {
                   </div>
 
                   {/* Score Breakdown */}
-                  <div className="space-y-6 mb-8">
+                  <div className="mb-8 space-y-4">
                     {Object.entries(data.atsScore.details).map(([category, score]) => {
                       const categoryLabels = {
                         keywords: 'Keywords Match',
@@ -409,27 +457,23 @@ export default function Page() {
                         format: '📄',
                         content: '✨'
                       };
-                      const getScoreColor = (score: number) => {
-                        if (score >= 80) return 'bg-green-500';
-                        if (score >= 60) return 'bg-yellow-500';
-                        return 'bg-red-500';
-                      };
+                      const tone = getAtsStatusTone(score);
                       
                       return (
-                        <div key={category} className="bg-gray-50 p-4 rounded-lg">
-                          <div className="flex items-center justify-between mb-3">
+                        <div key={category} className="rounded-2xl border border-border/70 bg-muted/35 p-4 dark:bg-muted/20">
+                          <div className="mb-3 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <span className="text-lg">{categoryIcons[category as keyof typeof categoryIcons]}</span>
-                              <span className="font-medium text-gray-900">{categoryLabels[category as keyof typeof categoryLabels]}</span>
+                              <span className="font-medium text-foreground">{categoryLabels[category as keyof typeof categoryLabels]}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-lg font-bold text-gray-900">{score}%</span>
-                              <div className={`w-3 h-3 rounded-full ${getScoreColor(score)}`}></div>
+                              <span className="text-lg font-bold text-foreground">{score}%</span>
+                              <div className={`h-3 w-3 rounded-full ${tone.progress}`}></div>
                             </div>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-3">
+                          <div className="h-3 w-full rounded-full bg-border/70">
                             <div 
-                              className={`h-3 rounded-full transition-all duration-500 ${getScoreColor(score)}`}
+                              className={`h-3 rounded-full transition-all duration-500 ${tone.progress}`}
                               style={{ width: `${score}%` }}
                             ></div>
                           </div>
@@ -439,9 +483,9 @@ export default function Page() {
                   </div>
 
                   {/* Score Interpretation */}
-                  <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                    <h4 className="font-semibold text-blue-900 mb-2">📊 Score Interpretation</h4>
-                    <p className="text-sm text-blue-800">
+                  <div className={`mb-6 rounded-2xl border p-4 ${getAtsStatusTone(data.atsScore.overall).panel}`}>
+                    <h4 className="mb-2 font-semibold text-foreground">📊 Score Interpretation</h4>
+                    <p className="text-sm leading-7 text-muted-foreground">
                       {data.atsScore.overall >= 80 
                         ? "Your resume is ATS-optimized and should pass most applicant tracking systems. Great job!"
                         : data.atsScore.overall >= 60 
@@ -453,22 +497,22 @@ export default function Page() {
 
                   {/* Improvement Sections */}
                   <div className="space-y-6">
-                    <h4 className="text-lg font-semibold text-gray-900 mb-4">🎯 Improvement Suggestions</h4>
+                    <h4 className="mb-4 text-lg font-semibold text-foreground">🎯 Improvement Suggestions</h4>
                     {Object.entries(data.atsScore.improvements).map(([category, suggestions]) => 
                       suggestions.length > 0 && (
-                        <div key={category} className="border-l-4 border-blue-200 pl-4">
-                          <div className="flex items-center gap-2 mb-3">
-                            <h5 className="font-medium text-gray-900 capitalize">{category} Improvements</h5>
+                        <div key={category} className="rounded-2xl border border-border/70 bg-muted/20 p-4">
+                          <div className="mb-3 flex items-center gap-2">
+                            <h5 className="font-medium capitalize text-foreground">{category} Improvements</h5>
                             {data.atsScore!.details[category as keyof typeof data.atsScore.details] < 70 && (
-                              <span className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded-full font-medium">
+                              <span className="rounded-full bg-rose-500/12 px-2 py-1 text-xs font-medium text-rose-700 dark:text-rose-300">
                                 Priority
                               </span>
                             )}
                           </div>
                           <ul className="space-y-2">
                             {suggestions.map((suggestion, index) => (
-                              <li key={index} className="text-sm text-gray-700 flex gap-3 items-start">
-                                <span className="text-blue-500 mt-1">✓</span>
+                              <li key={index} className="flex items-start gap-3 text-sm text-muted-foreground">
+                                <span className="mt-1 text-primary">✓</span>
                                 <span>{suggestion}</span>
                               </li>
                             ))}
@@ -479,13 +523,14 @@ export default function Page() {
                   </div>
 
                   {/* Action Button */}
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <Link href="/resume/create" className="btn btn-primary w-full">
+                  <div className="mt-6 border-t border-border/70 pt-6">
+                    <Link href="/resume/create" className={cn(buttonVariants({ size: "lg" }), "w-full")}>
                       <FaEdit className="mr-2" />
                       Improve Resume Based on Analysis
                     </Link>
                   </div>
-                </div>
+                  </CardContent>
+                </Card>
               )}
             </div>
           </div>

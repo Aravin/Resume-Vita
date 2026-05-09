@@ -18,14 +18,14 @@ export default function RootLayout({
   const isValidGaId = gaId && /^(G-[A-Z0-9]+|UA-\d+-\d+)$/.test(gaId.trim());
 
   return (
-    <html lang="en" data-theme="emerald">
+    <html lang="en" data-theme="emerald" suppressHydrationWarning>
       <head>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1.0"
         />
       </head>
-      <body>
+      <body className="min-h-screen bg-background text-foreground antialiased">
         {/* GA4: load gtag.js first, then inline init (same order as Google / Next.js docs).
             Use the official dataLayer stub — push(arguments), not push([...]), or hits may never send. */}
         {isValidGaId && (

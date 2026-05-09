@@ -1,5 +1,9 @@
 import { nanoid } from "nanoid";
 import { UseFormRegister } from "react-hook-form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { cn } from "@/lib/utils";
 
 interface SkillType {
   register: UseFormRegister<any>;
@@ -10,45 +14,36 @@ interface SkillType {
 }
 
 export default function SkillForm(prop: SkillType) {
+  const invalidFieldClassName = "border-destructive ring-destructive/20";
   return (
     <div key={nanoid()} className="flex justify-between mb-12 mt-6">
       <div className="flex-1">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text text-gray-500">Skill Name*</span>
-            </label>
-            <input
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label className="text-muted-foreground">Skill Name*</Label>
+            <Input
               type="text"
-              className={`input input-bordered font-medium ${
-                prop.errors?.name && "input-error"
-              }`}
+              className={cn(prop.errors?.name && invalidFieldClassName)}
+              aria-invalid={Boolean(prop.errors?.name)}
               placeholder="e.g. Java"
               {...prop.register(`skills.${prop.index}.name`)}
             />
           </div>
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text text-gray-500">Level*</span>
-            </label>
-            <select
-              className={`select select-bordered ${
-                prop.errors?.level && "select-error"
-              }`}
+          <div className="space-y-2">
+            <Label className="text-muted-foreground">Level*</Label>
+            <NativeSelect
+              className={cn(prop.errors?.level && invalidFieldClassName)}
+              aria-invalid={Boolean(prop.errors?.level)}
               {...prop.register(`skills.${prop.index}.level`)}
             >
-              <option
-                className="select-error"
-                value=""
-                label="- Select Level -"
-              ></option>
+              <option value="">- Select Level -</option>
               <option value="1" label="Novice"></option>
               <option value="2" label="Beginner"></option>
               <option value="3" label="Skillful"></option>
               <option value="4" label="Experienced"></option>
               <option value="5" label="Expert"></option>
-            </select>
+            </NativeSelect>
           </div>
         </div>
       </div>

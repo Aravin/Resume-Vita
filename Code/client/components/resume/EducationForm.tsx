@@ -1,5 +1,8 @@
 import { UseFormRegister } from "react-hook-form";
 import { nanoid } from "nanoid";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 interface EducationType {
   register: UseFormRegister<any>;
@@ -14,6 +17,7 @@ interface EducationType {
 }
 
 export default function EducationForm(prop: EducationType) {
+  const invalidFieldClassName = "border-destructive ring-destructive/20";
   return (
     <div key={nanoid()} className="flex justify-between mb-12 mt-6">
       <div className="flex-1 xcollapse xcollapse-arrow rounded">
@@ -23,95 +27,73 @@ export default function EducationForm(prop: EducationType) {
             ? `${prop.subject} at ${prop.institution}`
             : `Education # ${prop.index + 1}`}
         </div>
-        <div className="xcollapse-content">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">
-                  School/University*
-                </span>
-              </label>
-              <input
+        <div className="xcollapse-content space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">School/University*</Label>
+              <Input
                 type="text"
-                className={`input input-bordered font-medium ${
-                  prop.errors?.institution && "input-error"
-                }`}
+                className={cn(prop.errors?.institution && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.institution)}
                 defaultValue={prop.institution}
                 {...prop.register(`educations.${prop.index}.institution`)}
               />
             </div>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">
-                  Subject/Degree*
-                </span>
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Subject/Degree*</Label>
+              <Input
                 type="text"
-                className={`input input-bordered font-medium ${
-                  prop.errors?.subject && "input-error"
-                }`}
+                className={cn(prop.errors?.subject && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.subject)}
                 defaultValue={prop.subject}
                 {...prop.register(`educations.${prop.index}.subject`)}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">Start Date*</span>
-              </label>
-              <input
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Start Date*</Label>
+              <Input
                 type="month"
-                className={`input input-bordered font-medium ${
-                  prop.errors?.startDate ? "input-error" : ""
-                }`}
+                className={cn(prop.errors?.startDate && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.startDate)}
                 defaultValue={prop.startDate}
                 {...prop.register(`educations.${prop.index}.startDate`)}
               />
             </div>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">End Date*</span>
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">End Date*</Label>
+              <Input
                 type="month"
-                className={`input input-bordered font-medium ${
-                  prop.errors?.endDate ? "input-error" : ""
-                }`}
+                className={cn(prop.errors?.endDate && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.endDate)}
                 defaultValue={prop.endDate}
                 {...prop.register(`educations.${prop.index}.endDate`)}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">Score*</span>
-              </label>
-              <input
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Score*</Label>
+              <Input
                 type="text"
-                className={`input input-bordered font-medium ${
-                  prop.errors?.score && "input-error"
-                }`}
+                className={cn(prop.errors?.score && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.score)}
                 placeholder="Score % or GPA or CGPA"
                 defaultValue={prop.score}
                 {...prop.register(`educations.${prop.index}.score`, {})}
               />
             </div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">Location</span>
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Location</Label>
+              <Input
                 type="text"
-                className={`input input-bordered font-medium ${
-                  prop.errors?.location && "input-error"
-                }`}
+                className={cn(prop.errors?.location && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.location)}
                 placeholder="eg. Chennai"
                 defaultValue={prop.location}
                 {...prop.register(`educations.${prop.index}.location`, {})}
