@@ -75,6 +75,30 @@ function getDisplayUsername(user: AccountUser | null | undefined): string | null
   );
 }
 
+function getEmailVerificationMessage(email: string | null, emailVerified?: boolean | null): string {
+  if (!email) {
+    return "This provider did not supply an email address for the account.";
+  }
+
+  if (emailVerified) {
+    return "Your email is verified and ready for account recovery and sign-in checks.";
+  }
+
+  return "Your email is not verified yet.";
+}
+
+function getPhoneStatusMessage(phoneNumber: string | null, phoneVerified?: boolean | null): string {
+  if (!phoneNumber) {
+    return "No phone number has been added to this account yet.";
+  }
+
+  if (phoneVerified) {
+    return "Phone number is present and verified.";
+  }
+
+  return "Phone number is present but not verified.";
+}
+
 export default function Page() {
   const { user, error, isLoading } = useSafeUser();
 
@@ -94,13 +118,40 @@ export default function Page() {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join("") || "RV";
+  const emailVerified = email ? user?.email_verified ?? false : undefined;
+  const phoneVerified = phoneNumber ? user?.phone_number_verified ?? false : undefined;
+  const subtitle = username ? `@${username}` : authProvider;
+  const emailVerificationMessage = getEmailVerificationMessage(email, user?.email_verified);
+  const phoneStatusMessage = getPhoneStatusMessage(phoneNumber, user?.phone_number_verified);
+
+  const renderVerificationBadge = (verified?: boolean) => {
+    if (typeof verified !== "boolean") {
+      return null;
+    }
+
+    if (verified) {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/12 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+          <AiOutlineCheckCircle className="h-4 w-4" aria-hidden="true" />
+          Verified
+        </span>
+      );
+    }
+
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/12 px-2.5 py-1 text-xs font-medium text-amber-700 dark:text-amber-300">
+        <AiOutlineCloseCircle className="h-4 w-4" aria-hidden="true" />
+        Not verified
+      </span>
+    );
+  };
 
   const accountDetails = [
     { label: "Full name", value: fullName },
     { label: "Username", value: username || "Not available" },
-    { label: "Email", value: email || "Not available", verified: Boolean(email) ? Boolean(user?.email_verified) : undefined },
+    { label: "Email", value: email || "Not available", verified: emailVerified },
     { label: "Authentication Provider", value: authProvider },
-    { label: "Phone number", value: phoneNumber || "Not added", verified: phoneNumber ? Boolean(user?.phone_number_verified) : undefined },
+    { label: "Phone number", value: phoneNumber || "Not added", verified: phoneVerified },
   ];
 
   if (isLoading)
@@ -143,9 +194,7 @@ export default function Page() {
                 </div>
                 <div>
                   <CardTitle className="text-2xl">{fullName}</CardTitle>
-                  <CardDescription className="mt-1">
-                    {username ? `@${username}` : authProvider}
-                  </CardDescription>
+                  <CardDescription className="mt-1">{subtitle}</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -155,13 +204,7 @@ export default function Page() {
                   <FaEnvelope className="mt-1 h-4 w-4 text-primary" />
                   <div>
                     <p className="text-sm font-medium text-foreground">Email verification</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {!email
-                        ? "This provider did not supply an email address for the account."
-                        : user?.email_verified
-                        ? "Your email is verified and ready for account recovery and sign-in checks."
-                        : "Your email is not verified yet."}
-                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">{emailVerificationMessage}</p>
                   </div>
                 </div>
               </div>
@@ -183,13 +226,7 @@ export default function Page() {
                   <FaPhoneAlt className="mt-1 h-4 w-4 text-primary" />
                   <div>
                     <p className="text-sm font-medium text-foreground">Phone status</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {phoneNumber
-                        ? user?.phone_number_verified
-                          ? "Phone number is present and verified."
-                          : "Phone number is present but not verified."
-                        : "No phone number has been added to this account yet."}
-                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">{phoneStatusMessage}</p>
                   </div>
                 </div>
               </div>
@@ -216,19 +253,7 @@ export default function Page() {
                       <div className="text-sm font-medium text-muted-foreground">{item.label}</div>
                       <div className="flex flex-wrap items-center gap-2 text-sm text-foreground">
                         <span>{item.value}</span>
-                        {typeof item.verified === "boolean" && (
-                          item.verified ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/12 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
-                              <AiOutlineCheckCircle className="h-4 w-4" aria-hidden="true" />
-                              Verified
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/12 px-2.5 py-1 text-xs font-medium text-amber-700 dark:text-amber-300">
-                              <AiOutlineCloseCircle className="h-4 w-4" aria-hidden="true" />
-                              Not verified
-                            </span>
-                          )
-                        )}
+                        {renderVerificationBadge(item.verified)}
                       </div>
                     </div>
                     {index < accountDetails.length - 1 && <Separator />}

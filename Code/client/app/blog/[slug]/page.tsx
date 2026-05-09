@@ -189,6 +189,30 @@ type ContentBlock =
   | { type: 'paragraph'; text: string }
   | { type: 'list'; items: string[]; ordered: boolean };
 
+function createUniqueKeyFactory() {
+  const keyCounts = new Map<string, number>();
+
+  return (baseKey: string) => {
+    const count = keyCounts.get(baseKey) ?? 0;
+    keyCounts.set(baseKey, count + 1);
+
+    return count === 0 ? baseKey : `${baseKey}-${count}`;
+  };
+}
+
+function getContentBlockBaseKey(block: ContentBlock) {
+  switch (block.type) {
+    case 'heading2':
+      return `h2-${block.text}`;
+    case 'heading3':
+      return `h3-${block.text}`;
+    case 'paragraph':
+      return `p-${block.text}`;
+    case 'list':
+      return `${block.ordered ? 'ol' : 'ul'}-${block.items.join('|')}`;
+  }
+}
+
 function parseContent(content: string): ContentBlock[] {
   const lines = content
     .split('\n')
@@ -276,6 +300,7 @@ export default async function BlogPost({ params }: Props) {
   }
 
   const contentBlocks = parseContent(post.content);
+  const getBlockKey = createUniqueKeyFactory();
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
@@ -308,10 +333,12 @@ export default async function BlogPost({ params }: Props) {
 
         <div className="px-6 py-10 md:px-10 md:py-12">
           <div className="mx-auto max-w-3xl space-y-6">
-            {contentBlocks.map((block, index) => {
+            {contentBlocks.map((block) => {
+              const blockKey = getBlockKey(getContentBlockBaseKey(block));
+
               if (block.type === 'heading2') {
                 return (
-                  <h2 key={index} className="pt-4 text-2xl font-bold text-foreground md:text-3xl">
+                  <h2 key={blockKey} className="pt-4 text-2xl font-bold text-foreground md:text-3xl">
                     {block.text}
                   </h2>
                 );
@@ -319,7 +346,7 @@ export default async function BlogPost({ params }: Props) {
 
               if (block.type === 'heading3') {
                 return (
-                  <h3 key={index} className="pt-2 text-xl font-semibold text-foreground md:text-2xl">
+                  <h3 key={blockKey} className="pt-2 text-xl font-semibold text-foreground md:text-2xl">
                     {block.text}
                   </h3>
                 );
@@ -327,24 +354,25 @@ export default async function BlogPost({ params }: Props) {
 
               if (block.type === 'list') {
                 const ListTag = block.ordered ? 'ol' : 'ul';
+                const getItemKey = createUniqueKeyFactory();
 
                 return (
                   <ListTag
-                    key={index}
+                    key={blockKey}
                     className={cn(
                       'space-y-3 pl-6 text-base leading-8 text-muted-foreground',
                       block.ordered ? 'list-decimal' : 'list-disc'
                     )}
                   >
-                    {block.items.map((item, itemIndex) => (
-                      <li key={`${index}-${itemIndex}`}>{item}</li>
+                    {block.items.map((item) => (
+                      <li key={getItemKey(item)}>{item}</li>
                     ))}
                   </ListTag>
                 );
               }
 
               return (
-                <p key={index} className="text-base leading-8 text-muted-foreground md:text-lg">
+                <p key={blockKey} className="text-base leading-8 text-muted-foreground md:text-lg">
                   {block.text}
                 </p>
               );

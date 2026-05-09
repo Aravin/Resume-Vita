@@ -510,8 +510,8 @@ export default function Page() {
                             )}
                           </div>
                           <ul className="space-y-2">
-                            {suggestions.map((suggestion, index) => (
-                              <li key={index} className="flex items-start gap-3 text-sm text-muted-foreground">
+                            {suggestions.map((suggestion) => (
+                              <li key={`${category}-${suggestion}`} className="flex items-start gap-3 text-sm text-muted-foreground">
                                 <span className="mt-1 text-primary">✓</span>
                                 <span>{suggestion}</span>
                               </li>
