@@ -20,18 +20,30 @@ import DraggableFormItem from "../common/DraggableFormItem";
 import Loader from "../Loader";
 import axios from "axios";
 import ScrollToTop from "../ScrollToTop";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
-// Add button component
 const AddButton = ({ onClick, label }: { onClick: (e: any) => void; label: string }) => (
-  <button
-    className="btn btn-outline mt-4"
+  <Button
+    type="button"
+    variant="outline"
+    className="mt-4"
     onClick={onClick}
   >
     {label}
-  </button>
+  </Button>
 );
 
-// Reusable form section component
 const FormSection = ({
   title,
   subtitle,
@@ -41,15 +53,13 @@ const FormSection = ({
   subtitle?: string;
   children: React.ReactNode;
 }) => (
-  <div className="card bg-base-100 shadow-xl">
-    <div className="card-body">
-      <h3 className="card-title">{title}</h3>
-      <div>
-      {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
-      {children}
-      </div>
-    </div>
-  </div>
+  <Card className="border-border/70 bg-card/95 shadow-sm">
+    <CardHeader>
+      <CardTitle>{title}</CardTitle>
+      {subtitle && <CardDescription>{subtitle}</CardDescription>}
+    </CardHeader>
+    <CardContent>{children}</CardContent>
+  </Card>
 );
 
 // Utility function for handling section items
@@ -153,13 +163,14 @@ export default function ResumeForm() {
   const userId = user?.sub?.split("|")[1];
   const [resume, setResume] = useState(resumeDefaultValues);
   const [localResume, setLocalResume] = useLocalStorage("resumeData", {} as any);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     getValues,
     reset,
   } = useForm({
@@ -228,6 +239,8 @@ export default function ResumeForm() {
   }, [userId, reset]);
 
   const onSubmit: any = async (data: any) => {
+    setSubmitError(null);
+
     const resumeData = {
       user: userId,
       resume: data,
@@ -243,111 +256,116 @@ export default function ResumeForm() {
       router.push("/resume/preview");
     } catch (error) {
       console.error('Failed to save resume:', error);
-      // Handle error appropriately
+      setSubmitError("We couldn’t save the resume right now. Please retry in a moment.");
     }
   };
 
   if (isLoading) return <div><Loader /></div>;
 
+  const invalidFieldClassName = "border-destructive ring-destructive/20";
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <Card className="border-border/70 bg-muted/20 shadow-sm">
+          <CardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+                Editing Flow
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Complete the sections below, then save once to generate the latest preview.
+              </p>
+            </div>
+            <div className="rounded-full border border-border/70 bg-background px-3 py-2 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+              {isSubmitting ? "Saving..." : "Preview after save"}
+            </div>
+          </CardContent>
+        </Card>
+
+        {submitError && (
+          <Card className="border-destructive/30 bg-destructive/10 shadow-none">
+            <CardContent className="p-4 text-sm text-destructive">
+              {submitError}
+            </CardContent>
+          </Card>
+        )}
+
         <FormSection title="Personal Details">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">First Name*</span>
-              </label>
-              <input
-                type="text"
-                className={`input input-bordered font-medium ${
-                  errors.personal?.firstName ? "input-error" : ""
-                }`}
-                {...register("personal.firstName")}
-              />
-              {errors?.personal?.firstName && (
-                <label className="label">
-                  <span className="label-text text-gray-500-alt text-red-500">
-                    Please enter First Name
-                  </span>
-                </label>
-              )}
-            </div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">Last Name*</span>
-              </label>
-              <input
-                type="text"
-                className={`input input-bordered font-medium ${
-                  errors.personal?.lastName ? "input-error" : ""
-                }`}
-                {...register("personal.lastName")}
-              />
-              {errors?.personal?.lastName && (
-                <label className="label">
-                  <span className="label-text text-gray-500-alt text-red-500">
-                    Please enter Last Name
-                  </span>
-                </label>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">Email*</span>
-              </label>
-              <input
-                type="text"
-                className={`input input-bordered font-medium ${
-                  errors.personal?.email ? "input-error" : ""
-                }`}
-                {...register("personal.email")}
-              />
-              {errors?.personal?.email && (
-                <label className="label">
-                  <span className="label-text text-gray-500-alt text-red-500">
-                    Please enter Email Address
-                  </span>
-                </label>
-              )}
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="personal-firstName" className="text-muted-foreground">First Name*</Label>
+                <Input
+                  id="personal-firstName"
+                  type="text"
+                  className={cn(errors.personal?.firstName && invalidFieldClassName)}
+                  aria-invalid={Boolean(errors.personal?.firstName)}
+                  {...register("personal.firstName")}
+                />
+                {errors?.personal?.firstName && (
+                  <p className="text-sm text-destructive">Please enter First Name</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="personal-lastName" className="text-muted-foreground">Last Name*</Label>
+                <Input
+                  id="personal-lastName"
+                  type="text"
+                  className={cn(errors.personal?.lastName && invalidFieldClassName)}
+                  aria-invalid={Boolean(errors.personal?.lastName)}
+                  {...register("personal.lastName")}
+                />
+                {errors?.personal?.lastName && (
+                  <p className="text-sm text-destructive">Please enter Last Name</p>
+                )}
+              </div>
             </div>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">Phone*</span>
-              </label>
-              <input
-                type="tel"
-                className={`input input-bordered font-medium ${
-                  errors.personal?.phone ? "input-error" : ""
-                }`}
-                {...register("personal.phone")}
-              />
-              {errors?.personal?.phone && (
-                <label className="label">
-                  <span className="label-text text-gray-500-alt text-red-500">
-                    Please enter Phone Number
-                  </span>
-                </label>
-              )}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="personal-email" className="text-muted-foreground">Email*</Label>
+                <Input
+                  id="personal-email"
+                  type="text"
+                  className={cn(errors.personal?.email && invalidFieldClassName)}
+                  aria-invalid={Boolean(errors.personal?.email)}
+                  {...register("personal.email")}
+                />
+                {errors?.personal?.email && (
+                  <p className="text-sm text-destructive">Please enter Email Address</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="personal-phone" className="text-muted-foreground">Phone*</Label>
+                <Input
+                  id="personal-phone"
+                  type="tel"
+                  className={cn(errors.personal?.phone && invalidFieldClassName)}
+                  aria-invalid={Boolean(errors.personal?.phone)}
+                  {...register("personal.phone")}
+                />
+                {errors?.personal?.phone && (
+                  <p className="text-sm text-destructive">Please enter Phone Number</p>
+                )}
+              </div>
             </div>
           </div>
         </FormSection>
 
         <FormSection title="Profile Summary">
           <div className="grid grid-cols-1 gap-6">
-            <div className="flex-1 form-control">
-              <label className="label">
-                <span className="label-text text-gray-500">Summary*</span>
-              </label>
-              <textarea
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="personal-summary" className="text-muted-foreground">Summary*</Label>
+              <Textarea
+                id="personal-summary"
                 rows={8}
-                className={`textarea h-60 md:h-40 lg:h20 textarea-bordered font-medium ${
-                  errors.personal?.summary ? "input-error" : ""
-                }`}
+                className={cn(
+                  "h-60 md:h-40 lg:h-40",
+                  errors.personal?.summary && invalidFieldClassName
+                )}
+                aria-invalid={Boolean(errors.personal?.summary)}
                 {...register("personal.summary")}
               />
             </div>
@@ -451,13 +469,19 @@ export default function ResumeForm() {
           )}
         </FormSection>
 
-        <div className="flex py-8">
-          <input
-            type="submit"
-            className="btn btn-primary btn-block"
-            value="Save and Preview"
-          />
-        </div>
+        <Card className="sticky bottom-4 z-20 border-border/70 bg-background/95 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-background/85">
+          <CardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm font-medium text-foreground">Ready to review?</p>
+              <p className="text-sm text-muted-foreground">
+                Saving will update the resume and open the preview page.
+              </p>
+            </div>
+            <Button type="submit" className="w-full sm:w-auto" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save and Preview"}
+            </Button>
+          </CardContent>
+        </Card>
       </form>
       <ScrollToTop />
     </>

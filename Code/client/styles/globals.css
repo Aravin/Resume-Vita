@@ -2,6 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+    --primary: 158 64% 34%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 150 30% 96%;
+    --secondary-foreground: 160 84% 14%;
+    --muted: 156 22% 95%;
+    --muted-foreground: 215.4 16.3% 40%;
+    --accent: 154 42% 92%;
+    --accent-foreground: 160 84% 14%;
+    --destructive: 0 72.2% 50.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 156 18% 88%;
+    --input: 156 18% 88%;
+    --ring: 158 64% 34%;
+    --radius: 0.85rem;
+  }
+
+  .dark {
+    --background: 216 31% 11%;
+    --foreground: 210 20% 96%;
+    --card: 217 30% 14%;
+    --card-foreground: 210 20% 96%;
+    --popover: 218 28% 15%;
+    --popover-foreground: 210 20% 96%;
+    --primary: 156 58% 51%;
+    --primary-foreground: 160 84% 8%;
+    --secondary: 217 23% 20%;
+    --secondary-foreground: 210 20% 96%;
+    --muted: 217 21% 18%;
+    --muted-foreground: 215 16% 72%;
+    --accent: 160 29% 22%;
+    --accent-foreground: 210 20% 96%;
+    --destructive: 0 70% 42%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 216 19% 24%;
+    --input: 216 19% 24%;
+    --ring: 156 58% 51%;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    color-scheme: light;
+  }
+
+  .dark body {
+    color-scheme: dark;
+  }
+}
+
 html,
 body {
   padding: 0;
@@ -20,7 +80,7 @@ a {
 }
 
 body {
-  background-color: #F3F4F6;
+  min-height: 100vh;
 }
 
 #app-nav>a {

@@ -7,7 +7,29 @@ export const dynamicParams = true;
 import React from "react";
 import { useSafeUser } from "../../hooks/useSafeUser";
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
+import { FaEnvelope, FaPhoneAlt, FaShieldAlt, FaUserCircle } from "react-icons/fa";
 import Loader from "../../components/Loader";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+
+type AccountUser = {
+  name?: string | null;
+  given_name?: string | null;
+  family_name?: string | null;
+  preferred_username?: string | null;
+  nickname?: string | null;
+  email?: string | null;
+  email_verified?: boolean | null;
+  phone_number?: string | null;
+  phone_number_verified?: boolean | null;
+  sub?: string | null;
+};
 
 // Helper function to get authentication provider name
 function getAuthProvider(sub?: string): string {
@@ -21,9 +43,60 @@ function getAuthProvider(sub?: string): string {
     "google-oauth2": "Google",
     "linkedin": "LinkedIn",
     "facebook": "Facebook",
+    "apple": "Apple",
+    "github": "GitHub",
+    "twitter": "Twitter",
+    "windowslive": "Microsoft",
+    "linkedin-oauth2": "LinkedIn",
   };
   
   return providerMap[provider] || provider;
+}
+
+function getDisplayName(user: AccountUser | null | undefined): string {
+  const combinedName = [user?.given_name, user?.family_name].filter(Boolean).join(" ").trim();
+
+  return (
+    user?.name?.trim() ||
+    combinedName ||
+    user?.nickname?.trim() ||
+    user?.preferred_username?.trim() ||
+    user?.email?.split("@")[0] ||
+    "Resume Vita User"
+  );
+}
+
+function getDisplayUsername(user: AccountUser | null | undefined): string | null {
+  return (
+    user?.preferred_username?.trim() ||
+    user?.nickname?.trim() ||
+    user?.email?.split("@")[0] ||
+    null
+  );
+}
+
+function getEmailVerificationMessage(email: string | null, emailVerified?: boolean | null): string {
+  if (!email) {
+    return "This provider did not supply an email address for the account.";
+  }
+
+  if (emailVerified) {
+    return "Your email is verified and ready for account recovery and sign-in checks.";
+  }
+
+  return "Your email is not verified yet.";
+}
+
+function getPhoneStatusMessage(phoneNumber: string | null, phoneVerified?: boolean | null): string {
+  if (!phoneNumber) {
+    return "No phone number has been added to this account yet.";
+  }
+
+  if (phoneVerified) {
+    return "Phone number is present and verified.";
+  }
+
+  return "Phone number is present but not verified.";
 }
 
 export default function Page() {
@@ -34,102 +107,161 @@ export default function Page() {
     document.title = "Account & Settings - ResumeVita.com";
   }, []);
 
+  const fullName = getDisplayName(user);
+  const username = getDisplayUsername(user);
+  const email = user?.email?.trim() || null;
+  const phoneNumber = user?.phone_number?.trim() || null;
+  const authProvider = getAuthProvider(user?.sub);
+  const initials = fullName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "RV";
+  const emailVerified = email ? user?.email_verified ?? false : undefined;
+  const phoneVerified = phoneNumber ? user?.phone_number_verified ?? false : undefined;
+  const subtitle = username ? `@${username}` : authProvider;
+  const emailVerificationMessage = getEmailVerificationMessage(email, user?.email_verified);
+  const phoneStatusMessage = getPhoneStatusMessage(phoneNumber, user?.phone_number_verified);
+
+  const renderVerificationBadge = (verified?: boolean) => {
+    if (typeof verified !== "boolean") {
+      return null;
+    }
+
+    if (verified) {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/12 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+          <AiOutlineCheckCircle className="h-4 w-4" aria-hidden="true" />
+          Verified
+        </span>
+      );
+    }
+
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/12 px-2.5 py-1 text-xs font-medium text-amber-700 dark:text-amber-300">
+        <AiOutlineCloseCircle className="h-4 w-4" aria-hidden="true" />
+        Not verified
+      </span>
+    );
+  };
+
+  const accountDetails = [
+    { label: "Full name", value: fullName },
+    { label: "Username", value: username || "Not available" },
+    { label: "Email", value: email || "Not available", verified: emailVerified },
+    { label: "Authentication Provider", value: authProvider },
+    { label: "Phone number", value: phoneNumber || "Not added", verified: phoneVerified },
+  ];
+
   if (isLoading)
     return (
-      <div>
+      <div className="flex min-h-[60vh] items-center justify-center">
         <Loader />
       </div>
     );
-  if (error) return <div>{error.message}</div>;
+  if (error) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-10">
+        <Card>
+          <CardContent className="p-6 text-sm text-destructive">{error.message}</CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <>
-      <div className="flex justify-center">
-        <div className="w-full md:w-3/4 lg:w-3/5">
-          <div className="">
-            <h2 className="text-xl font-bold">Account Information</h2>
-          </div>
-
-          <div className="bg-white shadow overflow-hidden sm:rounded-lg mt-5">
-            <div className="px-4 py-5 sm:px-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                Personal
-              </h3>
-              {/* <p className="mt-1 max-w-2xl text-sm text-gray-500">Personal details and application.</p> */}
-            </div>
-            <div className="border-t border-gray-200">
-              <dl>
-                <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                  <dt className="text-sm font-medium text-gray-500">
-                    Full name
-                  </dt>
-                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {user?.name}
-                  </dd>
-                </div>
-                <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                  <dt className="text-sm font-medium text-gray-500">
-                    Username
-                  </dt>
-                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {(user?.preferred_username as string) ||
-                      user?.nickname ||
-                      "-"}
-                  </dd>
-                </div>
-                <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                  <dt className="text-sm font-medium text-gray-500">Email</dt>
-                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {user?.email}
-                    {user?.email_verified ? (
-                      <AiOutlineCheckCircle
-                        className="ml-2 inline h-6 w-6 text-success"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <AiOutlineCloseCircle
-                        className="ml-2 inline h-6 w-6 text-warning"
-                        aria-hidden="true"
-                      />
-                    )}
-                  </dd>
-                </div>
-                <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                  <dt className="text-sm font-medium text-gray-500">
-                    Authentication Provider
-                  </dt>
-                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {getAuthProvider(user?.sub)}
-                  </dd>
-                </div>
-                <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                  <dt className="text-sm font-medium text-gray-500">
-                    Phone number
-                  </dt>
-                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {(user?.phone_number as string) || ""}
-                    {user?.phone_number_verified ? (
-                      <AiOutlineCheckCircle
-                        className="ml-2 inline h-6 w-6 text-success"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <AiOutlineCloseCircle
-                        className="ml-2 inline h-6 w-6 text-warning"
-                        aria-hidden="true"
-                      />
-                    )}
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-
-          {/* <div className="mt-5">
-        <div className="btn btn-block btn-outline btn-primary">
-          <Link href="/account/edit">Edit</Link>
+      <div className="mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-10">
+        <div className="mb-8">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-primary">
+            Account
+          </p>
+          <h1 className="mt-3 text-4xl font-bold text-foreground md:text-5xl">
+            Account & Settings
+          </h1>
+          <p className="mt-3 max-w-2xl text-base leading-8 text-muted-foreground">
+            Review your profile details, verification status, and the sign-in provider connected to your Resume Vita account.
+          </p>
         </div>
-      </div> */}
+
+        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+          <Card className="bg-card/90 shadow-sm">
+            <CardHeader>
+              <div className="flex items-start gap-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/12 text-xl font-bold text-primary">
+                  {initials}
+                </div>
+                <div>
+                  <CardTitle className="text-2xl">{fullName}</CardTitle>
+                  <CardDescription className="mt-1">{subtitle}</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+                <div className="flex items-start gap-3">
+                  <FaEnvelope className="mt-1 h-4 w-4 text-primary" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Email verification</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{emailVerificationMessage}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+                <div className="flex items-start gap-3">
+                  <FaShieldAlt className="mt-1 h-4 w-4 text-primary" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Authentication provider</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Signed in with <span className="font-medium text-foreground">{authProvider}</span>.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-border/70 bg-muted/30 p-4">
+                <div className="flex items-start gap-3">
+                  <FaPhoneAlt className="mt-1 h-4 w-4 text-primary" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Phone status</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{phoneStatusMessage}</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/90 shadow-sm">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <FaUserCircle className="h-5 w-5 text-primary" />
+                <div>
+                  <CardTitle>Personal Details</CardTitle>
+                  <CardDescription>
+                    Core profile fields currently associated with your account.
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {accountDetails.map((item, index) => (
+                  <React.Fragment key={item.label}>
+                    <div className="grid gap-2 md:grid-cols-[180px_1fr] md:gap-6">
+                      <div className="text-sm font-medium text-muted-foreground">{item.label}</div>
+                      <div className="flex flex-wrap items-center gap-2 text-sm text-foreground">
+                        <span>{item.value}</span>
+                        {renderVerificationBadge(item.verified)}
+                      </div>
+                    </div>
+                    {index < accountDetails.length - 1 && <Separator />}
+                  </React.Fragment>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </>

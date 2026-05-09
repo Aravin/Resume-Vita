@@ -3,11 +3,29 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { FaKey, FaSignOutAlt, FaFileAlt, FaCog, FaBlog, FaHome, FaLayerGroup, FaBars, FaTimes } from "react-icons/fa";
 import ThemeToggle from "./ThemeToggle";
 import { useSafeUser } from "../hooks/useSafeUser";
 import { trackLogin, trackLogout } from "../utils/gtag";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 interface NavigationItem {
   name: React.ReactElement;
@@ -28,10 +46,6 @@ const getAuthenticatedNavigation = (): NavigationItem[] => [
   { name: (<><FaBlog className="inline-block mr-2" /> Blog</>), href: "/blog" },
   { name: (<><FaSignOutAlt className="inline-block mr-2" /> Sign out</>), href: "/api/auth/logout", isLogout: true },
 ];
-
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
 
 export default function Navbar() {
   // Use safe user hook to prevent SSR issues
@@ -70,201 +84,184 @@ export default function Navbar() {
     setShowLogoutConfirm(false);
   };
 
+  const desktopLinkClassName = (href: string) =>
+    cn(
+      buttonVariants({ variant: "ghost", size: "sm" }),
+      "rounded-full border border-transparent px-4 text-white hover:bg-white/14 hover:text-white",
+      path === href && "bg-white/18 text-white"
+    );
+
+  const mobileLinkClassName = (href: string) =>
+    cn(
+      "flex items-center rounded-xl px-4 py-3 text-sm font-medium text-white transition-colors",
+      path === href
+        ? "bg-white/18 text-white shadow-sm"
+        : "hover:bg-white/12 hover:text-white"
+    );
 
   return (
     <>
-      {/* Main Navbar */}
-      <nav className="navbar bg-primary shadow-lg sticky top-0 z-50">
-        <div className="navbar-start">
-          {/* Mobile Menu Button */}
-          <div className="lg:hidden">
-            <button 
-              className="btn btn-ghost btn-circle text-white hover:bg-white/20 transition-all duration-300"
-              onClick={() => setIsMobileMenuOpen(true)}
+      <nav className="sticky top-0 z-50 border-b border-emerald-700/70 bg-emerald-600 text-white shadow-[0_12px_32px_rgba(5,150,105,0.26)] backdrop-blur supports-[backdrop-filter]:bg-emerald-600/95 dark:border-emerald-500/40 dark:bg-emerald-700/92 dark:shadow-[0_14px_36px_rgba(4,120,87,0.38)]">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3">
+            <div className="lg:hidden">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white"
+                aria-label="Open navigation menu"
+              >
+                <FaBars className="size-4" />
+              </Button>
+            </div>
+
+            <Link
+              href="/"
+              aria-label="Home"
+              className="rounded-xl px-1 py-1 transition-opacity hover:opacity-95"
             >
-              <FaBars className="w-5 h-5" />
-            </button>
+              <Image
+                src="/logo_white.png"
+                width={180}
+                height={35}
+                alt="ResumeVita.com Logo"
+                priority
+                className="h-auto w-36 sm:w-44 md:w-48"
+              />
+            </Link>
           </div>
-          
-          {/* Logo */}
-          <Link href="/" aria-label="Home" className="btn btn-ghost hover:bg-white/10 transition-all duration-300">
-            <Image
-              src="/logo_white.png"
-              width={180}
-              height={35}
-              alt="ResumeVita.com Logo"
-              priority
-              className="hover:scale-105 transition-transform duration-300 w-32 sm:w-40 md:w-48 lg:w-52 h-auto"
-            />
-          </Link>
-        </div>
-        
-        {/* Desktop Menu */}
-        <div className="navbar-end hidden lg:flex">
-          <ul className="menu menu-horizontal px-1">
-            {navItems.map((nav, i) => (
-              <li key={nav.href}>
-                {nav.isLogout ? (
-                  <button
-                    onClick={handleLogoutClick}
-                    className={`btn btn-ghost text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-lg ${
-                      path === nav.href ? "bg-white/20 scale-105" : ""
-                    }`}
-                  >
-                    {nav.name}
-                  </button>
-                ) : (
-                  <Link
-                    href={nav.href}
-                    className={`btn btn-ghost text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-lg ${
-                      path === nav.href ? "bg-white/20 scale-105" : ""
-                    }`}
-                    prefetch={nav.href.includes('/api/auth/') ? false : undefined}
-                    onClick={nav.href.includes('/api/auth/login') ? handleLoginClick : undefined}
-                  >
-                    {nav.name}
-                  </Link>
-                )}
-              </li>
-            ))}
-          </ul>
-          {/* Theme Toggle */}
-          <ThemeToggle />
+
+          <div className="hidden items-center gap-2 lg:flex">
+            {navItems.map((nav) =>
+              nav.isLogout ? (
+                <Button
+                  key={nav.href}
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogoutClick}
+                  className="rounded-full px-4 text-white hover:bg-white/14 hover:text-white"
+                >
+                  {nav.name}
+                </Button>
+              ) : (
+                <Link
+                  key={nav.href}
+                  href={nav.href}
+                  className={desktopLinkClassName(nav.href)}
+                  prefetch={nav.href.includes('/api/auth/') ? false : undefined}
+                  onClick={nav.href.includes('/api/auth/login') ? handleLoginClick : undefined}
+                >
+                  {nav.name}
+                </Link>
+              )
+            )}
+            <ThemeToggle />
+          </div>
         </div>
       </nav>
 
-      {/* Mobile Drawer Overlay */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-[99999] lg:hidden">
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          
-          {/* Drawer */}
-          <div className="fixed left-0 top-0 h-full w-80 bg-base-100 shadow-2xl overflow-y-auto">
-            <div className="p-6">
-              {/* Drawer Header */}
-              <div className="flex items-center justify-between mb-8 pb-4 border-b border-base-300">
-                <Image
-                  src="/logo_white.png"
-                  width={120}
-                  height={25}
-                  alt="ResumeVita.com Logo"
-                  className="w-24 h-auto"
-                />
-                <button 
-                  className="btn btn-ghost btn-circle hover:bg-base-200"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <FaTimes className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Navigation Items */}
-              <div className="space-y-1">
-                <h3 className="text-xs font-semibold text-base-content/60 uppercase tracking-wider mb-4">Navigation</h3>
-                {navItems.map((nav, i) => (
-                  <div key={nav.href} className="mb-2">
-                    {nav.isLogout ? (
-                      <button
-                        onClick={(e) => {
-                          handleLogoutClick(e);
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className={`flex items-center w-full px-4 py-3 rounded-lg text-left transition-all duration-300 hover:bg-primary hover:text-white ${
-                          path === nav.href ? "bg-primary text-white shadow-md" : "hover:shadow-sm"
-                        }`}
-                      >
-                        <span className="flex items-center space-x-3">
-                          {nav.name}
-                        </span>
-                      </button>
-                    ) : (
-                      <Link
-                        href={nav.href}
-                        className={`flex items-center w-full px-4 py-3 rounded-lg text-left transition-all duration-300 hover:bg-primary hover:text-white ${
-                          path === nav.href ? "bg-primary text-white shadow-md" : "hover:shadow-sm"
-                        }`}
-                        onClick={() => {
-                          if (nav.href.includes('/api/auth/login')) {
-                            handleLoginClick();
-                          }
-                          setIsMobileMenuOpen(false);
-                        }}
-                      >
-                        <span className="flex items-center space-x-3">
-                          {nav.name}
-                        </span>
-                      </Link>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Theme Toggle Section */}
-              <div className="mt-8 pt-6 border-t border-base-300">
-                <h3 className="text-xs font-semibold text-base-content/60 uppercase tracking-wider mb-4">Settings</h3>
-                <div className="bg-base-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-base-content">Theme</span>
-                    <ThemeToggle isMobile={true} />
-                  </div>
-                </div>
-              </div>
+      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+        <SheetContent
+          side="left"
+          className="w-[20rem] border-r border-emerald-700/60 bg-emerald-700 text-white"
+        >
+          <SheetHeader className="space-y-3 pb-0 pr-12">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/logo_white.png"
+                width={120}
+                height={25}
+                alt="ResumeVita.com Logo"
+                className="h-auto w-28"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                className="ml-auto text-white hover:bg-white/10 hover:text-white"
+                onClick={() => setIsMobileMenuOpen(false)}
+                aria-label="Close navigation menu"
+              >
+                <FaTimes className="size-4" />
+              </Button>
             </div>
-          </div>
-        </div>
-      )}
+            <div>
+              <SheetTitle className="text-white">Navigation</SheetTitle>
+              <SheetDescription className="text-white/75">
+                Access your resume, account settings, and public pages.
+              </SheetDescription>
+            </div>
+          </SheetHeader>
 
-      {/* Logout Confirmation Modal */}
-      {showLogoutConfirm && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center">
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50"
-            onClick={handleLogoutCancel}
-          />
-          
-          {/* Modal */}
-          <div className="relative bg-base-100 rounded-lg shadow-2xl p-6 m-4 max-w-md w-full">
-            <div className="text-center">
-              {/* Icon */}
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-warning/20 mb-4">
-                <FaSignOutAlt className="h-6 w-6 text-warning" />
-              </div>
-              
-              {/* Title */}
-              <h3 className="text-lg font-semibold text-base-content mb-2">
-                Confirm Sign Out
-              </h3>
-              
-              {/* Message */}
-              <p className="text-sm text-base-content/70 mb-6">
-                Are you sure you want to sign out? You&apos;ll need to log in again to access your resume.
+          <div className="space-y-2 px-4 pb-4">
+            {navItems.map((nav) =>
+              nav.isLogout ? (
+                <Button
+                  key={nav.href}
+                  type="button"
+                  variant="ghost"
+                  className="w-full justify-start rounded-xl px-4 py-3 text-sm"
+                  onClick={(event) => {
+                    handleLogoutClick(event);
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  {nav.name}
+                </Button>
+              ) : (
+                <Link
+                  key={nav.href}
+                  href={nav.href}
+                  className={mobileLinkClassName(nav.href)}
+                  onClick={() => {
+                    if (nav.href.includes('/api/auth/login')) {
+                      handleLoginClick();
+                    }
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  {nav.name}
+                </Link>
+              )
+            )}
+
+            <Separator className="my-4 bg-white/15" />
+
+            <div className="rounded-xl bg-white/10 p-3">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
+                Settings
               </p>
-              
-              {/* Buttons */}
-              <div className="flex gap-3 justify-center">
-                <button
-                  onClick={handleLogoutCancel}
-                  className="btn btn-outline btn-sm px-6"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleLogoutConfirm}
-                  className="btn btn-warning btn-sm px-6"
-                >
-                  <FaSignOutAlt className="mr-2" />
-                  Sign Out
-                </button>
-              </div>
+              <ThemeToggle isMobile={true} />
             </div>
           </div>
-        </div>
-      )}
+        </SheetContent>
+      </Sheet>
+
+      <Dialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
+        <DialogContent className="max-w-md" showCloseButton={false}>
+          <DialogHeader>
+            <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+              <FaSignOutAlt className="size-5" />
+            </div>
+            <DialogTitle>Confirm Sign Out</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to sign out? You&apos;ll need to log in again to access your resume.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-end">
+            <Button type="button" variant="outline" onClick={handleLogoutCancel}>
+              Cancel
+            </Button>
+            <Button type="button" variant="destructive" onClick={handleLogoutConfirm}>
+              <FaSignOutAlt className="mr-2 size-4" />
+              Sign Out
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

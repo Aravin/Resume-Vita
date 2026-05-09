@@ -1,5 +1,8 @@
 import { nanoid } from "nanoid";
 import { UseFormRegister } from "react-hook-form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 interface ReferenceType {
   register: UseFormRegister<any>;
@@ -12,66 +15,57 @@ interface ReferenceType {
 }
 
 export default function ReferenceForm(prop: ReferenceType) {
+  const invalidFieldClassName = "border-destructive ring-destructive/20";
   return (
     <div key={nanoid()} className="flex justify-between mb-12 mt-6">
       <div className="flex-1">
-        <div className="grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text text-gray-500">Full Name</span>
-            </label>
-            <input
-              type="text"
-              className={`input input-bordered font-medium ${
-                prop.errors?.name && "input-error"
-              }`}
-              defaultValue={prop.name}
-              {...prop.register(`references.${prop.index}.name`)}
-            />
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Full Name</Label>
+              <Input
+                type="text"
+                className={cn(prop.errors?.name && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.name)}
+                defaultValue={prop.name}
+                {...prop.register(`references.${prop.index}.name`)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Company Name</Label>
+              <Input
+                type="text"
+                className={cn(prop.errors?.company && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.company)}
+                defaultValue={prop.company}
+                {...prop.register(`references.${prop.index}.company`)}
+              />
+            </div>
           </div>
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text text-gray-500">Company Name</span>
-            </label>
-            <input
-              type="text"
-              className={`input input-bordered font-medium ${
-                prop.errors?.company && "input-error"
-              }`}
-              defaultValue={prop.company}
-              {...prop.register(`references.${prop.index}.company`)}
-            />
-          </div>
-        </div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Email</Label>
+              <Input
+                type="email"
+                className={cn(prop.errors?.email && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.email)}
+                defaultValue={prop.email}
+                {...prop.register(`references.${prop.index}.email`)}
+              />
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-6">
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text text-gray-500">Email</span>
-            </label>
-            <input
-              type="email"
-              className={`input input-bordered font-medium ${
-                prop.errors?.email && "input-error"
-              }`}
-              defaultValue={prop.email}
-              {...prop.register(`references.${prop.index}.email`)}
-            />
-          </div>
-
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text text-gray-500">Phone</span>
-            </label>
-            <input
-              type="tel"
-              className={`input input-bordered font-medium ${
-                prop.errors?.phone && "input-error"
-              }`}
-              defaultValue={prop.phone}
-              {...prop.register(`references.${prop.index}.phone`)}
-            />
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Phone</Label>
+              <Input
+                type="tel"
+                className={cn(prop.errors?.phone && invalidFieldClassName)}
+                aria-invalid={Boolean(prop.errors?.phone)}
+                defaultValue={prop.phone}
+                {...prop.register(`references.${prop.index}.phone`)}
+              />
+            </div>
           </div>
         </div>
       </div>

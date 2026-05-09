@@ -71,11 +71,10 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
       <div
         ref={nodeRef}
         className={`
-          group relative
-          p-4 rounded-lg border-2 
+          group relative rounded-2xl border p-4
           ${isDragging 
-            ? 'border-blue-300 shadow-xl bg-white scale-[1.02] z-50' 
-            : 'border-gray-100 hover:border-gray-300 hover:shadow-md'
+            ? 'z-50 scale-[1.02] border-primary/40 bg-background shadow-xl ring-4 ring-primary/10' 
+            : 'border-border/70 bg-background/70 hover:border-primary/25 hover:bg-background hover:shadow-md'
           }
           transition-all duration-200 ease-in-out
         `}
@@ -83,19 +82,19 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
         {/* Delete button and confirmation */}
         <div className="absolute right-2 top-2 flex items-center gap-2">
           {showDeleteConfirm ? (
-            <div className="flex items-center gap-2 bg-white p-1 rounded-lg shadow-md">
-              <span className="text-sm text-gray-600">Delete?</span>
+            <div className="flex items-center gap-2 rounded-xl border border-border/70 bg-background px-2 py-1 shadow-md">
+              <span className="text-sm text-muted-foreground">Delete?</span>
               <button
                 type="button"
                 onClick={confirmDelete}
-                className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                className="rounded-md bg-destructive px-2 py-1 text-xs text-destructive-foreground transition-colors hover:opacity-90"
               >
                 Yes
               </button>
               <button
                 type="button"
                 onClick={cancelDelete}
-                className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                className="rounded-md bg-muted px-2 py-1 text-xs text-foreground transition-colors hover:bg-muted/80"
               >
                 No
               </button>
@@ -105,7 +104,7 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
               type="button"
               title="Delete item"
               onClick={handleDelete}
-              className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 text-red-500 transition-all duration-200"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-destructive/10 text-destructive opacity-0 transition-all duration-200 hover:bg-destructive/20 group-hover:opacity-100"
             >
               <FaTimes size={12} />
             </button>
@@ -113,17 +112,16 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
         </div>
 
         {/* Movement controls */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 flex flex-col gap-1">
+        <div className="absolute left-4 top-4 right-14 flex flex-wrap items-center gap-1.5">
           <button 
             type="button"
             title="Drag to reorder"
-            className="drag-handle flex items-center justify-center w-8 h-8 
-              rounded-md bg-gray-100 hover:bg-gray-200 
+            className="drag-handle flex h-8 w-8 items-center justify-center rounded-md border border-border/70 bg-background/95 shadow-sm
               cursor-grab active:cursor-grabbing
               transition-colors duration-200"
             style={{ touchAction: 'none' }}
           >
-            <FaGripVertical className="text-gray-500 group-hover:text-gray-700" size={16} />
+            <FaGripVertical className="text-muted-foreground group-hover:text-foreground" size={16} />
           </button>
           
           <button 
@@ -135,10 +133,10 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
               onMove(index, 'top');
             }}
             disabled={index === 0}
-            className={`w-8 h-8 rounded-md flex items-center justify-center
+            className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/70 bg-background/95 shadow-sm
               ${index === 0 
-                ? 'bg-gray-50 text-gray-300' 
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700'
+                ? 'text-muted-foreground/40' 
+                : 'text-muted-foreground hover:border-primary/25 hover:text-foreground'
               } transition-colors duration-200`}
           >
             <FaAngleDoubleUp size={16} />
@@ -153,10 +151,10 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
               onMove(index, 'up');
             }}
             disabled={index === 0}
-            className={`w-8 h-8 rounded-md flex items-center justify-center
+            className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/70 bg-background/95 shadow-sm
               ${index === 0 
-                ? 'bg-gray-50 text-gray-300' 
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700'
+                ? 'text-muted-foreground/40' 
+                : 'text-muted-foreground hover:border-primary/25 hover:text-foreground'
               } transition-colors duration-200`}
           >
             <FaArrowUp size={16} />
@@ -171,10 +169,10 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
               onMove(index, 'down');
             }}
             disabled={index === totalItems - 1}
-            className={`w-8 h-8 rounded-md flex items-center justify-center
+            className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/70 bg-background/95 shadow-sm
               ${index === totalItems - 1 
-                ? 'bg-gray-50 text-gray-300' 
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700'
+                ? 'text-muted-foreground/40' 
+                : 'text-muted-foreground hover:border-primary/25 hover:text-foreground'
               } transition-colors duration-200`}
           >
             <FaArrowDown size={16} />
@@ -189,17 +187,17 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
               onMove(index, 'bottom');
             }}
             disabled={index === totalItems - 1}
-            className={`w-8 h-8 rounded-md flex items-center justify-center
+            className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/70 bg-background/95 shadow-sm
               ${index === totalItems - 1 
-                ? 'bg-gray-50 text-gray-300' 
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700'
+                ? 'text-muted-foreground/40' 
+                : 'text-muted-foreground hover:border-primary/25 hover:text-foreground'
               } transition-colors duration-200`}
           >
             <FaAngleDoubleDown size={16} />
           </button>
         </div>
         
-        <div className="pl-2">
+        <div className="pt-12 md:pt-14">
           {children}
         </div>
       </div>

@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FaSun, FaMoon } from "react-icons/fa";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const themes = [
   { name: "emerald", label: "Light", icon: FaSun },
@@ -10,20 +12,24 @@ const themes = [
 
 export default function ThemeToggle({ isMobile = false }: { isMobile?: boolean }) {
   const [currentTheme, setCurrentTheme] = useState("emerald");
-  const [isOpen, setIsOpen] = useState(false);
+
+  const syncTheme = (themeName: string) => {
+    const isDark = themeName === "dark";
+    document.documentElement.classList.toggle("dark", isDark);
+    document.documentElement.setAttribute("data-theme", isDark ? "dark" : "emerald");
+  };
 
   useEffect(() => {
     // Get theme from localStorage or default to emerald
     const savedTheme = localStorage.getItem("theme") || "emerald";
     setCurrentTheme(savedTheme);
-    document.documentElement.setAttribute("data-theme", savedTheme);
+    syncTheme(savedTheme);
   }, []);
 
   const changeTheme = (themeName: string) => {
     setCurrentTheme(themeName);
-    document.documentElement.setAttribute("data-theme", themeName);
+    syncTheme(themeName);
     localStorage.setItem("theme", themeName);
-    setIsOpen(false);
   };
 
   const toggleTheme = () => {
@@ -34,57 +40,24 @@ export default function ThemeToggle({ isMobile = false }: { isMobile?: boolean }
   const currentThemeData = themes.find(theme => theme.name === currentTheme) || themes[0];
   const CurrentIcon = currentThemeData.icon;
 
-  // Mobile simple toggle button
-  if (isMobile) {
-    return (
-      <button
-        onClick={toggleTheme}
-        className="btn btn-ghost btn-sm text-base-content hover:bg-primary hover:text-white transition-all duration-300 flex items-center space-x-2"
-      >
-        <CurrentIcon className="w-4 h-4" />
-        <span className="text-sm">{currentThemeData.label}</span>
-      </button>
-    );
-  }
+  const commonClasses = cn(
+    "transition-colors duration-200",
+    isMobile
+      ? "w-full justify-start rounded-lg px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-accent-foreground"
+      : "border-border/80 bg-background/75 text-foreground shadow-sm hover:bg-accent hover:text-accent-foreground dark:bg-background/40 dark:text-foreground"
+  );
 
-  // Desktop dropdown
   return (
-    <div className="dropdown dropdown-end">
-      <div
-        tabIndex={0}
-        role="button"
-        className="btn btn-ghost btn-circle text-white hover:bg-white/20 transition-all duration-300 w-10 h-10"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <CurrentIcon className="w-4 h-4 md:w-5 md:h-5" />
-      </div>
-      
-      <ul
-        tabIndex={0}
-        className={`dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-36 md:w-40 z-[1] transform transition-all duration-300 ${
-          isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
-        }`}
-      >
-        {themes.map((theme) => {
-          const Icon = theme.icon;
-          return (
-            <li key={theme.name}>
-              <button
-                onClick={() => changeTheme(theme.name)}
-                className={`flex items-center space-x-2 hover:bg-primary hover:text-white transition-all duration-300 rounded-lg px-3 py-2 text-sm md:text-base ${
-                  currentTheme === theme.name ? "bg-primary text-white" : ""
-                }`}
-              >
-                <Icon className="w-3 h-3 md:w-4 md:h-4" />
-                <span>{theme.label}</span>
-                {currentTheme === theme.name && (
-                  <span className="ml-auto text-xs">✓</span>
-                )}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+    <Button
+      type="button"
+      variant={isMobile ? "ghost" : "outline"}
+      size={isMobile ? "sm" : "icon-sm"}
+      onClick={toggleTheme}
+      className={commonClasses}
+      aria-label={`Switch to ${currentTheme === "emerald" ? "dark" : "light"} mode`}
+    >
+      <CurrentIcon className="size-4" />
+      {isMobile && <span>{currentThemeData.label}</span>}
+    </Button>
   );
 }
