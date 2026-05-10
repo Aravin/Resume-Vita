@@ -1,9 +1,10 @@
 import { nanoid } from "nanoid";
-import { UseFormRegister } from "react-hook-form";
+import { Control, UseFormRegister } from "react-hook-form";
 import ExperienceFormFields from "./ExperienceFormFields";
 
 interface InternshipType {
   register: UseFormRegister<any>;
+  control: Control<any>;
   title: string;
   company: string;
   startDate: string;
@@ -27,6 +28,7 @@ export default function InternshipForm(prop: InternshipType) {
         </div>
         <ExperienceFormFields
           register={prop.register}
+          control={prop.control}
           index={prop.index}
           basePath="internships"
           title={prop.title}

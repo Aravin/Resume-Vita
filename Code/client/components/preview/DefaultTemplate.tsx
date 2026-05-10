@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import RichTextContent from '@/components/common/RichTextContent';
 
 interface Props {
   data: any;
@@ -102,7 +103,10 @@ const DefaultTemplate = ({ data: r, color, colorClasses, bgColorClasses }: Props
             {/* Main Content */}
             <section className="py-4">
               <SectionTitle color={colorClasses[color]}>Profile</SectionTitle>
-              <p className="mt-4 text-gray-500">{r?.personal?.summary}</p>
+              <RichTextContent
+                content={r?.personal?.summary}
+                className="mt-4 text-gray-500 prose prose-sm max-w-none [&_ol]:pl-5 [&_p]:my-2 [&_ul]:pl-5"
+              />
             </section>
 
             {r?.internships?.[0]?.title && (
@@ -112,7 +116,10 @@ const DefaultTemplate = ({ data: r, color, colorClasses, bgColorClasses }: Props
                   <article className="" key={i}>
                     <CompanyHeader title={v.title} company={v.company} location={v.location} />
                     <DateRange startDate={v.startDate} endDate={v.endDate} />
-                    <p className="mt-4 text-gray-500">{v?.summary}</p>
+                    <RichTextContent
+                      content={v?.summary}
+                      className="mt-4 text-gray-500 prose prose-sm max-w-none [&_ol]:pl-5 [&_p]:my-2 [&_ul]:pl-5"
+                    />
                   </article>
                 ))}
               </section>
@@ -125,7 +132,10 @@ const DefaultTemplate = ({ data: r, color, colorClasses, bgColorClasses }: Props
                   <article className="" key={i}>
                     <CompanyHeader title={v.title} company={v.company} location={v.location} />
                     <DateRange startDate={v.startDate} endDate={v.endDate} isCurrent={v.isCurrent} />
-                    <p className="mt-4 text-gray-500">{v?.summary}</p>
+                    <RichTextContent
+                      content={v?.summary}
+                      className="mt-4 text-gray-500 prose prose-sm max-w-none [&_ol]:pl-5 [&_p]:my-2 [&_ul]:pl-5"
+                    />
                   </article>
                 ))}
               </section>

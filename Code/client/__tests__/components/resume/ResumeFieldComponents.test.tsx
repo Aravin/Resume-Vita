@@ -1,4 +1,6 @@
 import { render, screen } from "@testing-library/react";
+import { Controller } from "react-hook-form";
+import type { UseFormRegister } from "react-hook-form";
 import CourseForm from "@/components/resume/CourseForm";
 import EducationForm from "@/components/resume/EducationForm";
 import EmploymentForm from "@/components/resume/EmploymentForm";
@@ -10,11 +12,38 @@ import ProficiencyFormFields from "@/components/resume/ProficiencyFormFields";
 import ReferenceForm from "@/components/resume/ReferenceForm";
 import SkillForm from "@/components/resume/SkillForm";
 
+jest.mock("react-hook-form", () => ({
+  Controller: jest.fn(),
+}));
+
+jest.mock("../../../components/common/RichTextEditor", () => ({
+  __esModule: true,
+  default: ({ content }: { content: string }) => <div data-testid="rich-text-editor">{content}</div>,
+}));
+
 describe("resume field components", () => {
-  const mockRegister = jest.fn(() => ({}));
+  const mockRegisterImpl = jest.fn((name: string) => ({
+    name,
+    onChange: jest.fn(),
+    onBlur: jest.fn(),
+    ref: jest.fn(),
+  }));
+  const mockRegister = mockRegisterImpl as unknown as UseFormRegister<any>;
+  const mockControl = {} as any;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (Controller as jest.Mock).mockImplementation(({ name, render }: any) =>
+      render({
+        field: {
+          name,
+          value: "<p>Formatted summary</p>",
+          onChange: jest.fn(),
+          onBlur: jest.fn(),
+          ref: jest.fn(),
+        },
+      })
+    );
   });
 
   it("renders education fields with fallback heading and correct register paths", () => {
@@ -35,12 +64,12 @@ describe("resume field components", () => {
     expect(screen.getByText("Education # 2")).toBeInTheDocument();
     expect(screen.getByText("School/University*")).toBeInTheDocument();
     expect(screen.getByText("Subject/Degree*")).toBeInTheDocument();
-    expect(mockRegister).toHaveBeenCalledWith("educations.1.institution");
-    expect(mockRegister).toHaveBeenCalledWith("educations.1.subject");
-    expect(mockRegister).toHaveBeenCalledWith("educations.1.startDate");
-    expect(mockRegister).toHaveBeenCalledWith("educations.1.endDate");
-    expect(mockRegister).toHaveBeenCalledWith("educations.1.score", {});
-    expect(mockRegister).toHaveBeenCalledWith("educations.1.location", {});
+    expect(mockRegisterImpl).toHaveBeenCalledWith("educations.1.institution");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("educations.1.subject");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("educations.1.startDate");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("educations.1.endDate");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("educations.1.score", {});
+    expect(mockRegisterImpl).toHaveBeenCalledWith("educations.1.location", {});
   });
 
   it("renders course fields with stable labels and register paths", () => {
@@ -58,16 +87,17 @@ describe("resume field components", () => {
 
     expect(screen.getByLabelText("Course Name")).toHaveValue("System Design");
     expect(screen.getByLabelText("Institution Name")).toHaveValue("Udemy");
-    expect(mockRegister).toHaveBeenCalledWith("courses.0.name");
-    expect(mockRegister).toHaveBeenCalledWith("courses.0.institution");
-    expect(mockRegister).toHaveBeenCalledWith("courses.0.startDate");
-    expect(mockRegister).toHaveBeenCalledWith("courses.0.endDate");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("courses.0.name");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("courses.0.institution");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("courses.0.startDate");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("courses.0.endDate");
   });
 
   it("renders employment fields through the shared experience helper", () => {
     render(
       <EmploymentForm
         register={mockRegister}
+        control={mockControl}
         title="Lead Engineer"
         company="EPAM"
         startDate="2023-01"
@@ -82,23 +112,24 @@ describe("resume field components", () => {
 
     expect(screen.getByText("Lead Engineer at EPAM")).toBeInTheDocument();
     expect(screen.getByText("Is Present Company?")).toBeInTheDocument();
-    expect(mockRegister).toHaveBeenCalledWith("employments.0.title");
-    expect(mockRegister).toHaveBeenCalledWith("employments.0.company");
-    expect(mockRegister).toHaveBeenCalledWith("employments.0.startDate");
-    expect(mockRegister).toHaveBeenCalledWith("employments.0.endDate");
-    expect(mockRegister).toHaveBeenCalledWith("employments.0.location", {});
-    expect(mockRegister).toHaveBeenCalledWith("employments.0.isCurrent");
-    expect(mockRegister).toHaveBeenCalledWith("employments.0.summary", {
-      required: true,
-      maxLength: 4000,
-      minLength: 50,
-    });
+    expect(mockRegisterImpl).toHaveBeenCalledWith("employments.0.title");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("employments.0.company");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("employments.0.startDate");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("employments.0.endDate");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("employments.0.location", {});
+    expect(mockRegisterImpl).toHaveBeenCalledWith("employments.0.isCurrent");
+    expect(screen.getByTestId("rich-text-editor")).toBeInTheDocument();
+    expect(Controller).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "employments.0.summary" }),
+      undefined
+    );
   });
 
   it("renders internship fields without the current-company checkbox", () => {
     render(
       <InternshipForm
         register={mockRegister}
+        control={mockControl}
         title="Trainee"
         company="Acme"
         startDate="2023-01"
@@ -113,13 +144,12 @@ describe("resume field components", () => {
 
     expect(screen.getByText("Trainee at Acme")).toBeInTheDocument();
     expect(screen.queryByText("Is Present Company?")).not.toBeInTheDocument();
-    expect(mockRegister).toHaveBeenCalledWith("internships.2.title");
-    expect(mockRegister).toHaveBeenCalledWith("internships.2.company");
-    expect(mockRegister).toHaveBeenCalledWith("internships.2.summary", {
-      required: true,
-      maxLength: 4000,
-      minLength: 50,
-    });
+    expect(mockRegisterImpl).toHaveBeenCalledWith("internships.2.title");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("internships.2.company");
+    expect(Controller).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "internships.2.summary" }),
+      undefined
+    );
   });
 
   it("renders skill fields against the skills base path", () => {
@@ -135,8 +165,8 @@ describe("resume field components", () => {
 
     expect(screen.getByText("Skill Name*")).toBeInTheDocument();
     expect(screen.getByText("Level*")).toBeInTheDocument();
-    expect(mockRegister).toHaveBeenCalledWith("skills.1.name");
-    expect(mockRegister).toHaveBeenCalledWith("skills.1.level");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("skills.1.name");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("skills.1.level");
   });
 
   it("renders language fields against the languages base path", () => {
@@ -151,8 +181,8 @@ describe("resume field components", () => {
     );
 
     expect(screen.getByText("Language Name*")).toBeInTheDocument();
-    expect(mockRegister).toHaveBeenCalledWith("languages.0.name");
-    expect(mockRegister).toHaveBeenCalledWith("languages.0.level");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("languages.0.name");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("languages.0.level");
   });
 
   it("renders website link fields", () => {
@@ -168,8 +198,8 @@ describe("resume field components", () => {
 
     expect(screen.getByText("Website Name")).toBeInTheDocument();
     expect(screen.getByText("Link/URL (starts with http* or www.*)")).toBeInTheDocument();
-    expect(mockRegister).toHaveBeenCalledWith("links.0.name", {});
-    expect(mockRegister).toHaveBeenCalledWith("links.0.url", {});
+    expect(mockRegisterImpl).toHaveBeenCalledWith("links.0.name", {});
+    expect(mockRegisterImpl).toHaveBeenCalledWith("links.0.url", {});
   });
 
   it("renders reference fields", () => {
@@ -189,16 +219,17 @@ describe("resume field components", () => {
     expect(screen.getByText("Company Name")).toBeInTheDocument();
     expect(screen.getByText("Email")).toBeInTheDocument();
     expect(screen.getByText("Phone")).toBeInTheDocument();
-    expect(mockRegister).toHaveBeenCalledWith("references.0.name");
-    expect(mockRegister).toHaveBeenCalledWith("references.0.company");
-    expect(mockRegister).toHaveBeenCalledWith("references.0.email");
-    expect(mockRegister).toHaveBeenCalledWith("references.0.phone");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("references.0.name");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("references.0.company");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("references.0.email");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("references.0.phone");
   });
 
   it("renders the shared experience fields with the optional checkbox", () => {
     render(
       <ExperienceFormFields
         register={mockRegister}
+        control={mockControl}
         index={3}
         basePath="employments"
         title="Architect"
@@ -218,7 +249,11 @@ describe("resume field components", () => {
     expect(screen.getByText("Job Title*")).toBeInTheDocument();
     expect(screen.getByText("Company Name*")).toBeInTheDocument();
     expect(screen.getByText("Is Present Company?")).toBeInTheDocument();
-    expect(mockRegister).toHaveBeenCalledWith("employments.3.isCurrent");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("employments.3.isCurrent");
+    expect(Controller).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "employments.3.summary" }),
+      undefined
+    );
   });
 
   it("renders the shared proficiency fields with the expected select options", () => {
@@ -237,7 +272,7 @@ describe("resume field components", () => {
     expect(screen.getByText("Skill Name*")).toBeInTheDocument();
     expect(document.querySelector('option[label="Novice"]')).toBeInTheDocument();
     expect(document.querySelector('option[label="Expert"]')).toBeInTheDocument();
-    expect(mockRegister).toHaveBeenCalledWith("skills.2.name");
-    expect(mockRegister).toHaveBeenCalledWith("skills.2.level");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("skills.2.name");
+    expect(mockRegisterImpl).toHaveBeenCalledWith("skills.2.level");
   });
 });

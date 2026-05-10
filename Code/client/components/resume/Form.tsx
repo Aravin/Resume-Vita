@@ -3,7 +3,7 @@
 import { useSafeUser } from "../../hooks/useSafeUser";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, Control, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { ResumeSchema } from "./ResumeSchema";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
@@ -20,6 +20,7 @@ import DraggableFormItem from "../common/DraggableFormItem";
 import Loader from "../Loader";
 import axios from "axios";
 import ScrollToTop from "../ScrollToTop";
+import RichTextEditor from "../common/RichTextEditor";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,8 +31,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { sanitizeResumeRichTextFields } from "@/utils/richText";
 
 const AddButton = ({ onClick, label }: { onClick: (e: any) => void; label: string }) => (
   <Button
@@ -129,7 +130,8 @@ const renderFormSection = (
   handlers: { handleAdd: any; handleDelete: any; handleReorder: any; handleMove: any },
   sectionErrors: any,
   addButtonLabel: string,
-  register: any
+  register: any,
+  control: Control<any>
 ) => (
   <div className="relative">
     <div className="space-y-4">
@@ -147,6 +149,7 @@ const renderFormSection = (
             <Component 
               {...item} 
               register={register} 
+              control={control}
               errors={sectionErrors && sectionErrors[index]} 
             />
           </DraggableFormItem>
@@ -167,6 +170,7 @@ export default function ResumeForm() {
 
   const {
     register,
+    control,
     handleSubmit,
     watch,
     setValue,
@@ -241,9 +245,11 @@ export default function ResumeForm() {
   const onSubmit: any = async (data: any) => {
     setSubmitError(null);
 
+    const normalizedResume = sanitizeResumeRichTextFields(data);
+
     const resumeData = {
       user: userId,
-      resume: data,
+      resume: normalizedResume,
     };
 
     setLocalResume(resumeData);
@@ -358,16 +364,21 @@ export default function ResumeForm() {
           <div className="grid grid-cols-1 gap-6">
             <div className="flex-1 space-y-2">
               <Label htmlFor="personal-summary" className="text-muted-foreground">Summary*</Label>
-              <Textarea
-                id="personal-summary"
-                rows={8}
-                className={cn(
-                  "h-60 md:h-40 lg:h-40",
-                  errors.personal?.summary && invalidFieldClassName
+              <Controller
+                name="personal.summary"
+                control={control}
+                render={({ field }) => (
+                  <RichTextEditor
+                    content={field.value ?? ""}
+                    onChange={field.onChange}
+                    error={Boolean(errors.personal?.summary)}
+                    minHeightClassName="min-h-[15rem] md:min-h-[10rem]"
+                  />
                 )}
-                aria-invalid={Boolean(errors.personal?.summary)}
-                {...register("personal.summary")}
               />
+              {errors?.personal?.summary && (
+                <p className="text-sm text-destructive">Please enter a stronger summary</p>
+              )}
             </div>
           </div>
         </FormSection>
@@ -382,7 +393,8 @@ export default function ResumeForm() {
             sections.educations,
             errors.educations,
             "Add Education",
-            register
+            register,
+            control
           )}
         </FormSection>
 
@@ -393,7 +405,8 @@ export default function ResumeForm() {
             sections.internships,
             errors.internships,
             "Add Internship",
-            register
+            register,
+            control
           )}
         </FormSection>
 
@@ -404,7 +417,8 @@ export default function ResumeForm() {
             sections.employments,
             errors.employments,
             "Add Employment",
-            register
+            register,
+            control
           )}
         </FormSection>
 
@@ -418,7 +432,8 @@ export default function ResumeForm() {
             sections.skills,
             errors.skills,
             "Add More Skill",
-            register
+            register,
+            control
           )}
         </FormSection>
 
@@ -429,7 +444,8 @@ export default function ResumeForm() {
             sections.languages,
             errors.languages,
             "Add More Language",
-            register
+            register,
+            control
           )}
         </FormSection>
 
@@ -443,7 +459,8 @@ export default function ResumeForm() {
             sections.links,
             errors.links,
             "Add More Links",
-            register
+            register,
+            control
           )}
         </FormSection>
 
@@ -454,7 +471,8 @@ export default function ResumeForm() {
             sections.courses,
             errors.courses,
             "Add Course",
-            register
+            register,
+            control
           )}
         </FormSection>
 
@@ -465,7 +483,8 @@ export default function ResumeForm() {
             sections.references,
             errors.references,
             "Add Reference",
-            register
+            register,
+            control
           )}
         </FormSection>
 
