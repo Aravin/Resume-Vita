@@ -1,11 +1,13 @@
 import { nanoid } from "nanoid";
-import { UseFormRegister } from "react-hook-form";
+import { Control, Controller, UseFormRegister } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import MonthPicker from "@/components/ui/MonthPicker";
 import { cn } from "@/lib/utils";
 
 interface CourseType {
   register: UseFormRegister<any>;
+  control?: Control<any>;
   name: string;
   institution: string;
   startDate: string;
@@ -60,14 +62,33 @@ export default function CourseForm(prop: CourseType) {
               <Label htmlFor={startDateId} className="text-muted-foreground">
                 Start Date
               </Label>
-              <Input
-                id={startDateId}
-                type="month"
-                className={cn(prop.errors?.startDate && "border-destructive ring-destructive/20")}
-                aria-invalid={Boolean(prop.errors?.startDate)}
-                defaultValue={prop.startDate}
-                {...prop.register(`courses.${prop.index}.startDate`)}
-              />
+              {prop.control ? (
+                <Controller
+                  name={`courses.${prop.index}.startDate`}
+                  control={prop.control}
+                  defaultValue={prop.startDate || null}
+                  render={({ field }) => (
+                    <MonthPicker
+                      id={startDateId}
+                      name={`courses.${prop.index}.startDate`}
+                      value={field.value}
+                      onChange={field.onChange}
+                      ariaInvalid={Boolean(prop.errors?.startDate)}
+                      className={cn(prop.errors?.startDate && "border-destructive ring-destructive/20")}
+                    />
+                  )}
+                />
+              ) : (
+                <Input
+                  id={startDateId}
+                  type="month"
+                  className={cn(prop.errors?.startDate && "border-destructive ring-destructive/20")}
+                  aria-invalid={Boolean(prop.errors?.startDate)}
+                  defaultValue={prop.startDate}
+                  {...prop.register(`courses.${prop.index}.startDate`)}
+                />
+              )}
+              <input type="hidden" {...prop.register(`courses.${prop.index}.startDate`)} />
               {(
                 prop.errors?.startDate?.message ||
                 prop.errors?.endDate?.message ||
@@ -83,14 +104,33 @@ export default function CourseForm(prop: CourseType) {
               <Label htmlFor={endDateId} className="text-muted-foreground">
                 End Date
               </Label>
-              <Input
-                id={endDateId}
-                type="month"
-                className={cn(prop.errors?.endDate && "border-destructive ring-destructive/20")}
-                aria-invalid={Boolean(prop.errors?.endDate)}
-                defaultValue={prop.endDate}
-                {...prop.register(`courses.${prop.index}.endDate`)}
-              />
+              {prop.control ? (
+                <Controller
+                  name={`courses.${prop.index}.endDate`}
+                  control={prop.control}
+                  defaultValue={prop.endDate || null}
+                  render={({ field }) => (
+                    <MonthPicker
+                      id={endDateId}
+                      name={`courses.${prop.index}.endDate`}
+                      value={field.value}
+                      onChange={field.onChange}
+                      ariaInvalid={Boolean(prop.errors?.endDate)}
+                      className={cn(prop.errors?.endDate && "border-destructive ring-destructive/20")}
+                    />
+                  )}
+                />
+              ) : (
+                <Input
+                  id={endDateId}
+                  type="month"
+                  className={cn(prop.errors?.endDate && "border-destructive ring-destructive/20")}
+                  aria-invalid={Boolean(prop.errors?.endDate)}
+                  defaultValue={prop.endDate}
+                  {...prop.register(`courses.${prop.index}.endDate`)}
+                />
+              )}
+              <input type="hidden" {...prop.register(`courses.${prop.index}.endDate`)} />
               {(
                 prop.errors?.startDate?.message ||
                 prop.errors?.endDate?.message ||

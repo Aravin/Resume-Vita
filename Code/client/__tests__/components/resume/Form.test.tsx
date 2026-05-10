@@ -315,7 +315,7 @@ describe("ResumeForm", () => {
 
     expect(mockSetValue).toHaveBeenCalledWith("skills", [
       ...currentValues.skills,
-      { index: 1 },
+      { name: "", level: 0 },
     ]);
   });
 
@@ -384,8 +384,12 @@ describe("ResumeForm", () => {
   });
 
   it("focuses server-reported field when save fails with validation errors", async () => {
-    const mockSetFocus = jest.fn();
-    // update the useForm mock to include our spy
+    // create a real input in the DOM so the component's DOM-focus behavior can target it
+    const startInput = document.createElement('input');
+    startInput.setAttribute('name', 'educations.0.startDate');
+    document.body.appendChild(startInput);
+
+    // update the useForm mock to submit normally
     (useForm as jest.Mock).mockReturnValueOnce({
       register: mockRegister,
       control: {},
@@ -402,7 +406,7 @@ describe("ResumeForm", () => {
         return currentValues;
       },
       setValue: mockSetValue,
-      setFocus: mockSetFocus,
+      setFocus: jest.fn(),
       formState: { errors: {}, isSubmitting: false },
       getValues: mockGetValues,
       reset: mockReset,
@@ -416,8 +420,11 @@ describe("ResumeForm", () => {
 
     await waitFor(() => {
       expect(mockSetLocalResume).toHaveBeenCalled();
-      expect(mockSetFocus).toHaveBeenCalledWith('educations.0.startDate');
+      expect(document.activeElement).toBe(startInput);
     });
+
+    // cleanup DOM
+    startInput.remove();
   });
 
   it("shows a submit error when saving fails", async () => {
