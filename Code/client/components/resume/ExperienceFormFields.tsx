@@ -1,6 +1,7 @@
 import { Control, Controller, UseFormRegister } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import MonthPicker from "@/components/ui/MonthPicker";
 import RichTextEditor from "@/components/common/RichTextEditor";
 import { cn } from "@/lib/utils";
 
@@ -71,24 +72,60 @@ export default function ExperienceFormFields({
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="space-y-2">
           <Label className="text-muted-foreground">Start Date*</Label>
-          <Input
-            type="month"
-            className={cn(errors?.startDate && invalidFieldClassName)}
-            aria-invalid={Boolean(errors?.startDate)}
-            defaultValue={startDate}
-            {...register(`${basePath}.${index}.startDate`)}
+          <Controller
+            name={`${basePath}.${index}.startDate`}
+            control={control}
+            defaultValue={startDate || null}
+            render={({ field }) => (
+              <MonthPicker
+                id={`${basePath}-${index}-startDate`}
+                name={`${basePath}.${index}.startDate`}
+                value={field.value}
+                onChange={field.onChange}
+                ariaInvalid={Boolean(errors?.startDate)}
+                className={cn(errors?.startDate && invalidFieldClassName)}
+              />
+            )}
           />
+          {/* removed hidden input; Controller handles registration when control is provided */}
+          {(
+            errors?.startDate?.message ||
+            errors?.endDate?.message ||
+            (errors?.message && String(errors?.message))
+          ) && (
+            <p className="text-destructive text-sm mt-1">
+              {errors?.startDate?.message || errors?.endDate?.message || errors?.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
           <Label className="text-muted-foreground">End Date*</Label>
-          <Input
-            type="month"
-            className={cn(errors?.endDate && invalidFieldClassName)}
-            aria-invalid={Boolean(errors?.endDate)}
-            defaultValue={endDate}
-            {...register(`${basePath}.${index}.endDate`)}
+          <Controller
+            name={`${basePath}.${index}.endDate`}
+            control={control}
+            defaultValue={endDate || null}
+            render={({ field }) => (
+              <MonthPicker
+                id={`${basePath}-${index}-endDate`}
+                name={`${basePath}.${index}.endDate`}
+                value={field.value}
+                onChange={field.onChange}
+                ariaInvalid={Boolean(errors?.endDate)}
+                className={cn(errors?.endDate && invalidFieldClassName)}
+              />
+            )}
           />
+          {/* removed hidden input; Controller handles registration when control is provided */}
+          {(
+            errors?.startDate?.message ||
+            errors?.endDate?.message ||
+            (errors?.message && String(errors?.message))
+          ) && (
+            <p className="text-destructive text-sm mt-1">
+              {errors?.startDate?.message || errors?.endDate?.message || errors?.message}
+            </p>
+          )}
         </div>
       </div>
 

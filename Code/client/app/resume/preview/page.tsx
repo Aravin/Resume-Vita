@@ -195,7 +195,7 @@ export default function Page() {
         return;
       }
 
-      console.error('PDF generation failed, falling back to existing PDF:', error);
+      console.warn('PDF generation failed, falling back to existing PDF:', error);
       
       // Clear any error messages from failed generation
       setDownloadError(null);

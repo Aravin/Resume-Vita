@@ -3,7 +3,13 @@
 import { useSafeUser } from "../../hooks/useSafeUser";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Controller, Control, useForm } from "react-hook-form";
+import {
+  Controller,
+  FieldErrors,
+  FieldValues,
+  SubmitHandler,
+  useForm,
+} from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { ResumeSchema } from "./ResumeSchema";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
@@ -35,8 +41,231 @@ import { cn } from "@/lib/utils";
 import type { AtsScore } from "@/types/resume";
 import { sanitizeResumeRichTextFields } from "@/utils/richText";
 
+interface PersonalDetails {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  summary: string;
+}
+
+interface EducationEntry {
+  index?: number;
+  institution: string;
+  subject: string;
+  startDate: string;
+  endDate: string;
+  score: number;
+  location: string;
+}
+
+interface ExperienceEntry {
+  index?: number;
+  title: string;
+  company: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  summary: string;
+  isCurrent: boolean;
+}
+
+interface SkillEntry {
+  index?: number;
+  name: string;
+  level: number;
+}
+
+interface LanguageEntry {
+  index?: number;
+  name: string;
+  level: number;
+}
+
+interface LinkEntry {
+  index?: number;
+  name: string;
+  url: string;
+}
+
+interface CourseEntry {
+  index?: number;
+  name: string;
+  institution: string;
+  startDate: string;
+  endDate: string;
+}
+
+interface ReferenceEntry {
+  index?: number;
+  name: string;
+  company: string;
+  phone: string;
+  email: string;
+}
+
+interface ResumeFormValues {
+  personal: PersonalDetails;
+  educations: EducationEntry[];
+  internships: ExperienceEntry[];
+  employments: ExperienceEntry[];
+  skills: SkillEntry[];
+  languages: LanguageEntry[];
+  links: LinkEntry[];
+  courses: CourseEntry[];
+  references: ReferenceEntry[];
+}
+
+interface ResumeStoragePayload {
+  user?: string;
+  resume: ResumeFormValues;
+}
+
+interface ServerValidationError {
+  path?: string;
+}
+
+type SectionName = Exclude<keyof ResumeFormValues, "personal">;
+type SectionItemMap = {
+  educations: EducationEntry;
+  internships: ExperienceEntry;
+  employments: ExperienceEntry;
+  skills: SkillEntry;
+  languages: LanguageEntry;
+  links: LinkEntry;
+  courses: CourseEntry;
+  references: ReferenceEntry;
+};
+type MoveDirection = "up" | "down" | "top" | "bottom";
+type SectionHandlers = {
+  handleAdd: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  handleDelete: (index: number) => void;
+  handleReorder: (oldIndex: number, newIndex: number) => void;
+  handleMove: (index: number, direction: MoveDirection) => void;
+};
+type RenderableSectionItem = SectionItemMap[SectionName];
+type FormGetValues = () => unknown;
+type FormSetValue = (name: string, value: unknown) => void;
+
+const emptySectionItems: SectionItemMap = {
+  educations: {
+    institution: "",
+    subject: "",
+    startDate: "",
+    endDate: "",
+    score: 0,
+    location: "",
+  },
+  internships: {
+    title: "",
+    company: "",
+    startDate: "",
+    endDate: "",
+    location: "",
+    summary: "",
+    isCurrent: false,
+  },
+  employments: {
+    title: "",
+    company: "",
+    startDate: "",
+    endDate: "",
+    location: "",
+    summary: "",
+    isCurrent: false,
+  },
+  skills: {
+    name: "",
+    level: 0,
+  },
+  languages: {
+    name: "",
+    level: 0,
+  },
+  links: {
+    name: "",
+    url: "",
+  },
+  courses: {
+    name: "",
+    institution: "",
+    startDate: "",
+    endDate: "",
+  },
+  references: {
+    name: "",
+    company: "",
+    phone: "",
+    email: "",
+  },
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const hasFieldErrorDetails = (value: unknown): value is { message?: unknown; type?: unknown } =>
+  isRecord(value) && ("message" in value || "type" in value);
+
+const hasUnsubscribeMethod = (value: unknown): value is { unsubscribe: () => void } =>
+  isRecord(value) && typeof value.unsubscribe === "function";
+
+const extractServerValidationErrors = (error: unknown): ServerValidationError[] => {
+  let data: unknown;
+  if (axios.isAxiosError(error)) {
+    data = error.response?.data;
+  } else if (isRecord(error)) {
+    const maybeResponse = (error as Record<string, unknown>).response;
+    if (isRecord(maybeResponse)) {
+      data = maybeResponse.data;
+    } else {
+      data = undefined;
+    }
+  } else {
+    data = undefined;
+  }
+
+  const maybeErrors = isRecord(data) ? (data as Record<string, unknown>).errors : undefined;
+
+  if (!Array.isArray(maybeErrors)) {
+    return [];
+  }
+
+  return maybeErrors.filter((item): item is ServerValidationError => isRecord(item));
+};
+
+const focusFieldByName = (fieldName: string) => {
+  setTimeout(() => {
+    const element =
+      document.querySelector<HTMLElement>(`[data-field-name="${fieldName}"]`) ??
+      document.querySelector<HTMLElement>(`[name="${fieldName}"]`);
+
+    if (!element) {
+      return;
+    }
+
+    try {
+      if (typeof element.scrollIntoView === "function") {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    } catch {}
+
+    try {
+      element.focus();
+    } catch {}
+
+    const wrapper = element.closest(".group") ?? element.closest('[data-slot="card"]');
+
+    if (wrapper instanceof HTMLElement) {
+      wrapper.classList.add("ring-4", "ring-destructive/30", "shadow-lg");
+      setTimeout(() => {
+        wrapper.classList.remove("ring-4", "ring-destructive/30", "shadow-lg");
+      }, 2000);
+    }
+  }, 50);
+};
+
 interface ResumeResponse {
-  resume?: any;
+  resume?: ResumeFormValues;
   atsScore?: AtsScore;
 }
 
@@ -107,7 +336,7 @@ const getSectionSuggestions = (
     .slice(0, 2);
 };
 
-const AddButton = ({ onClick, label }: { onClick: (e: any) => void; label: string }) => (
+const AddButton = ({ onClick, label }: { onClick: (event: React.MouseEvent<HTMLButtonElement>) => void; label: string }) => (
   <Button
     type="button"
     variant="outline"
@@ -172,29 +401,34 @@ const InlineAtsGuide = ({
 };
 
 // Utility function for handling section items
-const createSectionHandlers = (sectionName: string, getValues: any, setResume: any, reset: any, setValue: any) => {
+const createSectionHandlers = <K extends SectionName>(
+  sectionName: K,
+  getValues: FormGetValues,
+  setResume: React.Dispatch<React.SetStateAction<ResumeFormValues>>,
+  setValue: FormSetValue
+): SectionHandlers => {
   const handleAdd = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const values = getValues();
-    const items = values[sectionName] || [];
-    const newItems = [...items, {}];
+    const values = getValues() as ResumeFormValues;
+    const items = values[sectionName];
+    const newItems = [...items, { ...emptySectionItems[sectionName] }];
     // Update both resume state and form state
-    setResume((prev: any) => ({ ...prev, [sectionName]: newItems }));
+    setResume((prev) => ({ ...prev, [sectionName]: newItems }));
     setValue(sectionName, newItems);
   };
 
   const handleDelete = (index: number) => {
-    const values = getValues();
-    const items = values[sectionName] || [];
-    const newItems = items.filter((_: any, i: number) => i !== index);
+    const values = getValues() as ResumeFormValues;
+    const items = values[sectionName];
+    const newItems = items.filter((_, itemIndex: number) => itemIndex !== index);
     // Update both resume state and form state
-    setResume((prev: any) => ({ ...prev, [sectionName]: newItems }));
+    setResume((prev) => ({ ...prev, [sectionName]: newItems }));
     setValue(sectionName, newItems);
   };
 
-  const handleMove = (index: number, direction: 'up' | 'down' | 'top' | 'bottom') => {
-    const values = getValues();
-    const items = [...(values[sectionName] || [])];
+  const handleMove = (index: number, direction: MoveDirection) => {
+    const values = getValues() as ResumeFormValues;
+    const items = [...values[sectionName]];
     const item = items[index];
     
     items.splice(index, 1);
@@ -215,17 +449,17 @@ const createSectionHandlers = (sectionName: string, getValues: any, setResume: a
     }
     
     // Update both resume state and form state
-    setResume((prev: any) => ({ ...prev, [sectionName]: items }));
+    setResume((prev) => ({ ...prev, [sectionName]: items }));
     setValue(sectionName, items);
   };
 
   const handleReorder = (oldIndex: number, newIndex: number) => {
-    const values = getValues();
-    const items = [...(values[sectionName] || [])];
+    const values = getValues() as ResumeFormValues;
+    const items = [...values[sectionName]];
     const [movedItem] = items.splice(oldIndex, 1);
     items.splice(newIndex, 0, movedItem);
     // Update both resume state and form state
-    setResume((prev: any) => ({ ...prev, [sectionName]: items }));
+    setResume((prev) => ({ ...prev, [sectionName]: items }));
     setValue(sectionName, items);
   };
 
@@ -233,18 +467,17 @@ const createSectionHandlers = (sectionName: string, getValues: any, setResume: a
 };
 
 const renderFormSection = (
-  Component: any,
-  items: any[],
-  handlers: { handleAdd: any; handleDelete: any; handleReorder: any; handleMove: any },
-  sectionErrors: any,
+  Component: React.ElementType,
+  items: RenderableSectionItem[] | undefined,
+  handlers: SectionHandlers,
+  sectionErrors: unknown,
   addButtonLabel: string,
-  register: any,
-  control: Control<any>
+  register: unknown,
+  control: unknown
 ) => (
   <div className="relative">
     <div className="space-y-4">
-      {items?.map((item: any, index: number) => {
-        item.index = index;
+      {items?.map((item, index) => {
         return (
           <DraggableFormItem 
             key={index} 
@@ -256,9 +489,10 @@ const renderFormSection = (
           >
             <Component 
               {...item} 
+              index={index}
               register={register} 
               control={control}
-              errors={sectionErrors && sectionErrors[index]} 
+              errors={Array.isArray(sectionErrors) ? sectionErrors[index] : undefined} 
             />
           </DraggableFormItem>
         );
@@ -272,10 +506,10 @@ export default function ResumeForm() {
   const router = useRouter();
   const { user, error, isLoading } = useSafeUser();
   const userId = user?.sub?.split("|")[1];
-  const [resume, setResume] = useState(resumeDefaultValues);
+  const [resume, setResume] = useState<ResumeFormValues>(resumeDefaultValues);
   const [atsScore, setAtsScore] = useState<AtsScore | null>(null);
   const [isAtsGuideOpen, setIsAtsGuideOpen] = useState(true);
-  const [localResume, setLocalResume] = useLocalStorage("resumeData", {} as any);
+  const [, setLocalResume] = useLocalStorage<ResumeStoragePayload | null>("resumeData", null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
@@ -293,38 +527,58 @@ export default function ResumeForm() {
     defaultValues: resumeDefaultValues,
   });
 
+  // Safe wrapper for `setValue` to allow dynamic field paths at runtime.
+  // React Hook Form's `setValue` has a narrow, generated union type for field names,
+  // so cast to `any` for dynamic updates (e.g., `employments.${i}.isCurrent`).
+  const setValueSafe = (name: string, value: unknown) => setValue(name as any, value as any);
+
   // Watch for changes in employment's isCurrent field
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
       if (name?.includes('employments') && name?.endsWith('isCurrent') && type === 'change') {
-        const employments = (value.employments || []) as unknown as Array<{ isCurrent?: boolean }>;
-        const currentIndex = parseInt(name.split('.')[1]);
+        const employments = (value.employments as ResumeFormValues["employments"] | undefined) ?? [];
+        const currentIndex = Number.parseInt(name.split('.')[1], 10);
+
+        if (Number.isNaN(currentIndex)) {
+          return;
+        }
         
         // If the current checkbox is being checked and employments exist
         if (employments[currentIndex]?.isCurrent) {
           // Uncheck all other employments
           employments.forEach((_, index) => {
             if (index !== currentIndex && employments[index]?.isCurrent) {
-              (setValue as any)(`employments.${index}.isCurrent`, false);
+              const isCurrentPath = `employments.${index}.isCurrent`;
+              setValueSafe(isCurrentPath, false);
             }
           });
         }
       }
     });
     
-    return () => subscription.unsubscribe();
+    return () => {
+      if (!subscription) return;
+      const watchSubscription: unknown = subscription;
+      if (typeof watchSubscription === "function") {
+        watchSubscription();
+        return;
+      }
+      if (hasUnsubscribeMethod(watchSubscription)) {
+        watchSubscription.unsubscribe();
+      }
+    };
   }, [watch, setValue]);
 
   // Create handlers for all sections
-  const sections = {
-    educations: createSectionHandlers("educations", getValues, setResume, reset, setValue),
-    internships: createSectionHandlers("internships", getValues, setResume, reset, setValue),
-    employments: createSectionHandlers("employments", getValues, setResume, reset, setValue),
-    skills: createSectionHandlers("skills", getValues, setResume, reset, setValue),
-    languages: createSectionHandlers("languages", getValues, setResume, reset, setValue),
-    links: createSectionHandlers("links", getValues, setResume, reset, setValue),
-    courses: createSectionHandlers("courses", getValues, setResume, reset, setValue),
-    references: createSectionHandlers("references", getValues, setResume, reset, setValue),
+    const sections = {
+    educations: createSectionHandlers("educations", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
+    internships: createSectionHandlers("internships", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
+    employments: createSectionHandlers("employments", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
+    skills: createSectionHandlers("skills", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
+    languages: createSectionHandlers("languages", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
+    links: createSectionHandlers("links", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
+    courses: createSectionHandlers("courses", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
+    references: createSectionHandlers("references", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
   };
 
   useEffect(() => {
@@ -374,10 +628,10 @@ export default function ResumeForm() {
     return () => { isMounted = false; };
   }, [userId, reset]);
 
-  const onSubmit: any = async (data: any) => {
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     setSubmitError(null);
 
-    const normalizedResume = sanitizeResumeRichTextFields(data);
+    const normalizedResume = sanitizeResumeRichTextFields(data as ResumeFormValues);
 
     const resumeData = {
       user: userId,
@@ -387,15 +641,62 @@ export default function ResumeForm() {
     setLocalResume(resumeData);
 
     try {
-      await axios.post(
-        process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + "/resume",
-        resumeData
-      );
+        await axios.post(
+          "/api/resume",
+          resumeData
+        );
       router.push("/resume/preview");
     } catch (error) {
-      console.error('Failed to save resume:', error);
+      if (axios.isAxiosError(error)) {
+        console.error("Failed to save resume:", {
+          message: error.message,
+          status: error.response?.status,
+          errors: (error.response?.data as any)?.errors,
+        });
+      } else {
+        console.error("Failed to save resume:", { message: (error as any)?.message ?? String(error) });
+      }
+      // If server returned structured validation errors, focus the first problematic field
+      const serverErrors = extractServerValidationErrors(error);
+      if (Array.isArray(serverErrors) && serverErrors.length) {
+        const first = serverErrors[0];
+        const path = first?.path;
+        if (path) {
+          const fieldName = /^(educations|internships|courses|employments)\.\d+$/.test(path)
+            ? `${path}.startDate`
+            : path;
+
+          focusFieldByName(fieldName);
+        }
+      }
+
       setSubmitError("We couldn’t save the resume right now. Please retry in a moment.");
     }
+  };
+
+  const findFirstErrorPath = (errs: unknown, prefix = ""): string | null => {
+    if (!isRecord(errs)) return null;
+    for (const key of Object.keys(errs)) {
+      const val = errs[key];
+      const path = prefix ? `${prefix}.${key}` : key;
+      if (hasFieldErrorDetails(val)) {
+        return path;
+      }
+      const inner = findFirstErrorPath(val, path);
+      if (inner) return inner;
+    }
+    return null;
+  };
+
+  const onInvalid = (errs: FieldErrors<FieldValues>) => {
+    const path = findFirstErrorPath(errs);
+    if (!path) return;
+
+    const fieldName = /^(educations|internships|courses|employments)\.\d+$/.test(path)
+      ? `${path}.startDate`
+      : path;
+
+    focusFieldByName(fieldName);
   };
 
   if (isLoading) return <div><Loader /></div>;
@@ -462,7 +763,7 @@ export default function ResumeForm() {
 
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
         <Card className="border-border/70 bg-muted/20 shadow-sm">
           <CardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:justify-between">
             <div>

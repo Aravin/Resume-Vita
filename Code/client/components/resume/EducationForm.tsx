@@ -1,4 +1,4 @@
-import { UseFormRegister } from "react-hook-form";
+import { UseFormRegister, Control, Controller } from "react-hook-form";
 import { nanoid } from "nanoid";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 interface EducationType {
   register: UseFormRegister<any>;
+  control?: Control<any>;
   institution: string;
   subject: string;
   startDate: string;
@@ -15,6 +16,8 @@ interface EducationType {
   index: number;
   errors: any;
 }
+
+import MonthPicker from "@/components/ui/MonthPicker";
 
 export default function EducationForm(prop: EducationType) {
   const invalidFieldClassName = "border-destructive ring-destructive/20";
@@ -55,24 +58,80 @@ export default function EducationForm(prop: EducationType) {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <Label className="text-muted-foreground">Start Date*</Label>
-              <Input
-                type="month"
-                className={cn(prop.errors?.startDate && invalidFieldClassName)}
-                aria-invalid={Boolean(prop.errors?.startDate)}
-                defaultValue={prop.startDate}
-                {...prop.register(`educations.${prop.index}.startDate`)}
-              />
+              {prop.control ? (
+                <Controller
+                  name={`educations.${prop.index}.startDate`}
+                  control={prop.control}
+                  defaultValue={prop.startDate || null}
+                  render={({ field }) => (
+                    <MonthPicker
+                      id={`educations-${prop.index}-startDate`}
+                      name={`educations.${prop.index}.startDate`}
+                      value={field.value}
+                      onChange={(v) => field.onChange(v)}
+                      ariaInvalid={Boolean(prop.errors?.startDate)}
+                      className={cn(prop.errors?.startDate && invalidFieldClassName)}
+                    />
+                  )}
+                />
+              ) : (
+                <Input
+                  type="month"
+                  className={cn(prop.errors?.startDate && invalidFieldClassName)}
+                  aria-invalid={Boolean(prop.errors?.startDate)}
+                  defaultValue={prop.startDate}
+                  {...prop.register(`educations.${prop.index}.startDate`)}
+                />
+              )}
+              {/* keep register call for test compatibility - removed hidden input because Controller handles registration */}
+              {(
+                prop.errors?.startDate?.message ||
+                prop.errors?.endDate?.message ||
+                (prop.errors?.message && String(prop.errors?.message))
+              ) && (
+                <p className="text-destructive text-sm mt-1">
+                  {prop.errors?.startDate?.message || prop.errors?.endDate?.message || prop.errors?.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label className="text-muted-foreground">End Date*</Label>
-              <Input
-                type="month"
-                className={cn(prop.errors?.endDate && invalidFieldClassName)}
-                aria-invalid={Boolean(prop.errors?.endDate)}
-                defaultValue={prop.endDate}
-                {...prop.register(`educations.${prop.index}.endDate`)}
-              />
+              {prop.control ? (
+                <Controller
+                  name={`educations.${prop.index}.endDate`}
+                  control={prop.control}
+                  defaultValue={prop.endDate || null}
+                  render={({ field }) => (
+                    <MonthPicker
+                      id={`educations-${prop.index}-endDate`}
+                      name={`educations.${prop.index}.endDate`}
+                      value={field.value}
+                      onChange={(v) => field.onChange(v)}
+                      ariaInvalid={Boolean(prop.errors?.endDate)}
+                      className={cn(prop.errors?.endDate && invalidFieldClassName)}
+                    />
+                  )}
+                />
+              ) : (
+                <Input
+                  type="month"
+                  className={cn(prop.errors?.endDate && invalidFieldClassName)}
+                  aria-invalid={Boolean(prop.errors?.endDate)}
+                  defaultValue={prop.endDate}
+                  {...prop.register(`educations.${prop.index}.endDate`)}
+                />
+              )}
+              {/* removed hidden input; Controller handles registration when present */}
+              {(
+                prop.errors?.startDate?.message ||
+                prop.errors?.endDate?.message ||
+                (prop.errors?.message && String(prop.errors?.message))
+              ) && (
+                <p className="text-destructive text-sm mt-1">
+                  {prop.errors?.startDate?.message || prop.errors?.endDate?.message || prop.errors?.message}
+                </p>
+              )}
             </div>
           </div>
 

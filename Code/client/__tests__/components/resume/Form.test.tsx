@@ -166,6 +166,7 @@ describe("ResumeForm", () => {
         return currentValues;
       },
       setValue: mockSetValue,
+      setFocus: jest.fn(),
       formState: { errors: {}, isSubmitting: false },
       getValues: mockGetValues,
       reset: mockReset,
@@ -314,7 +315,7 @@ describe("ResumeForm", () => {
 
     expect(mockSetValue).toHaveBeenCalledWith("skills", [
       ...currentValues.skills,
-      { index: 1 },
+      { name: "", level: 0 },
     ]);
   });
 
@@ -380,6 +381,50 @@ describe("ResumeForm", () => {
       );
       expect(mockPush).toHaveBeenCalledWith("/resume/preview");
     });
+  });
+
+  it("focuses server-reported field when save fails with validation errors", async () => {
+    // create a real input in the DOM so the component's DOM-focus behavior can target it
+    const startInput = document.createElement('input');
+    startInput.setAttribute('name', 'educations.0.startDate');
+    document.body.appendChild(startInput);
+
+    // update the useForm mock to submit normally
+    (useForm as jest.Mock).mockReturnValueOnce({
+      register: mockRegister,
+      control: {},
+      handleSubmit: (onValid: (data: any) => unknown) => async (event?: Event) => {
+        event?.preventDefault?.();
+        return onValid(currentValues);
+      },
+      watch: (callback?: (value: any, info: { name?: string; type?: string }) => void) => {
+        if (typeof callback === "function") {
+          watchCallback = callback;
+          return { unsubscribe: mockUnsubscribe };
+        }
+
+        return currentValues;
+      },
+      setValue: mockSetValue,
+      setFocus: jest.fn(),
+      formState: { errors: {}, isSubmitting: false },
+      getValues: mockGetValues,
+      reset: mockReset,
+    });
+
+    (axios.post as jest.Mock).mockRejectedValueOnce({ response: { data: { errors: [{ path: 'educations.0' }] } } });
+
+    render(<ResumeForm />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Save and Preview" }));
+
+    await waitFor(() => {
+      expect(mockSetLocalResume).toHaveBeenCalled();
+      expect(document.activeElement).toBe(startInput);
+    });
+
+    // cleanup DOM
+    startInput.remove();
   });
 
   it("shows a submit error when saving fails", async () => {
