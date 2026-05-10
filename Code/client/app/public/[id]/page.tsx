@@ -71,7 +71,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     link.click();
 
     setTimeout(() => {
-      document.body.removeChild(link);
+      link.remove();
     }, 100);
   };
 
