@@ -242,8 +242,8 @@ export default function Navbar() {
 
       <Dialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
         <DialogContent className="max-w-md" showCloseButton={false}>
-          <DialogHeader>
-            <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+          <DialogHeader className="space-y-3 pr-10">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
               <FaSignOutAlt className="size-5" />
             </div>
             <DialogTitle>Confirm Sign Out</DialogTitle>
