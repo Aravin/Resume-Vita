@@ -25,24 +25,13 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import type { AtsScore } from "@/types/resume";
 
 interface ResumeData {
   user: string;
   resume: any;
   isPDFGenerated?: boolean;
-  atsScore?: {
-    overall: number;
-    details: {
-      keywords: number;
-      format: number;
-      content: number;
-    };
-    improvements: {
-      keywords: string[];
-      format: string[];
-      content: string[];
-    };
-  };
+  atsScore?: AtsScore;
   color?: string;
   template?: string;
 }

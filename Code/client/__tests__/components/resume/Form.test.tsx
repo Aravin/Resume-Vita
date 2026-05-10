@@ -78,6 +78,11 @@ jest.mock("../../../components/resume/CourseForm", () => childComponent("Course 
 jest.mock("../../../components/resume/ReferenceForm", () => childComponent("Reference item"));
 
 describe("ResumeForm", () => {
+  const skillsSuggestion =
+    "Add more diverse skills including both technical skills and soft skills (aim for at least 7 key skills)";
+  const leadershipSuggestion =
+    "Consider adding more leadership keywords such as: coordinated, supervised, directed";
+  const positiveFormatSuggestion = "Your resume format is well-structured!";
   const mockPush = jest.fn();
   const mockRegister = jest.fn((name: string) => ({
     name,
@@ -175,6 +180,8 @@ describe("ResumeForm", () => {
     consoleErrorSpy.mockRestore();
   });
 
+  const getSectionCard = (title: string) => screen.getByText(title).closest('[data-slot="card"]') as HTMLElement;
+
   it("renders a loader while the auth state is loading", () => {
     (useSafeUser as jest.Mock).mockReturnValue({
       user: null,
@@ -206,6 +213,87 @@ describe("ResumeForm", () => {
       expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("/resume/user-123"));
       expect(mockReset).toHaveBeenCalledWith(fetchedResume);
     });
+  });
+
+  it("renders ATS guidance when the fetched resume includes atsScore", async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      json: async () => ({
+        resume: currentValues,
+        atsScore: {
+          overall: 68,
+          details: {
+            keywords: 55,
+            format: 72,
+            content: 64,
+          },
+          improvements: {
+            keywords: [
+              "Add more role-specific keywords to your summary.",
+              skillsSuggestion,
+              leadershipSuggestion,
+            ],
+            format: [positiveFormatSuggestion, "Complete all core sections for stronger ATS parsing."],
+            content: ["Quantify outcomes in your employment bullet points."],
+          },
+        },
+      }),
+    }) as jest.Mock;
+
+    render(<ResumeForm />);
+
+    expect(await screen.findByTestId("ats-guidance-panel")).toBeInTheDocument();
+    expect(screen.getByText("Overall ATS Score: 68%")).toBeInTheDocument();
+    expect(screen.getAllByText("Keywords Match").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Format & Structure").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Content Quality").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/ATS field guide/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Add more role-specific keywords to your summary.").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Quantify outcomes in your employment bullet points.").length).toBeGreaterThan(0);
+    expect(screen.getAllByTestId("inline-ats-guide")[0]).toHaveClass("border-amber-500/25");
+    expect(within(getSectionCard("Skills")).getByText(skillsSuggestion)).toBeInTheDocument();
+    expect(within(getSectionCard("Skills")).queryByText(leadershipSuggestion)).not.toBeInTheDocument();
+    expect(within(getSectionCard("Education*")).queryByText(skillsSuggestion)).not.toBeInTheDocument();
+    expect(within(getSectionCard("Internships")).queryByText(skillsSuggestion)).not.toBeInTheDocument();
+    expect(within(getSectionCard("Certifications / Courses")).queryByText(skillsSuggestion)).not.toBeInTheDocument();
+    expect(screen.queryByText(positiveFormatSuggestion)).not.toBeInTheDocument();
+  });
+
+  it("collapses and expands the ATS Improvement Guide", async () => {
+    const user = userEvent.setup();
+
+    global.fetch = jest.fn().mockResolvedValue({
+      json: async () => ({
+        resume: currentValues,
+        atsScore: {
+          overall: 68,
+          details: {
+            keywords: 55,
+            format: 72,
+            content: 64,
+          },
+          improvements: {
+            keywords: ["Add more role-specific keywords to your summary."],
+            format: ["Complete all core sections for stronger ATS parsing."],
+            content: ["Quantify outcomes in your employment bullet points."],
+          },
+        },
+      }),
+    }) as jest.Mock;
+
+    render(<ResumeForm />);
+
+    expect(await screen.findByTestId("ats-guidance-panel")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Hide overview" })).toHaveAttribute("aria-expanded", "true");
+
+    await user.click(screen.getByRole("button", { name: "Hide overview" }));
+
+    expect(screen.getByRole("button", { name: "Show overview" })).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText("Content Quality")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Show overview" }));
+
+    expect(screen.getByRole("button", { name: "Hide overview" })).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getAllByText("Content Quality").length).toBeGreaterThan(0);
   });
 
   it("renders the rich text summary editor through Controller", () => {
