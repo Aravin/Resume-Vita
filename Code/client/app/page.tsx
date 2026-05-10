@@ -55,7 +55,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <>
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/8 via-background to-emerald-500/8 px-4 py-16 md:py-24">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/8 via-background to-emerald-500/8 px-4 pb-16 pt-10 md:pb-24 md:pt-16">
         <div className="absolute inset-0 opacity-60 dark:opacity-90">
           <div className="absolute left-6 top-12 h-24 w-24 rounded-full bg-primary/16 blur-3xl md:left-20 md:top-20 md:h-40 md:w-40" />
           <div className="absolute bottom-10 right-8 h-28 w-28 rounded-full bg-cyan-500/12 blur-3xl md:bottom-16 md:right-24 md:h-44 md:w-44 dark:bg-cyan-400/10" />

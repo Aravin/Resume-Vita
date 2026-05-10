@@ -13,7 +13,7 @@ export default function Layout({ children }: any) {
     <>
       <Navbar />
       {/* todo optimize */}
-      <main className="min-h-[60vh] px-4 py-3 md:px-6 md:py-5 lg:px-8 lg:py-6">{children}</main>
+      <main className="min-h-[60vh] px-4 pb-3 pt-2 md:px-6 md:pb-5 md:pt-4 lg:px-8 lg:pb-6 lg:pt-4">{children}</main>
       <Footer />
     </>
   );
