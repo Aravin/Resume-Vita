@@ -1,5 +1,6 @@
 import * as yup from "yup";
 import { getRichTextCharacterCount, isRichTextEffectivelyEmpty } from "@/utils/richText";
+import { isStartBeforeEnd } from "@/lib/dateUtils";
 
 const richTextSummary = (minimum: number, maximum: number) =>
   yup
@@ -28,6 +29,16 @@ export const ResumeSchema = yup
           score: yup.number().positive().required(),
           location: yup.string(),
         })
+        .test(
+          "start-before-end",
+          "Start Date must be before End Date",
+          (value) => {
+            if (!value) return true;
+            const { startDate, endDate } = value as any;
+            if (!startDate || !endDate) return true;
+            return isStartBeforeEnd(startDate, endDate);
+          }
+        )
         .required()
     ),
     internships: yup.array().of(
@@ -39,6 +50,16 @@ export const ResumeSchema = yup
         location: yup.string(),
         summary: richTextSummary(100, 4000),
       })
+      .test(
+        "start-before-end-internship",
+        "Start Date must be before End Date",
+        (value) => {
+          if (!value) return true;
+          const { startDate, endDate } = value as any;
+          if (!startDate || !endDate) return true;
+          return isStartBeforeEnd(startDate, endDate);
+        }
+      )
     ),
     employments: yup.array().of(
       yup.object({
@@ -52,6 +73,17 @@ export const ResumeSchema = yup
         isCurrent: yup.bool(),
         summary: richTextSummary(100, 4000),
       })
+      .test(
+        "start-before-end-employment",
+        "Start Date must be before End Date",
+        (value) => {
+          if (!value) return true;
+          const { startDate, endDate, isCurrent } = value as any;
+          if (isCurrent) return true;
+          if (!startDate || !endDate) return true;
+          return isStartBeforeEnd(startDate, endDate);
+        }
+      )
     ),
     skills: yup.array().of(
       yup
@@ -89,6 +121,16 @@ export const ResumeSchema = yup
           endDate: yup.string(),
           score: yup.number().positive(),
         })
+        .test(
+          "start-before-end-course",
+          "Start Date must be before End Date",
+          (value) => {
+            if (!value) return true;
+            const { startDate, endDate } = value as any;
+            if (!startDate || !endDate) return true;
+            return isStartBeforeEnd(startDate, endDate);
+          }
+        )
       )
       .optional(),
     references: yup.array().of(

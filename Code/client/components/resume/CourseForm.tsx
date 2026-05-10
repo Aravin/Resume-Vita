@@ -68,6 +68,15 @@ export default function CourseForm(prop: CourseType) {
                 defaultValue={prop.startDate}
                 {...prop.register(`courses.${prop.index}.startDate`)}
               />
+              {(
+                prop.errors?.startDate?.message ||
+                prop.errors?.endDate?.message ||
+                (prop.errors?.message && String(prop.errors?.message))
+              ) && (
+                <p className="text-destructive text-sm mt-1">
+                  {prop.errors?.startDate?.message || prop.errors?.endDate?.message || prop.errors?.message}
+                </p>
+              )}
             </div>
 
             <div className="flex-1 space-y-2">
@@ -82,6 +91,15 @@ export default function CourseForm(prop: CourseType) {
                 defaultValue={prop.endDate}
                 {...prop.register(`courses.${prop.index}.endDate`)}
               />
+              {(
+                prop.errors?.startDate?.message ||
+                prop.errors?.endDate?.message ||
+                (prop.errors?.message && String(prop.errors?.message))
+              ) && (
+                <p className="text-destructive text-sm mt-1">
+                  {prop.errors?.startDate?.message || prop.errors?.endDate?.message || prop.errors?.message}
+                </p>
+              )}
             </div>
           </div>
         </div>

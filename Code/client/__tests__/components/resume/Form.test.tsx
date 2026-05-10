@@ -166,6 +166,7 @@ describe("ResumeForm", () => {
         return currentValues;
       },
       setValue: mockSetValue,
+      setFocus: jest.fn(),
       formState: { errors: {}, isSubmitting: false },
       getValues: mockGetValues,
       reset: mockReset,
@@ -379,6 +380,43 @@ describe("ResumeForm", () => {
         }
       );
       expect(mockPush).toHaveBeenCalledWith("/resume/preview");
+    });
+  });
+
+  it("focuses server-reported field when save fails with validation errors", async () => {
+    const mockSetFocus = jest.fn();
+    // update the useForm mock to include our spy
+    (useForm as jest.Mock).mockReturnValueOnce({
+      register: mockRegister,
+      control: {},
+      handleSubmit: (onValid: (data: any) => unknown) => async (event?: Event) => {
+        event?.preventDefault?.();
+        return onValid(currentValues);
+      },
+      watch: (callback?: (value: any, info: { name?: string; type?: string }) => void) => {
+        if (typeof callback === "function") {
+          watchCallback = callback;
+          return { unsubscribe: mockUnsubscribe };
+        }
+
+        return currentValues;
+      },
+      setValue: mockSetValue,
+      setFocus: mockSetFocus,
+      formState: { errors: {}, isSubmitting: false },
+      getValues: mockGetValues,
+      reset: mockReset,
+    });
+
+    (axios.post as jest.Mock).mockRejectedValueOnce({ response: { data: { errors: [{ path: 'educations.0' }] } } });
+
+    render(<ResumeForm />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Save and Preview" }));
+
+    await waitFor(() => {
+      expect(mockSetLocalResume).toHaveBeenCalled();
+      expect(mockSetFocus).toHaveBeenCalledWith('educations.0.startDate');
     });
   });
 

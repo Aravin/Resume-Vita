@@ -284,6 +284,7 @@ export default function ResumeForm() {
     handleSubmit,
     watch,
     setValue,
+    setFocus,
     formState: { errors, isSubmitting },
     getValues,
     reset,
@@ -387,14 +388,119 @@ export default function ResumeForm() {
     setLocalResume(resumeData);
 
     try {
-      await axios.post(
-        process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + "/resume",
-        resumeData
-      );
+        await axios.post(
+          "/api/resume",
+          resumeData
+        );
       router.push("/resume/preview");
     } catch (error) {
       console.error('Failed to save resume:', error);
+      // If server returned structured validation errors, focus the first problematic field
+      const serverErrors = (error as any)?.response?.data?.errors;
+      if (Array.isArray(serverErrors) && serverErrors.length) {
+        const first = serverErrors[0];
+        const path = first?.path;
+        if (path) {
+          // focus a likely date field within the problematic item
+          if (/^(educations|internships|courses|employments)\.\d+$/.test(path)) {
+            try {
+              (setFocus as any)(`${path}.startDate`);
+              // scroll and highlight server-reported field
+              setTimeout(() => {
+                const el = document.querySelector(`[name="${path}.startDate"]`) as HTMLElement | null;
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth", block: "center" });
+                  const wrapper = el.closest('.group') || el.closest('[data-slot="card"]');
+                  if (wrapper && wrapper instanceof HTMLElement) {
+                    wrapper.classList.add('ring-4', 'ring-destructive/30', 'shadow-lg');
+                    setTimeout(() => wrapper.classList.remove('ring-4', 'ring-destructive/30', 'shadow-lg'), 2000);
+                  }
+                }
+              }, 50);
+            } catch {
+              // ignore
+            }
+          } else {
+            try {
+              (setFocus as any)(path);
+              setTimeout(() => {
+                const el = document.querySelector(`[name="${path}"]`) as HTMLElement | null;
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth", block: "center" });
+                  const wrapper = el.closest('.group') || el.closest('[data-slot="card"]');
+                  if (wrapper && wrapper instanceof HTMLElement) {
+                    wrapper.classList.add('ring-4', 'ring-destructive/30', 'shadow-lg');
+                    setTimeout(() => wrapper.classList.remove('ring-4', 'ring-destructive/30', 'shadow-lg'), 2000);
+                  }
+                }
+              }, 50);
+            } catch {
+              // ignore
+            }
+          }
+        }
+      }
+
       setSubmitError("We couldn’t save the resume right now. Please retry in a moment.");
+    }
+  };
+
+  const findFirstErrorPath = (errs: any, prefix = ""): string | null => {
+    if (!errs || typeof errs !== "object") return null;
+    for (const key of Object.keys(errs)) {
+      const val = errs[key];
+      const path = prefix ? `${prefix}.${key}` : key;
+      if (val && (val.message || val.type)) {
+        return path;
+      }
+      if (typeof val === "object") {
+        const inner = findFirstErrorPath(val, path);
+        if (inner) return inner;
+      }
+    }
+    return null;
+  };
+
+  const onInvalid = (errs: any) => {
+    const path = findFirstErrorPath(errs);
+    if (!path) return;
+
+    if (/^(educations|internships|courses|employments)\.\d+$/.test(path)) {
+      try {
+        setFocus(`${path}.startDate`);
+        // scroll and highlight the related card or draggable item using shadcn styles
+        setTimeout(() => {
+          const el = document.querySelector(`[name="${path}.startDate"]`) as HTMLElement | null;
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+            const wrapper = el.closest('.group') || el.closest('[data-slot="card"]');
+            if (wrapper && wrapper instanceof HTMLElement) {
+              wrapper.classList.add('ring-4', 'ring-destructive/30', 'shadow-lg');
+              setTimeout(() => wrapper.classList.remove('ring-4', 'ring-destructive/30', 'shadow-lg'), 2000);
+            }
+          }
+        }, 50);
+      } catch {
+        // ignore
+      }
+      return;
+    }
+
+    try {
+      setFocus(path);
+      setTimeout(() => {
+        const el = document.querySelector(`[name="${path}"]`) as HTMLElement | null;
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          const wrapper = el.closest('.group') || el.closest('[data-slot="card"]');
+          if (wrapper && wrapper instanceof HTMLElement) {
+            wrapper.classList.add('ring-4', 'ring-destructive/30', 'shadow-lg');
+            setTimeout(() => wrapper.classList.remove('ring-4', 'ring-destructive/30', 'shadow-lg'), 2000);
+          }
+        }
+      }, 50);
+    } catch {
+      // ignore
     }
   };
 
@@ -462,7 +568,7 @@ export default function ResumeForm() {
 
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
         <Card className="border-border/70 bg-muted/20 shadow-sm">
           <CardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:justify-between">
             <div>

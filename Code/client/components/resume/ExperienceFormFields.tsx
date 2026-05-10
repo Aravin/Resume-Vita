@@ -78,6 +78,15 @@ export default function ExperienceFormFields({
             defaultValue={startDate}
             {...register(`${basePath}.${index}.startDate`)}
           />
+          {(
+            errors?.startDate?.message ||
+            errors?.endDate?.message ||
+            (errors?.message && String(errors?.message))
+          ) && (
+            <p className="text-destructive text-sm mt-1">
+              {errors?.startDate?.message || errors?.endDate?.message || errors?.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -89,6 +98,15 @@ export default function ExperienceFormFields({
             defaultValue={endDate}
             {...register(`${basePath}.${index}.endDate`)}
           />
+          {(
+            errors?.startDate?.message ||
+            errors?.endDate?.message ||
+            (errors?.message && String(errors?.message))
+          ) && (
+            <p className="text-destructive text-sm mt-1">
+              {errors?.startDate?.message || errors?.endDate?.message || errors?.message}
+            </p>
+          )}
         </div>
       </div>
 
