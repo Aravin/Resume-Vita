@@ -40,13 +40,14 @@ describe("public resume page", () => {
   it("downloads the public PDF through a temporary link", async () => {
     const clickSpy = jest.fn();
     const appendSpy = jest.spyOn(document.body, "appendChild");
-    const removeSpy = jest.spyOn(document.body, "removeChild");
+    const removeSpy = jest.fn();
     const originalCreateElement = document.createElement.bind(document);
     const createElementSpy = jest.spyOn(document, "createElement").mockImplementation(((tagName: string) => {
-      const element = originalCreateElement(tagName) as HTMLAnchorElement;
+      const element = originalCreateElement(tagName);
 
-      if (tagName === "a") {
+      if (element instanceof HTMLAnchorElement) {
         element.click = clickSpy;
+        element.remove = removeSpy;
       }
 
       return element;
@@ -57,8 +58,7 @@ describe("public resume page", () => {
     });
 
     render(<Page params={Promise.resolve({ id: "user-123" })} />);
-
-  fireEvent.click(await screen.findByRole("button", { name: /download/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /download/i }));
 
     await waitFor(() => {
       expect(clickSpy).toHaveBeenCalled();
@@ -68,6 +68,5 @@ describe("public resume page", () => {
 
     createElementSpy.mockRestore();
     appendSpy.mockRestore();
-    removeSpy.mockRestore();
   });
 });

@@ -112,6 +112,46 @@ function normalizePlainText(value: string) {
   return normalizedLines.join("\n").trim();
 }
 
+function getTagBoundary(tagName: string, isClosingTag: boolean) {
+  if (tagName === "br") {
+    return "\n";
+  }
+
+  if (!isClosingTag && BLOCK_LEVEL_TAGS.has(tagName)) {
+    return "\n";
+  }
+
+  return "";
+}
+
+function getNextTag(value: string, searchStart = 0) {
+  const openIndex = value.indexOf("<", searchStart);
+
+  if (openIndex === -1) {
+    return null;
+  }
+
+  const closeIndex = value.indexOf(">", openIndex + 1);
+
+  if (closeIndex === -1) {
+    return {
+      openIndex,
+      closeIndex,
+      tagName: "",
+      isClosingTag: false,
+    };
+  }
+
+  const tagContent = value.slice(openIndex + 1, closeIndex);
+
+  return {
+    openIndex,
+    closeIndex,
+    tagName: extractTagName(tagContent),
+    isClosingTag: tagContent.trim().startsWith("/"),
+  };
+}
+
 function extractPlainTextFromSanitizedHtml(value: string) {
   let result = "";
   let index = 0;
@@ -120,25 +160,21 @@ function extractPlainTextFromSanitizedHtml(value: string) {
     const character = value[index];
 
     if (character === "<") {
-      const closingIndex = value.indexOf(">", index + 1);
+      const nextTag = getNextTag(value, index);
 
-      if (closingIndex === -1) {
+      if (!nextTag || nextTag.closeIndex === -1) {
         result += "<";
         index += 1;
         continue;
       }
 
-      const tagContent = value.slice(index + 1, closingIndex);
-      const tagName = extractTagName(tagContent);
-      const isClosingTag = tagContent.trim().startsWith("/");
+      const tagBoundary = getTagBoundary(nextTag.tagName, nextTag.isClosingTag);
 
-      if (tagName === "br") {
-        result += "\n";
-      } else if (!isClosingTag && BLOCK_LEVEL_TAGS.has(tagName)) {
-        result += "\n";
+      if (tagBoundary) {
+        result += tagBoundary;
       }
 
-      index = closingIndex + 1;
+      index = nextTag.closeIndex + 1;
       continue;
     }
 
@@ -161,20 +197,20 @@ function extractPlainTextFromSanitizedHtml(value: string) {
 
 export function hasRichTextMarkup(value: string | null | undefined) {
   const source = value ?? "";
-  let index = source.indexOf("<");
+  let searchStart = 0;
+  let nextTag = getNextTag(source, searchStart);
 
-  while (index !== -1) {
-    const closingIndex = source.indexOf(">", index + 1);
-
-    if (closingIndex === -1) {
-      return false;
+  while (nextTag) {
+    if (nextTag.closeIndex === -1) {
+      break;
     }
 
-    if (extractTagName(source.slice(index + 1, closingIndex))) {
+    if (nextTag.tagName) {
       return true;
     }
 
-    index = source.indexOf("<", index + 1);
+    searchStart = nextTag.openIndex + 1;
+    nextTag = getNextTag(source, searchStart);
   }
 
   return false;
