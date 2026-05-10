@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { FaDownload, FaExternalLinkAlt } from "react-icons/fa";
 import { useSignedUrl } from "@/hooks/useSignedUrl";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const [id, setId] = useState<string | null>(null);
@@ -54,12 +57,31 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     loadSignedUrl();
   }, [id, getSignedUrl]);
 
+  const handleDownload = () => {
+    if (!signedUrl) return;
+
+    const link = document.createElement("a");
+    link.href = signedUrl;
+    link.download = `ResumeVita-${id || 'resume'}.pdf`;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.style.display = "none";
+
+    document.body.appendChild(link);
+    link.click();
+
+    setTimeout(() => {
+      document.body.removeChild(link);
+    }, 100);
+  };
+
   if (isLoading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white" style={{ zIndex: 9999 }}>
+      <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-6 text-white">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading resume...</p>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-white/80"></div>
+          <h1 className="text-xl font-semibold">Loading public resume</h1>
+          <p className="mt-2 text-sm text-white/70">Fetching the latest shared PDF.</p>
         </div>
       </div>
     );
@@ -67,12 +89,11 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
   if (error) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white" style={{ zIndex: 9999 }}>
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold text-error mb-4">{error}</h1>
-          <p className="text-gray-600">
-            If you believe this is an error, please contact the resume owner.
-          </p>
+      <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-6 text-white">
+        <div className="max-w-lg text-center">
+          <h1 className="text-2xl font-semibold text-white">Unable to load this resume</h1>
+          <p className="mt-3 text-sm text-white/70">{error}</p>
+          <p className="mt-2 text-sm text-white/55">Ask the resume owner to regenerate or reshare the PDF if this link should still work.</p>
         </div>
       </div>
     );
@@ -80,35 +101,44 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
   if (!signedUrl) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white" style={{ zIndex: 9999 }}>
+      <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-6 text-white">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-error mb-4">Unable to load resume</h1>
-          <p className="text-gray-600">
-            Please try again later.
-          </p>
+          <h1 className="text-2xl font-semibold">Resume unavailable</h1>
+          <p className="mt-2 text-sm text-white/70">Please try again later.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 bg-white" style={{ zIndex: 9999 }}>
+    <div className="relative min-h-screen bg-neutral-950">
+      <div className="pointer-events-none fixed right-4 top-1/2 z-20 flex w-auto -translate-y-1/2 flex-col gap-3 sm:right-6">
+        <Button type="button" onClick={handleDownload} className="pointer-events-auto gap-2 shadow-lg">
+          <FaDownload className="text-sm" />
+          Download
+        </Button>
+        <a
+          href={signedUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cn(buttonVariants({ variant: "outline" }), "pointer-events-auto gap-2 border-white/20 bg-black/65 text-white shadow-lg backdrop-blur hover:bg-black/80 hover:text-white")}
+        >
+          <FaExternalLinkAlt className="text-xs" />
+          Open
+        </a>
+      </div>
+
       <object
-        className="w-full h-full"
+        className="h-screen w-full bg-white"
         data={signedUrl}
         type="application/pdf"
       >
-        <div className="flex items-center justify-center h-full">
-          <div className="text-center p-4">
-            <p className="mb-2">Unable to display the PDF in your browser.</p>
-            <a 
-              href={signedUrl}
-              className="text-primary hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Click here to view or download the resume directly
-            </a>
+        <div className="flex min-h-screen items-center justify-center bg-neutral-950 p-6 text-white">
+          <div className="max-w-md text-center">
+            <h2 className="text-lg font-semibold">PDF preview is unavailable in this browser</h2>
+            <p className="mt-2 text-sm text-white/70">
+              Open the file in a new tab or download it directly to view the resume.
+            </p>
           </div>
         </div>
       </object>

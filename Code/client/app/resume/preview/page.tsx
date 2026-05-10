@@ -9,13 +9,15 @@ import Link from "next/link";
 import { FaFilePdf, FaEdit } from "react-icons/fa";
 import axios from "axios";
 import useFetch from "../../../hooks/useFetch";
-import { useSignedUrl } from "../../../hooks/useSignedUrl";
 import { useDownloadPDF } from "../../../hooks/useDownloadPDF";
 import { useEffect, useState, useMemo, memo, useCallback } from "react";
 import Loader from "../../../components/Loader";
 import { Breadcrumbs } from "../../../components/Breadcrumbs";
 import DefaultTemplate from "@/components/preview/DefaultTemplate";
 import ModernTemplate from "@/components/preview/ModernTemplate";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 const colorClasses = {
   black: "text-black",
@@ -36,6 +38,29 @@ const bgColorClasses = {
   yellow: "bg-yellow-500",
   pink: "bg-pink-500"
 };
+
+const templateOptions = [
+  {
+    value: "default",
+    name: "Default",
+    description: "Balanced two-column layout for classic resumes.",
+  },
+  {
+    value: "modern",
+    name: "Modern",
+    description: "More visual emphasis for current experience and skills.",
+  },
+] as const;
+
+const colorOptions = [
+  { name: "Black", value: "black", bg: "bg-black" },
+  { name: "Gray", value: "gray", bg: "bg-gray-500" },
+  { name: "Blue", value: "blue", bg: "bg-blue-500" },
+  { name: "Red", value: "red", bg: "bg-red-500" },
+  { name: "Green", value: "green", bg: "bg-green-500" },
+  { name: "Yellow", value: "yellow", bg: "bg-yellow-500" },
+  { name: "Pink", value: "pink", bg: "bg-pink-500" },
+] as const;
 
 const SectionTitle = memo(({ children, color }: { children: React.ReactNode; color: keyof typeof colorClasses }) => (
   <>
@@ -71,6 +96,8 @@ export default function Page() {
   const [color, setColor] = useState<keyof typeof colorClasses>("black");
   const [template, setTemplate] = useState<'default' | 'modern'>('default');
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [themeSaveError, setThemeSaveError] = useState<string | null>(null);
+  const [isSavingTheme, setIsSavingTheme] = useState(false);
 
   // Set document title
   useEffect(() => {
@@ -78,7 +105,6 @@ export default function Page() {
   }, []);
 
   const { user, error: authError, isLoading: authLoading } = useSafeUser();
-  const { getSignedUrl, isLoading: isSignedUrlLoading, error: signedUrlError } = useSignedUrl();
   const { downloadExistingPDF, generateAndDownloadPDF, isSignedUrlLoading: isDownloadLoading } = useDownloadPDF();
   
   const userId = useMemo(() => {
@@ -94,7 +120,7 @@ export default function Page() {
   );
 
   const storedResume = data;
-  const r = storedResume?.user === userId ? storedResume?.resume : {};
+  const r = useMemo(() => (storedResume?.user === userId ? storedResume?.resume : {}), [storedResume, userId]);
 
   useEffect(() => {
     if (data?.color) {
@@ -112,6 +138,33 @@ export default function Page() {
       setLoader(false);
     }
   }, [fetching]);
+
+  const persistPreviewTheme = useCallback(
+    async (nextColor: keyof typeof colorClasses, nextTemplate: 'default' | 'modern') => {
+      if (!userId) return;
+
+      setThemeSaveError(null);
+      setIsSavingTheme(true);
+
+      try {
+        await axios.post(
+          process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + "/resume",
+          {
+            user: userId,
+            resume: r,
+            color: nextColor,
+            template: nextTemplate,
+          }
+        );
+      } catch (error) {
+        console.error("Failed to save preview theme:", error);
+        setThemeSaveError("Theme changes were applied locally but could not be saved.");
+      } finally {
+        setIsSavingTheme(false);
+      }
+    },
+    [r, userId]
+  );
 
   const handleDownload = useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -138,6 +191,10 @@ export default function Page() {
         fileName: "ResumeVita.pdf"
       });
     } catch (error) {
+      if (!(error instanceof Error) || error.message !== 'PDF generation failed - backend error') {
+        return;
+      }
+
       console.error('PDF generation failed, falling back to existing PDF:', error);
       
       // Clear any error messages from failed generation
@@ -156,11 +213,13 @@ export default function Page() {
 
   const handleColorChange = useCallback((newColor: keyof typeof colorClasses) => {
     setColor(newColor);
-  }, []);
+    void persistPreviewTheme(newColor, template);
+  }, [persistPreviewTheme, template]);
 
   const handleTemplateChange = useCallback((newTemplate: 'default' | 'modern') => {
     setTemplate(newTemplate);
-  }, []);
+    void persistPreviewTheme(color, newTemplate);
+  }, [color, persistPreviewTheme]);
 
   if (authLoading || fetching)
     return (
@@ -204,87 +263,127 @@ export default function Page() {
     <>
       <Breadcrumbs currentPage="Resume Preview" />
 
-      <div className="flex flex-col md:flex-row items-stretch gap-6 p-4 bg-gray-50 rounded-lg shadow-sm">
-        
-
-        {/* Template Picker Section */}
-        <div className="flex flex-wrap justify-center gap-3">
-          {[
-            { name: "Default Template", value: "default" },
-            { name: "Modern Template", value: "modern" }
-          ].map((templateOption) => (
-            <button
-              key={templateOption.value}
-              className={`px-4 py-2 rounded transition-colors ${
-                template === templateOption.value 
-                  ? bgColorClasses[color] + ' text-white' 
-                  : 'border border-gray-300 hover:bg-gray-50'
-              }`}
-              onClick={() => handleTemplateChange(templateOption.value as 'default' | 'modern')}
-            >
-              {templateOption.name}
-            </button>
-          ))}
-        </div>
-
-        {/* Color Picker Section */}
-        <div className="flex flex-col sm:flex-row items-center gap-4">
-          <h3 className="text-sm font-medium text-gray-700 whitespace-nowrap">Color:</h3>
-          <div className="grid grid-cols-4 sm:grid-cols-7 gap-3">
-            {[
-              { name: "Black", value: "black", bg: "bg-black" },
-              { name: "Gray", value: "gray", bg: "bg-gray-500" },
-              { name: "Blue", value: "blue", bg: "bg-blue-500" },
-              { name: "Red", value: "red", bg: "bg-red-500" },
-              { name: "Green", value: "green", bg: "bg-green-500" },
-              { name: "Yellow", value: "yellow", bg: "bg-yellow-500" },
-              { name: "Pink", value: "pink", bg: "bg-pink-500" }
-            ].map((colorOption) => (
-              <div key={colorOption.value} className="group relative">
-                <button
-                  onClick={() => handleColorChange(colorOption.value as keyof typeof colorClasses)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-                  aria-label={`Select ${colorOption.name} color`}
-                >
-                  <div className={`w-6 h-6 ${colorOption.bg} rounded-full ring-2 ring-offset-2 ${
-                    color === colorOption.value ? "ring-gray-500" : "ring-transparent"
-                  }`} />
-                </button>
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs rounded 
-                             opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                  {colorOption.name}
-                </div>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+        <Card className="border-border/70 bg-card/95 shadow-sm xl:sticky xl:top-24 xl:h-fit">
+          <CardHeader>
+            <CardTitle>Preview Theme</CardTitle>
+            <CardDescription>
+              Switch templates, adjust the accent color, and download the current preview.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-3">
+              <div>
+                <p className="text-sm font-medium text-foreground">Template</p>
+                <p className="text-sm text-muted-foreground">Choose the layout that matches your target role.</p>
               </div>
-            ))}
-          </div>
-        </div>
+              <div className="grid gap-3">
+                {templateOptions.map((templateOption) => {
+                  const isActive = template === templateOption.value;
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap justify-center gap-3 ml-auto">
-          <button
-            className="btn btn-sm btn-outline btn-accent gap-2 min-w-[40px]"
-            onClick={handleDownload}
-            title="Download PDF"
-            disabled={loading || isSignedUrlLoading}
-          >
-            <FaFilePdf className="text-lg" />
-            <span className="hidden sm:inline">
-              {loading || isSignedUrlLoading ? 'Generating...' : 'Download PDF'}
-            </span>
-          </button>
-          <Link href="/resume/create" passHref>
-            <button 
-              className="btn btn-sm btn-outline btn-primary gap-2 min-w-[40px]"
-              title="Edit Resume"
-            >
-              <FaEdit className="text-lg" />
-              <span className="hidden sm:inline">Edit Resume</span>
-            </button>
-          </Link>
-        </div>
-      </div>
+                  return (
+                    <button
+                      key={templateOption.value}
+                      type="button"
+                      onClick={() => handleTemplateChange(templateOption.value)}
+                      className={cn(
+                        "rounded-xl border px-4 py-3 text-left transition-colors",
+                        isActive
+                          ? `${bgColorClasses[color]} text-white border-transparent shadow-sm`
+                          : "border-border/70 bg-background hover:border-primary/40 hover:bg-muted/40"
+                      )}
+                      aria-pressed={isActive}
+                    >
+                      <div className="font-medium">{templateOption.name}</div>
+                      <div className={cn("mt-1 text-sm", isActive ? "text-white/85" : "text-muted-foreground")}>{templateOption.description}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-      <div id="preview" className="flex justify-center items-center w-full overflow-auto">
+            <div className="space-y-3">
+              <div>
+                <p className="text-sm font-medium text-foreground">Accent Color</p>
+                <p className="text-sm text-muted-foreground">Apply a consistent accent across headings and highlights.</p>
+              </div>
+              <div className="grid grid-cols-4 gap-3 sm:grid-cols-7 xl:grid-cols-4">
+                {colorOptions.map((colorOption) => {
+                  const isActive = color === colorOption.value;
+
+                  return (
+                    <button
+                      key={colorOption.value}
+                      type="button"
+                      onClick={() => handleColorChange(colorOption.value)}
+                      className="group flex flex-col items-center gap-2"
+                      aria-label={`Select ${colorOption.name} color`}
+                      aria-pressed={isActive}
+                    >
+                      <span
+                        className={cn(
+                          "flex h-11 w-11 items-center justify-center rounded-full border border-border/60 bg-background transition-transform group-hover:scale-105",
+                          isActive && "border-primary shadow-sm"
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "h-7 w-7 rounded-full ring-2 ring-offset-2 ring-offset-background",
+                            colorOption.bg,
+                            isActive ? "ring-primary" : "ring-transparent"
+                          )}
+                        />
+                      </span>
+                      <span className="text-xs font-medium text-muted-foreground">{colorOption.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border/70 bg-muted/30 p-4 text-sm">
+              <p className="font-medium text-foreground">Current selection</p>
+              <p className="mt-1 text-muted-foreground">
+                {templateOptions.find((option) => option.value === template)?.name} template with the {colorOptions.find((option) => option.value === color)?.name?.toLowerCase()} accent.
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {isSavingTheme
+                  ? "Saving theme preferences..."
+                  : themeSaveError
+                    ? themeSaveError
+                    : "Theme changes are saved automatically for future visits."}
+              </p>
+            </div>
+
+            {downloadError && (
+              <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                {downloadError}
+              </div>
+            )}
+
+            <div className="flex flex-col gap-3 sm:flex-row xl:flex-col">
+              <Button
+                type="button"
+                onClick={handleDownload}
+                className="w-full gap-2"
+                disabled={loading || isDownloadLoading}
+              >
+                <FaFilePdf className="text-base" />
+                {loading || isDownloadLoading ? "Generating PDF..." : "Download PDF"}
+              </Button>
+              <Link
+                href="/resume/create"
+                className={cn(buttonVariants({ variant: "outline" }), "w-full gap-2")}
+              >
+                <FaEdit className="text-base" />
+                Edit Resume
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="rounded-3xl border border-border/70 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.08),_transparent_35%),linear-gradient(to_bottom,_rgba(255,255,255,0.98),_rgba(248,250,252,0.92))] p-3 shadow-sm sm:p-6">
+          <div id="preview" className="flex w-full items-start justify-center overflow-auto rounded-2xl bg-white/70 p-2 sm:p-4">
         {template === 'default' ? (
           <DefaultTemplate 
             data={r} 
@@ -300,6 +399,8 @@ export default function Page() {
             bgColorClasses={bgColorClasses} 
           />
         )}
+          </div>
+        </div>
       </div>
     </>
   );
