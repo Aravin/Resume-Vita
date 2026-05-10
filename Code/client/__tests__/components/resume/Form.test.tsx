@@ -2,13 +2,17 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import userEvent from "@testing-library/user-event";
 import axios from "axios";
 import ResumeForm from "@/components/resume/Form";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useSafeUser } from "../../../hooks/useSafeUser";
 import { useLocalStorage } from "../../../hooks/useLocalStorage";
+import { sanitizeResumeRichTextFields } from "@/utils/richText";
 
 jest.mock("axios");
-jest.mock("react-hook-form");
+jest.mock("react-hook-form", () => ({
+  Controller: jest.fn(),
+  useForm: jest.fn(),
+}));
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
 }));
@@ -25,6 +29,19 @@ jest.mock("../../../components/Loader", () => ({
 jest.mock("../../../components/ScrollToTop", () => ({
   __esModule: true,
   default: () => <div data-testid="scroll-to-top" />,
+}));
+jest.mock("../../../components/common/RichTextEditor", () => ({
+  __esModule: true,
+  default: ({ content, onChange, error }: any) => (
+    <div>
+      <div data-testid="rich-text-editor" data-error={String(Boolean(error))}>
+        {content}
+      </div>
+      <button type="button" onClick={() => onChange("<p>Updated rich text</p>")}>
+        update-rich-text
+      </button>
+    </div>
+  ),
 }));
 jest.mock("../../../components/common/DraggableFormItem", () => ({
   __esModule: true,
@@ -114,9 +131,23 @@ describe("ResumeForm", () => {
       isLoading: false,
     });
     (useLocalStorage as jest.Mock).mockReturnValue([{}, mockSetLocalResume]);
+    (Controller as jest.Mock).mockImplementation(({ name, render }: any) =>
+      render({
+        field: {
+          name,
+          value: name
+            .split(".")
+            .reduce((acc: any, key: string) => (acc == null ? acc : acc[key]), currentValues),
+          onChange: jest.fn(),
+          onBlur: jest.fn(),
+          ref: jest.fn(),
+        },
+      })
+    );
     mockGetValues.mockImplementation(() => currentValues);
     (useForm as jest.Mock).mockReturnValue({
       register: mockRegister,
+      control: {},
       handleSubmit: (onValid: (data: any) => unknown) => async (event?: Event) => {
         event?.preventDefault?.();
         return onValid(currentValues);
@@ -175,6 +206,16 @@ describe("ResumeForm", () => {
       expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("/resume/user-123"));
       expect(mockReset).toHaveBeenCalledWith(fetchedResume);
     });
+  });
+
+  it("renders the rich text summary editor through Controller", () => {
+    render(<ResumeForm />);
+
+    expect(screen.getByTestId("rich-text-editor")).toBeInTheDocument();
+    expect(Controller).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "personal.summary" }),
+      undefined
+    );
   });
 
   it("adds a new skill item through the section handler", async () => {
@@ -236,15 +277,17 @@ describe("ResumeForm", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save and Preview" }));
 
     await waitFor(() => {
+      const sanitizedResume = sanitizeResumeRichTextFields(currentValues);
+
       expect(mockSetLocalResume).toHaveBeenCalledWith({
         user: "user-123",
-        resume: currentValues,
+        resume: sanitizedResume,
       });
       expect(axios.post).toHaveBeenCalledWith(
         expect.stringContaining("/resume"),
         {
           user: "user-123",
-          resume: currentValues,
+          resume: sanitizedResume,
         }
       );
       expect(mockPush).toHaveBeenCalledWith("/resume/preview");

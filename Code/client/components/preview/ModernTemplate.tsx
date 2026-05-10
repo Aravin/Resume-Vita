@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { FaPhone, FaEnvelope, FaLink, FaMapMarkerAlt } from 'react-icons/fa';
+import RichTextContent from '@/components/common/RichTextContent';
 
 interface Props {
   data: any;
@@ -23,7 +24,10 @@ const ModernTemplate = ({ data: r, color, colorClasses, bgColorClasses }: Props)
           {r?.personal?.firstName} {r?.personal?.lastName}
         </h1>
         <h2 className="text-xl text-gray-600 mb-4 break-words">{r?.employments?.[0]?.title}</h2>
-        <p className="text-gray-600 mb-4 break-words whitespace-pre-wrap">{r?.personal?.summary}</p>
+        <RichTextContent
+          content={r?.personal?.summary}
+          className="mb-4 break-words text-gray-600 prose prose-sm max-w-none [&_ol]:pl-5 [&_p]:my-2 [&_ul]:pl-5"
+        />
         
         <div className="flex flex-wrap gap-4 text-gray-600">
           {r?.personal?.phone && (
@@ -124,8 +128,10 @@ const ModernTemplate = ({ data: r, color, colorClasses, bgColorClasses }: Props)
                         )}
                       </div>
                     </div>
-                    <div className="text-gray-600 prose prose-sm max-w-none [&_p]:my-0 [&_p]:break-words [&_span]:break-words" 
-                         dangerouslySetInnerHTML={{ __html: emp.summary }} />
+                    <RichTextContent
+                      content={emp.summary}
+                      className="text-gray-600 prose prose-sm max-w-none [&_ol]:pl-5 [&_p]:my-2 [&_p]:break-words [&_span]:break-words [&_ul]:pl-5"
+                    />
                   </div>
                 ))}
               </div>

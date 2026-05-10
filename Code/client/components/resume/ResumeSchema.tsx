@@ -1,4 +1,13 @@
 import * as yup from "yup";
+import { getRichTextCharacterCount, isRichTextEffectivelyEmpty } from "@/utils/richText";
+
+const richTextSummary = (minimum: number, maximum: number) =>
+  yup
+    .string()
+    .test("required-visible-text", "required", (value) => !isRichTextEffectivelyEmpty(value))
+    .test("min-visible-text", `minimum-${minimum}`, (value) => getRichTextCharacterCount(value) >= minimum)
+    .test("max-visible-text", `maximum-${maximum}`, (value) => getRichTextCharacterCount(value) <= maximum)
+    .required();
 
 export const ResumeSchema = yup
   .object({
@@ -7,7 +16,7 @@ export const ResumeSchema = yup
       lastName: yup.string().min(2).required(),
       email: yup.string().email().required(),
       phone: yup.string().required(),
-      summary: yup.string().min(100).max(2000).required(),
+      summary: richTextSummary(100, 2000),
     }),
     educations: yup.array().of(
       yup
@@ -28,7 +37,7 @@ export const ResumeSchema = yup
         startDate: yup.string().required(),
         endDate: yup.string(),
         location: yup.string(),
-        summary: yup.string().min(100).max(4000).required(),
+        summary: richTextSummary(100, 4000),
       })
     ),
     employments: yup.array().of(
@@ -41,7 +50,7 @@ export const ResumeSchema = yup
           .when("isCurrent", { is: false, then: yup.string().required() }),
         location: yup.string(),
         isCurrent: yup.bool(),
-        summary: yup.string().min(100).max(4000).required(),
+        summary: richTextSummary(100, 4000),
       })
     ),
     skills: yup.array().of(

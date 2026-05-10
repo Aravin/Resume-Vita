@@ -1,11 +1,12 @@
-import { UseFormRegister } from "react-hook-form";
+import { Control, Controller, UseFormRegister } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import RichTextEditor from "@/components/common/RichTextEditor";
 import { cn } from "@/lib/utils";
 
 type ExperienceFormFieldsProps = {
   register: UseFormRegister<any>;
+  control: Control<any>;
   index: number;
   basePath: "employments" | "internships";
   title: string;
@@ -25,6 +26,7 @@ const invalidFieldClassName = "border-destructive ring-destructive/20";
 
 export default function ExperienceFormFields({
   register,
+  control,
   index,
   basePath,
   title,
@@ -118,15 +120,17 @@ export default function ExperienceFormFields({
       <div className="grid grid-cols-1 gap-6">
         <div className="space-y-2">
           <Label className="text-muted-foreground">Summary*</Label>
-          <Textarea
-            className={cn("h-24", errors?.summary && invalidFieldClassName)}
-            aria-invalid={Boolean(errors?.summary)}
-            defaultValue={summary}
-            {...register(`${basePath}.${index}.summary`, {
-              required: true,
-              maxLength: 4000,
-              minLength: 50,
-            })}
+          <Controller
+            name={`${basePath}.${index}.summary`}
+            control={control}
+            render={({ field }) => (
+              <RichTextEditor
+                content={field.value ?? summary ?? ""}
+                onChange={field.onChange}
+                error={Boolean(errors?.summary)}
+                minHeightClassName="min-h-[8rem]"
+              />
+            )}
           />
         </div>
       </div>
