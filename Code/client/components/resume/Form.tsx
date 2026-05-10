@@ -313,7 +313,22 @@ export default function ResumeForm() {
       }
     });
     
-    return () => subscription.unsubscribe();
+    return () => {
+      try {
+        if (!subscription) return;
+        // Some implementations return an unsubscribe function directly
+        if (typeof subscription === "function") {
+          (subscription as any)();
+          return;
+        }
+        // Others return an object with an unsubscribe() method
+        if (typeof (subscription as any).unsubscribe === "function") {
+          (subscription as any).unsubscribe();
+        }
+      } catch (e) {
+        // ignore cleanup errors
+      }
+    };
   }, [watch, setValue]);
 
   // Create handlers for all sections
