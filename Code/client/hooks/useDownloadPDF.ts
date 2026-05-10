@@ -2,6 +2,9 @@ import { useSignedUrl } from "../hooks/useSignedUrl";
 import axios from "axios";
 import { trackPDFDownload } from "../utils/gtag";
 
+const BACKEND_PDF_ERROR = "PDF generation failed - backend error";
+const PREPARING_PDF_MESSAGE = "The updated PDF is still being prepared. Please try again in a moment.";
+
 interface DownloadOptions {
   userId: string;
   setDownloadError: (error: string | null) => void;
@@ -34,8 +37,35 @@ export const useDownloadPDF = () => {
     link.click();
 
     setTimeout(() => {
-      document.body.removeChild(link);
+      link.remove();
     }, 100);
+  };
+
+  const isBackendGenerationError = (error: unknown) =>
+    axios.isAxiosError(error) && error.response?.status === 500;
+
+  const getGeneratePdfErrorMessage = (error: unknown) => {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 400) {
+        return "Invalid resume data. Please check your resume content.";
+      }
+
+      if (error.response?.status !== 500) {
+        return `Server error: ${error.response?.status || "Unknown"}`;
+      }
+
+      return null;
+    }
+
+    if (error instanceof Error) {
+      if (error.message.toLowerCase().includes("not found") || error.message === "Generated PDF is still processing") {
+        return PREPARING_PDF_MESSAGE;
+      }
+
+      return error.message;
+    }
+
+    return "Unknown error occurred";
   };
 
   const waitForSignedAsset = async (
@@ -109,27 +139,12 @@ export const useDownloadPDF = () => {
       trackPDFDownload('preview');
     } catch (error) {
       console.error('PDF generation error:', error);
-      
-      // Handle specific error types
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 500) {
-          // Don't show error immediately, let the calling code handle fallback
-          throw new Error('PDF generation failed - backend error');
-        } else if (error.response?.status === 400) {
-          setDownloadError('Invalid resume data. Please check your resume content.');
-        } else {
-          setDownloadError(`Server error: ${error.response?.status || 'Unknown'}`);
-        }
-      } else if (error instanceof Error && error.message.toLowerCase().includes('not found')) {
-        setDownloadError('The updated PDF is still being prepared. Please try again in a moment.');
-      } else if (error instanceof Error && error.message === 'Generated PDF is still processing') {
-        setDownloadError('The updated PDF is still being prepared. Please try again in a moment.');
-      } else {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        setDownloadError(errorMessage);
+
+      if (isBackendGenerationError(error)) {
+        throw new Error(BACKEND_PDF_ERROR);
       }
-      
-      // Re-throw the error so calling code can handle fallback
+
+      setDownloadError(getGeneratePdfErrorMessage(error));
       throw error;
     } finally {
       if (setLoading) setLoading(false);

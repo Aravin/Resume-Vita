@@ -213,13 +213,24 @@ export default function Page() {
 
   const handleColorChange = useCallback((newColor: keyof typeof colorClasses) => {
     setColor(newColor);
-    void persistPreviewTheme(newColor, template);
+    persistPreviewTheme(newColor, template);
   }, [persistPreviewTheme, template]);
 
   const handleTemplateChange = useCallback((newTemplate: 'default' | 'modern') => {
     setTemplate(newTemplate);
-    void persistPreviewTheme(color, newTemplate);
+    persistPreviewTheme(color, newTemplate);
   }, [color, persistPreviewTheme]);
+
+  const selectedTemplateName = templateOptions.find((option) => option.value === template)?.name ?? "Default";
+  const selectedColorName = colorOptions.find((option) => option.value === color)?.name?.toLowerCase() ?? "black";
+
+  let themeStatusMessage = "Theme changes are saved automatically for future visits.";
+
+  if (isSavingTheme) {
+    themeStatusMessage = "Saving theme preferences...";
+  } else if (themeSaveError) {
+    themeStatusMessage = themeSaveError;
+  }
 
   if (authLoading || fetching)
     return (
@@ -344,15 +355,9 @@ export default function Page() {
             <div className="rounded-xl border border-border/70 bg-muted/30 p-4 text-sm">
               <p className="font-medium text-foreground">Current selection</p>
               <p className="mt-1 text-muted-foreground">
-                {templateOptions.find((option) => option.value === template)?.name} template with the {colorOptions.find((option) => option.value === color)?.name?.toLowerCase()} accent.
+                {selectedTemplateName} template with the {selectedColorName} accent.
               </p>
-              <p className="mt-2 text-xs text-muted-foreground">
-                {isSavingTheme
-                  ? "Saving theme preferences..."
-                  : themeSaveError
-                    ? themeSaveError
-                    : "Theme changes are saved automatically for future visits."}
-              </p>
+              <p className="mt-2 text-xs text-muted-foreground">{themeStatusMessage}</p>
             </div>
 
             {downloadError && (
