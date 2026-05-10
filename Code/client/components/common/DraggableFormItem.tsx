@@ -80,7 +80,7 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
         `}
       >
         {/* Delete button and confirmation */}
-        <div className="absolute right-2 top-2 flex items-center gap-2">
+        <div className="absolute right-2 top-2 z-30 flex items-center gap-2">
           {showDeleteConfirm ? (
             <div className="flex items-center gap-2 rounded-xl border border-border/70 bg-background px-2 py-1 shadow-md">
               <span className="text-sm text-muted-foreground">Delete?</span>
@@ -96,7 +96,7 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
                 onClick={cancelDelete}
                 className="rounded-md bg-muted px-2 py-1 text-xs text-foreground transition-colors hover:bg-muted/80"
               >
-                No
+                Cancel
               </button>
             </div>
           ) : (
@@ -112,7 +112,11 @@ const DraggableFormItem: React.FC<DraggableFormItemProps> = ({
         </div>
 
         {/* Movement controls */}
-        <div className="absolute left-4 top-4 right-14 flex flex-wrap items-center gap-1.5">
+        <div
+          className={`absolute left-4 top-4 z-10 flex flex-wrap items-center gap-1.5 ${
+            showDeleteConfirm ? 'right-44 md:right-48' : 'right-14'
+          }`}
+        >
           <button 
             type="button"
             title="Drag to reorder"

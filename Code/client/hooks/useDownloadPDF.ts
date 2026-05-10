@@ -22,6 +22,45 @@ interface GeneratePDFOptions {
 export const useDownloadPDF = () => {
   const { getSignedUrl, isLoading: isSignedUrlLoading } = useSignedUrl();
 
+  const triggerBrowserDownload = (signedUrl: string, fileName: string) => {
+    const link = document.createElement("a");
+    link.href = signedUrl;
+    link.download = fileName;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.style.display = "none";
+
+    document.body.appendChild(link);
+    link.click();
+
+    setTimeout(() => {
+      document.body.removeChild(link);
+    }, 100);
+  };
+
+  const waitForSignedAsset = async (
+    userId: string,
+    fileType: string,
+    attempts = 10,
+    delayMs = 500
+  ) => {
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      try {
+        return await getSignedUrl(userId, fileType);
+      } catch (error) {
+        const isMissingAsset = error instanceof Error && error.message.toLowerCase().includes("not found");
+
+        if (!isMissingAsset || attempt === attempts - 1) {
+          throw error;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
+
+    throw new Error("Generated PDF is still processing");
+  };
+
   const downloadExistingPDF = async (options: DownloadOptions) => {
     const { userId, setDownloadError, setLoading, fileName = "ResumeVita.pdf" } = options;
     
@@ -31,24 +70,11 @@ export const useDownloadPDF = () => {
     try {
       // Get signed URL for download
       const signedUrl = await getSignedUrl(userId, 'pdf');
-      
-      // Use direct download to avoid CORS issues
-      const link = document.createElement("a");
-      link.href = signedUrl;
-      link.download = fileName;
-      link.target = "_blank";
-      link.style.display = 'none';
-      
-      document.body.appendChild(link);
-      link.click();
+
+      triggerBrowserDownload(signedUrl, fileName);
       
       // Track PDF download
       trackPDFDownload('dashboard');
-      
-      setTimeout(() => {
-        document.body.removeChild(link);
-      }, 100);
-      
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       setDownloadError(errorMessage);
@@ -75,29 +101,12 @@ export const useDownloadPDF = () => {
       // Generate PDF on backend
       await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT}/pdf`, body);
 
-      // Wait a moment for PDF processing to complete
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const signedUrl = await waitForSignedAsset(userId, 'pdf');
 
-      // Get signed URL for download
-      const signedUrl = await getSignedUrl(userId, 'pdf');
-      
-      // Use direct download to avoid CORS issues
-      const link = document.createElement("a");
-      link.href = signedUrl;
-      link.download = fileName;
-      link.target = "_blank";
-      link.style.display = 'none';
-      
-      document.body.appendChild(link);
-      link.click();
+      triggerBrowserDownload(signedUrl, fileName);
       
       // Track PDF download
       trackPDFDownload('preview');
-      
-      setTimeout(() => {
-        document.body.removeChild(link);
-      }, 100);
-      
     } catch (error) {
       console.error('PDF generation error:', error);
       
@@ -111,6 +120,10 @@ export const useDownloadPDF = () => {
         } else {
           setDownloadError(`Server error: ${error.response?.status || 'Unknown'}`);
         }
+      } else if (error instanceof Error && error.message.toLowerCase().includes('not found')) {
+        setDownloadError('The updated PDF is still being prepared. Please try again in a moment.');
+      } else if (error instanceof Error && error.message === 'Generated PDF is still processing') {
+        setDownloadError('The updated PDF is still being prepared. Please try again in a moment.');
       } else {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         setDownloadError(errorMessage);

@@ -43,6 +43,23 @@ describe("DraggableFormItem", () => {
     expect(defaultProps.onDelete).toHaveBeenCalledWith(1);
   });
 
+  it("closes the delete confirmation when cancel is clicked", () => {
+    render(
+      <DraggableFormItem {...defaultProps}>
+        <div>Item content</div>
+      </DraggableFormItem>
+    );
+
+    fireEvent.click(screen.getByTitle("Delete item"));
+
+    expect(screen.getByText("Delete?")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(screen.queryByText("Delete?")).not.toBeInTheDocument();
+    expect(defaultProps.onDelete).not.toHaveBeenCalled();
+  });
+
   it("moves items through the control buttons", () => {
     render(
       <DraggableFormItem {...defaultProps}>

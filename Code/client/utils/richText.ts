@@ -1,7 +1,6 @@
 import sanitizeHtml from "sanitize-html";
 
-const BLOCK_TAGS = /<(p|div|h[1-6]|li|ul|ol|blockquote)[^>]*>/gi;
-const TAGS = /<[^>]+>/g;
+const BLOCK_LEVEL_TAGS = new Set(["p", "div", "h1", "h2", "h3", "h4", "h5", "h6", "li", "blockquote"]);
 const HTML_ENTITY_MAP: Record<string, string> = {
   "&nbsp;": " ",
   "&amp;": "&",
@@ -11,8 +10,174 @@ const HTML_ENTITY_MAP: Record<string, string> = {
   "&#39;": "'",
 };
 
+function isWhitespaceCharacter(character: string) {
+  return (
+    character === " " ||
+    character === "\n" ||
+    character === "\r" ||
+    character === "\t" ||
+    character === "\f" ||
+    character === "\v" ||
+    character === "\u00A0"
+  );
+}
+
+function extractTagName(tagContent: string) {
+  const trimmedTagContent = tagContent.trim().replace(/^\//, "");
+  const firstCharacter = trimmedTagContent[0];
+
+  if (!firstCharacter || !((firstCharacter >= "a" && firstCharacter <= "z") || (firstCharacter >= "A" && firstCharacter <= "Z"))) {
+    return "";
+  }
+
+  let index = 0;
+
+  while (index < trimmedTagContent.length) {
+    const character = trimmedTagContent[index];
+
+    if (
+      (character >= "a" && character <= "z") ||
+      (character >= "A" && character <= "Z") ||
+      (character >= "0" && character <= "9")
+    ) {
+      index += 1;
+      continue;
+    }
+
+    break;
+  }
+
+  return trimmedTagContent.slice(0, index).toLowerCase();
+}
+
+function decodeHtmlEntity(value: string, startIndex: number) {
+  for (const [entity, replacement] of Object.entries(HTML_ENTITY_MAP)) {
+    if (value.startsWith(entity, startIndex)) {
+      return {
+        replacement,
+        nextIndex: startIndex + entity.length,
+      };
+    }
+  }
+
+  return null;
+}
+
+function collapseInlineWhitespace(value: string) {
+  let result = "";
+  let pendingWhitespace = false;
+
+  for (const character of value) {
+    if (character === "\r") {
+      continue;
+    }
+
+    if (isWhitespaceCharacter(character)) {
+      pendingWhitespace = result.length > 0;
+      continue;
+    }
+
+    if (pendingWhitespace) {
+      result += " ";
+      pendingWhitespace = false;
+    }
+
+    result += character;
+  }
+
+  return result;
+}
+
+function normalizePlainText(value: string) {
+  const normalizedValue = value.replaceAll("\r", "");
+  const lines = normalizedValue.split("\n");
+  const normalizedLines: string[] = [];
+  let previousLineWasBlank = true;
+
+  for (const line of lines) {
+    const collapsedLine = collapseInlineWhitespace(line);
+
+    if (!collapsedLine) {
+      if (!previousLineWasBlank && normalizedLines.length > 0) {
+        normalizedLines.push("");
+      }
+      previousLineWasBlank = true;
+      continue;
+    }
+
+    normalizedLines.push(collapsedLine);
+    previousLineWasBlank = false;
+  }
+
+  return normalizedLines.join("\n").trim();
+}
+
+function extractPlainTextFromSanitizedHtml(value: string) {
+  let result = "";
+  let index = 0;
+
+  while (index < value.length) {
+    const character = value[index];
+
+    if (character === "<") {
+      const closingIndex = value.indexOf(">", index + 1);
+
+      if (closingIndex === -1) {
+        result += "<";
+        index += 1;
+        continue;
+      }
+
+      const tagContent = value.slice(index + 1, closingIndex);
+      const tagName = extractTagName(tagContent);
+      const isClosingTag = tagContent.trim().startsWith("/");
+
+      if (tagName === "br") {
+        result += "\n";
+      } else if (!isClosingTag && BLOCK_LEVEL_TAGS.has(tagName)) {
+        result += "\n";
+      }
+
+      index = closingIndex + 1;
+      continue;
+    }
+
+    if (character === "&") {
+      const decodedEntity = decodeHtmlEntity(value, index);
+
+      if (decodedEntity) {
+        result += decodedEntity.replacement;
+        index = decodedEntity.nextIndex;
+        continue;
+      }
+    }
+
+    result += character;
+    index += 1;
+  }
+
+  return normalizePlainText(result);
+}
+
 export function hasRichTextMarkup(value: string | null | undefined) {
-  return /<[^>]+>/.test(value ?? "");
+  const source = value ?? "";
+  let index = source.indexOf("<");
+
+  while (index !== -1) {
+    const closingIndex = source.indexOf(">", index + 1);
+
+    if (closingIndex === -1) {
+      return false;
+    }
+
+    if (extractTagName(source.slice(index + 1, closingIndex))) {
+      return true;
+    }
+
+    index = source.indexOf("<", index + 1);
+  }
+
+  return false;
 }
 
 export function normalizeRichTextContent(value: string | null | undefined) {
@@ -47,16 +212,7 @@ export function sanitizeRichTextHtml(value: string | null | undefined) {
 }
 
 export function getPlainTextFromRichText(value: string | null | undefined) {
-  return sanitizeRichTextHtml(value)
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(BLOCK_TAGS, "\n")
-    .replace(TAGS, " ")
-    .replace(/&(nbsp|amp|lt|gt|quot|#39);/g, (match) => HTML_ENTITY_MAP[match] ?? " ")
-    .replace(/\s+\n/g, "\n")
-    .replace(/\n\s+/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .replace(/[ \t]{2,}/g, " ")
-    .trim();
+  return extractPlainTextFromSanitizedHtml(sanitizeRichTextHtml(value));
 }
 
 export function isRichTextEffectivelyEmpty(value: string | null | undefined) {

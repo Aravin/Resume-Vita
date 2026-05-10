@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
 import Footer from "./Footer";
 
 // Dynamically import Navbar to prevent SSR execution
@@ -9,6 +10,13 @@ const Navbar = dynamic(() => import("./Navbar"), {
 });
 
 export default function Layout({ children }: any) {
+  const pathname = usePathname();
+  const isPublicResumeRoute = pathname?.startsWith("/public/");
+
+  if (isPublicResumeRoute) {
+    return children;
+  }
+
   return (
     <>
       <Navbar />
