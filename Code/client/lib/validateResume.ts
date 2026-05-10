@@ -19,10 +19,29 @@ export function validateResumePayload(payload: any): ValidationError[] {
     }
   };
 
-  (resume.educations || []).forEach((it: any, i: number) => checkPair("educations", it, i));
-  (resume.internships || []).forEach((it: any, i: number) => checkPair("internships", it, i));
-  (resume.courses || []).forEach((it: any, i: number) => checkPair("courses", it, i));
-  (resume.employments || []).forEach((it: any, i: number) => checkPair("employments", it, i, true));
+  if (Array.isArray(resume.educations)) {
+    resume.educations.forEach((it: any, i: number) => checkPair("educations", it, i));
+  } else if (resume.educations !== undefined) {
+    errors.push({ path: "educations", message: "Expected educations to be an array" });
+  }
+
+  if (Array.isArray(resume.internships)) {
+    resume.internships.forEach((it: any, i: number) => checkPair("internships", it, i));
+  } else if (resume.internships !== undefined) {
+    errors.push({ path: "internships", message: "Expected internships to be an array" });
+  }
+
+  if (Array.isArray(resume.courses)) {
+    resume.courses.forEach((it: any, i: number) => checkPair("courses", it, i));
+  } else if (resume.courses !== undefined) {
+    errors.push({ path: "courses", message: "Expected courses to be an array" });
+  }
+
+  if (Array.isArray(resume.employments)) {
+    resume.employments.forEach((it: any, i: number) => checkPair("employments", it, i, true));
+  } else if (resume.employments !== undefined) {
+    errors.push({ path: "employments", message: "Expected employments to be an array" });
+  }
 
   return errors;
 }

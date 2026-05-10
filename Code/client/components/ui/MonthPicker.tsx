@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-type MonthPickerProps = {
+type MonthPickerProps = Readonly<{
   id?: string;
   name?: string;
   value?: string | null; // format YYYY-MM
@@ -18,7 +18,7 @@ type MonthPickerProps = {
   disabled?: boolean;
   ariaInvalid?: boolean;
   className?: string;
-};
+}>;
 
 const months = [
   "01",
@@ -122,6 +122,7 @@ export default function MonthPicker({ id, name, value, onChange, disabled, ariaI
           disabled={disabled}
           onClick={() => onChange?.(null)}
           className="shrink-0 text-muted-foreground"
+          aria-label="Clear date selection"
         >
           <RotateCcw className="size-3.5" />
         </Button>

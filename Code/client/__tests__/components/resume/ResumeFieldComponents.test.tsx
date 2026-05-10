@@ -114,8 +114,7 @@ describe("resume field components", () => {
     expect(screen.getByText("Is Present Company?")).toBeInTheDocument();
     expect(mockRegisterImpl).toHaveBeenCalledWith("employments.0.title");
     expect(mockRegisterImpl).toHaveBeenCalledWith("employments.0.company");
-    expect(mockRegisterImpl).toHaveBeenCalledWith("employments.0.startDate");
-    expect(mockRegisterImpl).toHaveBeenCalledWith("employments.0.endDate");
+    // startDate/endDate are managed by Controller when `control` is provided
     expect(mockRegisterImpl).toHaveBeenCalledWith("employments.0.location", {});
     expect(mockRegisterImpl).toHaveBeenCalledWith("employments.0.isCurrent");
     expect(screen.getByTestId("rich-text-editor")).toBeInTheDocument();

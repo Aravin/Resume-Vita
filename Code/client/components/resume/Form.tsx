@@ -210,12 +210,21 @@ const hasUnsubscribeMethod = (value: unknown): value is { unsubscribe: () => voi
   isRecord(value) && typeof value.unsubscribe === "function";
 
 const extractServerValidationErrors = (error: unknown): ServerValidationError[] => {
-  const data = axios.isAxiosError(error)
-    ? error.response?.data
-    : isRecord(error) && isRecord(error.response)
-      ? error.response.data
-      : undefined;
-  const maybeErrors = isRecord(data) ? data.errors : undefined;
+  let data: unknown;
+  if (axios.isAxiosError(error)) {
+    data = error.response?.data;
+  } else if (isRecord(error)) {
+    const maybeResponse = (error as Record<string, unknown>).response;
+    if (isRecord(maybeResponse)) {
+      data = maybeResponse.data;
+    } else {
+      data = undefined;
+    }
+  } else {
+    data = undefined;
+  }
+
+  const maybeErrors = isRecord(data) ? (data as Record<string, unknown>).errors : undefined;
 
   if (!Array.isArray(maybeErrors)) {
     return [];
@@ -497,7 +506,7 @@ export default function ResumeForm() {
   const router = useRouter();
   const { user, error, isLoading } = useSafeUser();
   const userId = user?.sub?.split("|")[1];
-  const [resume, setResume] = useState<ResumeFormValues>(resumeDefaultValues as ResumeFormValues);
+  const [resume, setResume] = useState<ResumeFormValues>(resumeDefaultValues);
   const [atsScore, setAtsScore] = useState<AtsScore | null>(null);
   const [isAtsGuideOpen, setIsAtsGuideOpen] = useState(true);
   const [, setLocalResume] = useLocalStorage<ResumeStoragePayload | null>("resumeData", null);
@@ -515,8 +524,13 @@ export default function ResumeForm() {
   } = useForm({
     mode: "onBlur",
     resolver: yupResolver(ResumeSchema),
-    defaultValues: resumeDefaultValues as ResumeFormValues,
+    defaultValues: resumeDefaultValues,
   });
+
+  // Safe wrapper for `setValue` to allow dynamic field paths at runtime.
+  // React Hook Form's `setValue` has a narrow, generated union type for field names,
+  // so cast to `any` for dynamic updates (e.g., `employments.${i}.isCurrent`).
+  const setValueSafe = (name: string, value: unknown) => setValue(name as any, value as any);
 
   // Watch for changes in employment's isCurrent field
   useEffect(() => {
@@ -534,8 +548,8 @@ export default function ResumeForm() {
           // Uncheck all other employments
           employments.forEach((_, index) => {
             if (index !== currentIndex && employments[index]?.isCurrent) {
-              const isCurrentPath = `employments.${index}.isCurrent` as const;
-              setValue(isCurrentPath, false);
+              const isCurrentPath = `employments.${index}.isCurrent`;
+              setValueSafe(isCurrentPath, false);
             }
           });
         }
@@ -543,34 +557,28 @@ export default function ResumeForm() {
     });
     
     return () => {
-      try {
-        if (!subscription) return;
-        const watchSubscription: unknown = subscription;
-        // Some implementations return an unsubscribe function directly
-        if (typeof watchSubscription === "function") {
-          watchSubscription();
-          return;
-        }
-        // Others return an object with an unsubscribe() method
-        if (hasUnsubscribeMethod(watchSubscription)) {
-          watchSubscription.unsubscribe();
-        }
-      } catch (e) {
-        // ignore cleanup errors
+      if (!subscription) return;
+      const watchSubscription: unknown = subscription;
+      if (typeof watchSubscription === "function") {
+        watchSubscription();
+        return;
+      }
+      if (hasUnsubscribeMethod(watchSubscription)) {
+        watchSubscription.unsubscribe();
       }
     };
   }, [watch, setValue]);
 
   // Create handlers for all sections
-  const sections = {
-    educations: createSectionHandlers("educations", getValues as FormGetValues, setResume, setValue as FormSetValue),
-    internships: createSectionHandlers("internships", getValues as FormGetValues, setResume, setValue as FormSetValue),
-    employments: createSectionHandlers("employments", getValues as FormGetValues, setResume, setValue as FormSetValue),
-    skills: createSectionHandlers("skills", getValues as FormGetValues, setResume, setValue as FormSetValue),
-    languages: createSectionHandlers("languages", getValues as FormGetValues, setResume, setValue as FormSetValue),
-    links: createSectionHandlers("links", getValues as FormGetValues, setResume, setValue as FormSetValue),
-    courses: createSectionHandlers("courses", getValues as FormGetValues, setResume, setValue as FormSetValue),
-    references: createSectionHandlers("references", getValues as FormGetValues, setResume, setValue as FormSetValue),
+    const sections = {
+    educations: createSectionHandlers("educations", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
+    internships: createSectionHandlers("internships", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
+    employments: createSectionHandlers("employments", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
+    skills: createSectionHandlers("skills", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
+    languages: createSectionHandlers("languages", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
+    links: createSectionHandlers("links", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
+    courses: createSectionHandlers("courses", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
+    references: createSectionHandlers("references", getValues as FormGetValues, setResume, setValueSafe as FormSetValue),
   };
 
   useEffect(() => {
@@ -639,7 +647,15 @@ export default function ResumeForm() {
         );
       router.push("/resume/preview");
     } catch (error) {
-      console.error('Failed to save resume:', error);
+      if (axios.isAxiosError(error)) {
+        console.error("Failed to save resume:", {
+          message: error.message,
+          status: error.response?.status,
+          errors: (error.response?.data as any)?.errors,
+        });
+      } else {
+        console.error("Failed to save resume:", { message: (error as any)?.message ?? String(error) });
+      }
       // If server returned structured validation errors, focus the first problematic field
       const serverErrors = extractServerValidationErrors(error);
       if (Array.isArray(serverErrors) && serverErrors.length) {

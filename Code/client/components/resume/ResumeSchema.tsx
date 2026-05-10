@@ -32,9 +32,9 @@ export const ResumeSchema = yup
         .test(
           "start-before-end",
           "Start Date must be before End Date",
-          (value) => {
+          (value: { startDate?: string; endDate?: string } | undefined) => {
             if (!value) return true;
-            const { startDate, endDate } = value as any;
+            const { startDate, endDate } = value;
             if (!startDate || !endDate) return true;
             return isStartBeforeEnd(startDate, endDate);
           }
@@ -53,9 +53,9 @@ export const ResumeSchema = yup
       .test(
         "start-before-end-internship",
         "Start Date must be before End Date",
-        (value) => {
+        (value: { startDate?: string; endDate?: string } | undefined) => {
           if (!value) return true;
-          const { startDate, endDate } = value as any;
+          const { startDate, endDate } = value;
           if (!startDate || !endDate) return true;
           return isStartBeforeEnd(startDate, endDate);
         }
@@ -76,9 +76,9 @@ export const ResumeSchema = yup
       .test(
         "start-before-end-employment",
         "Start Date must be before End Date",
-        (value) => {
+        (value: { startDate?: string; endDate?: string; isCurrent?: boolean } | undefined) => {
           if (!value) return true;
-          const { startDate, endDate, isCurrent } = value as any;
+          const { startDate, endDate, isCurrent } = value;
           if (isCurrent) return true;
           if (!startDate || !endDate) return true;
           return isStartBeforeEnd(startDate, endDate);
@@ -124,9 +124,9 @@ export const ResumeSchema = yup
         .test(
           "start-before-end-course",
           "Start Date must be before End Date",
-          (value) => {
+          (value: { startDate?: string; endDate?: string } | undefined) => {
             if (!value) return true;
-            const { startDate, endDate } = value as any;
+            const { startDate, endDate } = value;
             if (!startDate || !endDate) return true;
             return isStartBeforeEnd(startDate, endDate);
           }

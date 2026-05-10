@@ -87,7 +87,7 @@ export default function ExperienceFormFields({
               />
             )}
           />
-          <input type="hidden" {...register(`${basePath}.${index}.startDate`)} />
+          {/* removed hidden input; Controller handles registration when control is provided */}
           {(
             errors?.startDate?.message ||
             errors?.endDate?.message ||
@@ -116,7 +116,7 @@ export default function ExperienceFormFields({
               />
             )}
           />
-          <input type="hidden" {...register(`${basePath}.${index}.endDate`)} />
+          {/* removed hidden input; Controller handles registration when control is provided */}
           {(
             errors?.startDate?.message ||
             errors?.endDate?.message ||

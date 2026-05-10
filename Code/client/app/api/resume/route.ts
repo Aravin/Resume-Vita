@@ -15,11 +15,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, message: "Validation passed (no backend configured)" });
     }
 
-    const forwardRes = await fetch(backend.replace(/\/$/, "") + "/resume", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    // Apply a reasonable timeout to upstream requests to avoid hanging
+    const timeoutMs = 10000; // 10 seconds
+    const signal = AbortSignal.timeout(timeoutMs);
+
+    // Forward authorization if present so backend can verify caller
+    const forwardHeaders: Record<string, string> = { "Content-Type": "application/json" };
+    const auth = req.headers.get("authorization");
+    if (auth) forwardHeaders.Authorization = auth;
+
+    let forwardRes: Response;
+    try {
+      forwardRes = await fetch(backend.replace(/\/$/, "") + "/resume", {
+        method: "POST",
+        headers: forwardHeaders,
+        body: JSON.stringify(body),
+        // include credentials so cookies/credentials are forwarded when applicable
+        credentials: "include",
+        signal,
+      });
+    } catch (e: any) {
+      if (e && (e.name === "AbortError" || e.name === "TimeoutError")) {
+        return NextResponse.json({ error: "upstream timeout" }, { status: 504 });
+      }
+      throw e;
+    }
 
     const data = await forwardRes.json().catch(() => ({}));
     return NextResponse.json(data, { status: forwardRes.status });

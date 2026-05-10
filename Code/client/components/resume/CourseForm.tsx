@@ -88,7 +88,7 @@ export default function CourseForm(prop: CourseType) {
                   {...prop.register(`courses.${prop.index}.startDate`)}
                 />
               )}
-              <input type="hidden" {...prop.register(`courses.${prop.index}.startDate`)} />
+              {/* removed duplicate hidden input; Controller handles registration when control is provided */}
               {(
                 prop.errors?.startDate?.message ||
                 prop.errors?.endDate?.message ||
@@ -130,7 +130,7 @@ export default function CourseForm(prop: CourseType) {
                   {...prop.register(`courses.${prop.index}.endDate`)}
                 />
               )}
-              <input type="hidden" {...prop.register(`courses.${prop.index}.endDate`)} />
+              {/* removed duplicate hidden input; Controller handles registration when control is provided */}
               {(
                 prop.errors?.startDate?.message ||
                 prop.errors?.endDate?.message ||

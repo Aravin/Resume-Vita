@@ -83,8 +83,7 @@ export default function EducationForm(prop: EducationType) {
                   {...prop.register(`educations.${prop.index}.startDate`)}
                 />
               )}
-              {/* keep register call for test compatibility */}
-              <input type="hidden" {...prop.register(`educations.${prop.index}.startDate`)} />
+              {/* keep register call for test compatibility - removed hidden input because Controller handles registration */}
               {(
                 prop.errors?.startDate?.message ||
                 prop.errors?.endDate?.message ||
@@ -123,7 +122,7 @@ export default function EducationForm(prop: EducationType) {
                   {...prop.register(`educations.${prop.index}.endDate`)}
                 />
               )}
-              <input type="hidden" {...prop.register(`educations.${prop.index}.endDate`)} />
+              {/* removed hidden input; Controller handles registration when present */}
               {(
                 prop.errors?.startDate?.message ||
                 prop.errors?.endDate?.message ||

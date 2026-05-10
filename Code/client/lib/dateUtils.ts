@@ -4,8 +4,8 @@ export function parseYearMonth(value?: string | null): YearMonth | null {
   if (!value || typeof value !== "string") return null;
   const parts = value.split("-");
   if (parts.length < 2) return null;
-  const year = parseInt(parts[0], 10);
-  const month = parseInt(parts[1], 10);
+  const year = Number.parseInt(parts[0], 10);
+  const month = Number.parseInt(parts[1], 10);
   if (Number.isNaN(year) || Number.isNaN(month)) return null;
   return { year, month };
 }
